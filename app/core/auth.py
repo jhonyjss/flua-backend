@@ -1,18 +1,27 @@
 """Supabase JWT authentication.
 
 The Nuxt app sends the user's Supabase access token as `Authorization: Bearer`.
-Tokens are HS256-signed with the project's legacy JWT secret and carry the
-user UUID in `sub` (mirrors `server/utils/auth.ts` in the Nuxt repo).
+
+Two verification paths (the project migrated to "JWT Signing Keys"):
+- **HS256** (current key = migrated legacy secret): verified with
+  SUPABASE_JWT_SECRET.
+- **ES256/RS256** (after rotating to the standby ECC key): verified against the
+  project's public JWKS (`{SUPABASE_URL}/auth/v1/.well-known/jwks.json`),
+  cached by PyJWKClient — no shared secret needed.
 """
 from dataclasses import dataclass
 
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jwt import PyJWKClient
 
 from app.core.config import get_settings
 
 _bearer = HTTPBearer(auto_error=False)
+_jwks_client: PyJWKClient | None = None
+
+ASYMMETRIC_ALGS = {"ES256", "RS256", "EdDSA"}
 
 
 @dataclass(frozen=True)
@@ -22,17 +31,45 @@ class AuthUser:
     role: str | None = None
 
 
+def _get_jwks_client() -> PyJWKClient:
+    global _jwks_client
+    settings = get_settings()
+    if not settings.supabase_url:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "SUPABASE_URL not configured")
+    if _jwks_client is None:
+        _jwks_client = PyJWKClient(
+            f"{settings.supabase_url}/auth/v1/.well-known/jwks.json",
+            cache_keys=True,
+            lifespan=3600,
+        )
+    return _jwks_client
+
+
+def _resolve_asymmetric_key(token: str):
+    """Resolve the public key for an asymmetric token (mockable in tests)."""
+    return _get_jwks_client().get_signing_key_from_jwt(token).key
+
+
 def _decode(token: str) -> dict:
     settings = get_settings()
-    if not settings.supabase_jwt_secret:
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "SUPABASE_JWT_SECRET not configured")
     try:
+        alg = jwt.get_unverified_header(token).get("alg", "HS256")
+    except jwt.PyJWTError as err:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Malformed token") from err
+
+    options = {"require": ["exp", "sub"]}
+    try:
+        if alg in ASYMMETRIC_ALGS:
+            key = _resolve_asymmetric_key(token)
+            return jwt.decode(token, key, algorithms=[alg], audience="authenticated", options=options)
+        if not settings.supabase_jwt_secret:
+            raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "SUPABASE_JWT_SECRET not configured")
         return jwt.decode(
             token,
             settings.supabase_jwt_secret,
             algorithms=["HS256"],
             audience="authenticated",
-            options={"require": ["exp", "sub"]},
+            options=options,
         )
     except jwt.PyJWTError as err:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid or expired token") from err
