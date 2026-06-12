@@ -51,11 +51,14 @@ async def select_many(
     select: str = "*",
     order: str | None = None,
     limit: int | None = None,
+    in_filters: dict[str, list[str]] | None = None,
 ) -> list[dict]:
-    """SELECT <select> FROM table WHERE ... [ORDER BY] [LIMIT]."""
+    """SELECT <select> FROM table WHERE ... [IN (...)] [ORDER BY] [LIMIT]."""
     settings = get_settings()
     _require_config(settings)
     params: dict[str, str] = {k: f"eq.{v}" for k, v in filters.items()}
+    for col, values in (in_filters or {}).items():
+        params[col] = f"in.({','.join(values)})"
     params["select"] = select
     if order:
         params["order"] = order
@@ -70,6 +73,22 @@ async def select_many(
     if res.status_code != 200:
         raise HTTPException(502, f"Supabase error {res.status_code}: {res.text[:200]}")
     return res.json()
+
+
+async def insert(table: str, row: dict) -> dict | None:
+    """INSERT one row; returns the created row."""
+    settings = get_settings()
+    _require_config(settings)
+    async with http_client(timeout=15.0) as client:
+        res = await client.post(
+            f"{settings.supabase_url}/rest/v1/{table}",
+            json=row,
+            headers=_headers(settings),
+        )
+    if res.status_code not in (200, 201):
+        raise HTTPException(502, f"Supabase insert error {res.status_code}: {res.text[:200]}")
+    rows = res.json()
+    return rows[0] if isinstance(rows, list) and rows else None
 
 
 async def update(table: str, filters: dict[str, str], values: dict) -> None:
