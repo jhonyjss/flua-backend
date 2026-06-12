@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
-from app.routers import ai, avatar, billing, health, realtime
+from app.routers import ai, avatar, billing, health, realtime, users
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 
@@ -31,6 +31,7 @@ def create_app() -> FastAPI:
     app.include_router(avatar.router)
     app.include_router(realtime.router)
     app.include_router(billing.router)
+    app.include_router(users.router)
     return app
 
 

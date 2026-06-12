@@ -44,6 +44,50 @@ async def select_one(table: str, filters: dict[str, str]) -> dict | None:
     return rows[0] if rows else None
 
 
+async def select_many(
+    table: str,
+    filters: dict[str, str],
+    *,
+    select: str = "*",
+    order: str | None = None,
+    limit: int | None = None,
+) -> list[dict]:
+    """SELECT <select> FROM table WHERE ... [ORDER BY] [LIMIT]."""
+    settings = get_settings()
+    _require_config(settings)
+    params: dict[str, str] = {k: f"eq.{v}" for k, v in filters.items()}
+    params["select"] = select
+    if order:
+        params["order"] = order
+    if limit:
+        params["limit"] = str(limit)
+    async with http_client(timeout=15.0) as client:
+        res = await client.get(
+            f"{settings.supabase_url}/rest/v1/{table}",
+            params=params,
+            headers=_headers(settings),
+        )
+    if res.status_code != 200:
+        raise HTTPException(502, f"Supabase error {res.status_code}: {res.text[:200]}")
+    return res.json()
+
+
+async def update(table: str, filters: dict[str, str], values: dict) -> None:
+    """UPDATE table SET values WHERE ..."""
+    settings = get_settings()
+    _require_config(settings)
+    params = {k: f"eq.{v}" for k, v in filters.items()}
+    async with http_client(timeout=15.0) as client:
+        res = await client.patch(
+            f"{settings.supabase_url}/rest/v1/{table}",
+            params=params,
+            json=values,
+            headers=_headers(settings),
+        )
+    if res.status_code not in (200, 204):
+        raise HTTPException(502, f"Supabase update error {res.status_code}: {res.text[:200]}")
+
+
 async def upsert(table: str, row: dict, on_conflict: str) -> None:
     settings = get_settings()
     _require_config(settings)
