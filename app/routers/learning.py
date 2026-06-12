@@ -55,6 +55,14 @@ async def achievements(user: AuthUser = Depends(get_current_user)) -> Achievemen
     return AchievementIds(achievementIds=await learning.unlocked_achievement_ids(user.id))
 
 
+@router.post("/achievements/{achievement_id}", response_model=OkResponse)
+async def unlock_achievement(
+    achievement_id: str, user: AuthUser = Depends(get_current_user),
+) -> OkResponse:
+    await learning.unlock_achievements(user.id, [achievement_id])
+    return OkResponse()
+
+
 # ── Writes ────────────────────────────────────────────────────────────
 @router.post("/lessons/{lesson_id}/start", response_model=OkResponse)
 async def start_lesson(

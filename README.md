@@ -35,6 +35,11 @@ pytest                      # 40 testes, todos com provedores mockados
 | `POST /api/stripe/cancel-subscription` | idem | ✅ |
 | `GET /api/stripe/get-invoices` | idem | ✅ |
 | `POST /api/stripe/webhook` | idem | ⚠️ verifica assinatura + dispatch; **sync das tabelas Supabase ainda no Nuxt** (TODO no código) |
+| `GET/PATCH /api/users/me/profile`, `…/dashboard-stats`, `…/streak`, `…/completed-lessons`, `…/sessions`, `…/subscription` | `useAuth`/`useLessonProgress`/`useStreaks`/`useSubscription` | ✅ |
+| `…/progress`, `…/unlocked-lessons`, `…/in-progress-lessons`, `…/lessons/{id}/topics`, `…/achievements` (GET) | `useLessonProgress`/`useStreaks` | ✅ |
+| `POST …/lessons/{id}/start\|complete\|unlock`, `…/lessons/{id}/topics`, `…/sessions`, `…/xp`, `…/practice`, `…/achievements/{id}` | lógica server-side atômica | ✅ |
+| `GET/POST /api/users/me/vocabulary`, `…/vocabulary/summary`, `GET …/grammar-progress` | `useProgress`/`useFlashcards` | ✅ |
+| `GET /api/content/speaking-classes\|grammar-bank\|vocabulary-bank` | `useLessons`/banks | ✅ |
 | `assist / generate-class / generate-room / generate-image / dynamic-examples / validate-objective / generate-suggestions` | `server/api/ai/*` | 🔜 fase 2 (mesmo padrão de `services/ai_endpoints.py`) |
 | `voice/*`, `session/*`, `admin/*`, `blog`, `whatsapp/zapi` | — | 🔜 fases seguintes |
 
