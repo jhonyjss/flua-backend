@@ -1,0 +1,41 @@
+# Fly.io — FlueAI Python backend.
+# Deployed in GRU (São Paulo) to sit in the SAME region as Supabase (sa-east-1),
+# so every DB query is intra-region (~1–5ms) instead of crossing to the US.
+app = "flua-backend"
+primary_region = "gru"
+
+[build]
+  dockerfile = "Dockerfile"
+
+# Non-secret config (secrets go via `fly secrets set` — see DEPLOY-FLY.md).
+[env]
+  APP_ENV = "production"
+  CORS_ORIGINS = "https://flueai.io,https://www.flueai.io"
+  FRONTEND_URL = "https://flueai.io"
+  ANTHROPIC_MODEL = "claude-sonnet-4-5"
+  ANTHROPIC_MODEL_HAIKU = "claude-3-5-haiku-20241022"
+  ANTHROPIC_MODEL_SONNET = "claude-sonnet-4-20250514"
+  OPENAI_VOICE_MODEL = "gpt-4o-mini"
+
+[http_service]
+  internal_port = 8000          # matches the Dockerfile (uvicorn binds ${PORT:-8000})
+  force_https = true
+  auto_stop_machines = false    # keep one machine warm → no cold start
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 50
+    hard_limit = 100
+
+  [[http_service.checks]]
+    grace_period = "15s"
+    interval = "30s"
+    method = "GET"
+    path = "/health"
+    timeout = "5s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
