@@ -1,0 +1,69 @@
+# Render Blueprint — FlueAI Python backend (FastAPI, Docker).
+#
+# Deploy: Render Dashboard → New → Blueprint → connect the flua-backend repo.
+# Render reads this file and pre-configures the service. Values marked
+# `sync: false` are SECRETS / environment-specific — Render prompts for them in
+# the UI and never stores them in git.
+services:
+  - type: web
+    name: flua-backend
+    runtime: docker
+    plan: starter            # always-on (no cold start) — fits the in-memory rate limiter + startup warm-up
+    region: virginia         # closest Render region to Brazil (US East); change if you prefer
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      # ── Non-secret config ────────────────────────────────────────────
+      - key: APP_ENV
+        value: production
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-4-5
+      - key: ANTHROPIC_MODEL_HAIKU
+        value: claude-3-5-haiku-20241022
+      - key: ANTHROPIC_MODEL_SONNET
+        value: claude-sonnet-4-20250514
+      - key: OPENAI_VOICE_MODEL
+        value: gpt-4o-mini
+
+      # ── Environment-specific (enter in the Render UI) ────────────────
+      - key: CORS_ORIGINS          # e.g. https://flueai.io,https://www.flueai.io  (never *)
+        sync: false
+      - key: FRONTEND_URL          # e.g. https://flueai.io
+        sync: false
+
+      # ── Supabase ─────────────────────────────────────────────────────
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: SUPABASE_SERVICE_KEY  # service role — server-only, never exposed
+        sync: false
+
+      # ── AI providers ─────────────────────────────────────────────────
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: REPLICATE_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: GOOGLE_TTS_API_KEY
+        sync: false
+      - key: DEEPGRAM_API_KEY
+        sync: false
+
+      # ── Stripe ───────────────────────────────────────────────────────
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_STARTER_MONTHLY
+        sync: false
+      - key: STRIPE_PRICE_STARTER_YEARLY
+        sync: false
+      - key: STRIPE_PRICE_PRO_MONTHLY
+        sync: false
+      - key: STRIPE_PRICE_PRO_YEARLY
+        sync: false

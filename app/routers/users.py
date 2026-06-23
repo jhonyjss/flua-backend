@@ -6,6 +6,8 @@ from app.schemas.users import (
     CompletedLessons,
     DashboardStats,
     RecentSession,
+    SkillAverages,
+    SkillWeeklyPoint,
     Streak,
     SubscriptionInfo,
     UpdateProfileRequest,
@@ -42,6 +44,20 @@ async def dashboard_stats(user: AuthUser = Depends(get_current_user)) -> Dashboa
 @router.get("/streak", response_model=Streak)
 async def streak(user: AuthUser = Depends(get_current_user)) -> Streak:
     return await user_data.get_streak(user.id)
+
+
+@router.get("/skill-averages", response_model=SkillAverages)
+async def skill_averages(
+    language: str = Query("en"), user: AuthUser = Depends(get_current_user),
+) -> SkillAverages:
+    return await user_data.get_skill_averages(user.id, language)
+
+
+@router.get("/skill-weekly", response_model=list[SkillWeeklyPoint])
+async def skill_weekly(
+    language: str = Query("en"), user: AuthUser = Depends(get_current_user),
+) -> list[SkillWeeklyPoint]:
+    return await user_data.get_skill_weekly(user.id, language)
 
 
 @router.get("/completed-lessons", response_model=CompletedLessons)

@@ -1,0 +1,7 @@
+# Core speech correction pipeline (local, no paid APIs)
+rapidfuzz>=3.10
+wordfreq>=3.1
+symspellpy>=6.7
+jiwer>=3.0
+# Optional ASR — install when transcribing audio locally
+faster-whisper>=1.1

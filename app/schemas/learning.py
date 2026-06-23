@@ -114,3 +114,26 @@ class SaveResult(BaseModel):
     success: bool
     error: str | None = None
     data: dict[str, Any] | None = None
+
+
+# ── Per-lesson time budget (server-enforced) ─────────────────────────
+class LessonTimeStatus(BaseModel):
+    limitSeconds: int
+    consumedSeconds: int
+    remainingSeconds: int
+    expired: bool
+
+
+class HeartbeatRequest(BaseModel):
+    deltaSeconds: int = Field(default=0, ge=0, le=600)
+
+
+# ── Free-conversation credit pool (periodic: week for free, month for paid) ──
+class ConversationCreditStatus(BaseModel):
+    limitSeconds: int
+    consumedSeconds: int
+    remainingSeconds: int
+    expired: bool
+    planLevel: str
+    isFree: bool
+    periodLabel: str

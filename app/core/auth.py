@@ -29,6 +29,24 @@ class AuthUser:
     id: str
     email: str | None = None
     role: str | None = None
+    name: str | None = None
+
+
+def _extract_name(claims: dict) -> str | None:
+    """Best-effort display name from the Supabase JWT (user_metadata is where
+    full_name/name usually live). Used as the authoritative, non-spoofable
+    source for the tutor so it never invents or borrows a name."""
+    meta = claims.get("user_metadata")
+    if isinstance(meta, dict):
+        for key in ("full_name", "name", "display_name"):
+            val = meta.get(key)
+            if isinstance(val, str) and val.strip():
+                return val.strip()
+    for key in ("full_name", "name"):
+        val = claims.get(key)
+        if isinstance(val, str) and val.strip():
+            return val.strip()
+    return None
 
 
 def _get_jwks_client() -> PyJWKClient:
@@ -85,4 +103,9 @@ async def get_current_user(
     sub = claims.get("sub")
     if not isinstance(sub, str) or not sub:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Token missing subject")
-    return AuthUser(id=sub, email=claims.get("email"), role=claims.get("role") or claims.get("user_role"))
+    return AuthUser(
+        id=sub,
+        email=claims.get("email"),
+        role=claims.get("role") or claims.get("user_role"),
+        name=_extract_name(claims),
+    )

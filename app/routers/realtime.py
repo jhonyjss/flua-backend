@@ -14,5 +14,5 @@ async def create_session(
     body: RealtimeSessionRequest,
     user: AuthUser = Depends(rate_limited("realtime", max_requests=20, window_seconds=60)),
 ) -> RealtimeSessionResponse:
-    result = await realtime.create_session(body)
+    result = await realtime.create_session(body, user=user)
     return RealtimeSessionResponse(success=True, **result)

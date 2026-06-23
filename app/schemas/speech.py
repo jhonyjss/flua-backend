@@ -1,7 +1,15 @@
 """Schemas for TTS (/api/avatar/speak) and STT (/api/ai/transcribe)."""
+import sys
+from pathlib import Path
 from typing import Literal
 
 from pydantic import BaseModel, Field
+
+_SRC = Path(__file__).resolve().parents[2] / "src"
+if _SRC.exists() and str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
+
+from speech.schemas import CorrectionDetail, SpeechCorrectionRequest, SpeechCorrectionResponse
 
 TtsProvider = Literal["elevenlabs", "google", "openai", "deepgram", "browser"]
 

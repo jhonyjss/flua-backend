@@ -68,3 +68,26 @@ class SubscriptionInfo(BaseModel):
     status: str | None = None
     cancelAtPeriodEnd: bool = False
     currentPeriodEnd: str | None = None
+
+
+class SkillAverages(BaseModel):
+    """Confidence-weighted per-skill averages (from user_skill_averages).
+
+    `evaluationsCount = 0` means no evaluations yet → the dashboard keeps its
+    empty-state fallback.
+    """
+
+    grammar: int = 0
+    vocabulary: int = 0
+    pronunciation: int = 0
+    conversation: int = 0
+    comprehension: int = 0
+    evaluationsCount: int = 0
+
+
+class SkillWeeklyPoint(BaseModel):
+    week: str
+    grammar: int = 0
+    vocabulary: int = 0
+    pronunciation: int = 0
+    conversation: int = 0

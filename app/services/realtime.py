@@ -1,64 +1,119 @@
-"""OpenAI Realtime — ephemeral client secret (parity with server/api/realtime/session.post.ts).
-
-Key decisions ported from the Nuxt endpoint:
-- model `gpt-realtime` (GA), minted via /v1/realtime/client_secrets
-- near_field noise reduction BEFORE VAD (kills ghost messages)
-- semantic_vad with interrupt_response for natural turn-taking
-- lesson context hard-capped at 4000 chars
-- 18s timeout + 1 retry on 5xx
-"""
+"""OpenAI Realtime — ephemeral client secret (parity with server/api/realtime/session.post.ts)."""
 import asyncio
+import logging
 
 from fastapi import HTTPException
 
+from app.core.auth import AuthUser
 from app.core.config import get_settings
 from app.core.http import http_client
 from app.schemas.realtime import RealtimeSessionRequest
+from app.services.tutor_instructions import build_tutor_instructions, cap_lesson_context
+
+# GA realtime model (https://developers.openai.com/api/docs/models/gpt-realtime).
+# NOT "gpt-4o-realtime-preview" (the deprecated beta — 404s with model_not_found).
+# The model is bound to the ephemeral token here; the browser SDP handshake must
+# NOT also pass ?model= (it would mismatch the token's resolved snapshot).
+logger = logging.getLogger(__name__)
 
 REALTIME_MODEL = "gpt-realtime"
+
+
+def _turn_detection(turn_mode: str) -> dict:
+    """Server VAD config by turn-taking mode.
+
+    "educational" (default): the SERVER does NOT auto-respond and Flua is NOT
+    interruptible — the client commits the turn after a validated final
+    transcript and triggers the response. A long silence window (1400ms)
+    tolerates learners who pause between words ("The… number… of people…")
+    instead of cutting their turn early.
+
+    "responsive": snappy auto-reply (server creates the response on ~520ms of
+    silence and can be interrupted) — opt-in / future premium.
+    """
+    if turn_mode == "responsive":
+        return {
+            "type": "server_vad",
+            "threshold": 0.45,
+            "prefix_padding_ms": 300,
+            "silence_duration_ms": 520,
+            "create_response": True,
+            "interrupt_response": True,
+        }
+    return {
+        "type": "server_vad",
+        "threshold": 0.5,
+        "prefix_padding_ms": 300,
+        "silence_duration_ms": 1400,
+        "create_response": False,
+        "interrupt_response": False,
+    }
 SESSION_TIMEOUT_S = 18.0
 MAX_RETRIES = 1
-LESSON_CONTEXT_CAP = 4000
 
 
-def cap_lesson_context(context: str, cap: int = LESSON_CONTEXT_CAP) -> str:
-    return context[:cap]
+def _resolve_student_name(req: RealtimeSessionRequest, user: AuthUser | None) -> str:
+    """The tutor's name source. Prefer the authenticated session identity (the
+    JWT claim) over the client-supplied value so the name can't be spoofed or
+    leaked from another context; fall back to the client value (also derived
+    from the authenticated profile) and finally to empty (tutor asks the name)."""
+    if user and user.name and user.name.strip():
+        return user.name.strip()
+    return (req.studentName or "").strip()
 
 
-def build_tutor_instructions(req: RealtimeSessionRequest) -> str:
-    """Tutor system prompt. Ported summary of server/utils/prompts/tutorInstructions."""
-    target = "Spanish" if req.language == "es" else "English"
-    name = req.studentName.strip()
-    greet = f'Greet the student by name ("{name}") warmly, in one sentence.' if name else (
-        "Greet the student warmly and ask their name."
+def build_tutor_instructions_from_request(
+    req: RealtimeSessionRequest, user: AuthUser | None = None,
+) -> str:
+    return build_tutor_instructions(
+        level=req.level,
+        scenario=req.scenario,
+        lesson_context=cap_lesson_context(req.lessonContext),
+        student_name=_resolve_student_name(req, user),
+        language=req.language,
+        explanation_language=req.explanationLanguage,
+        learning_goals=req.learningGoals,
+        mode=req.mode,
     )
-    level_style = {
-        "beginner": "Speak slowly. Use Portuguese for explanations and the target language for practice.",
-        "intermediate": f"Speak mostly {target}, switching to Portuguese only when the student is lost.",
-        "advanced": f"Speak only {target}, at natural speed.",
-    }[req.level]
-    context = cap_lesson_context(req.lessonContext)
-    return "\n".join(filter(None, [
-        f"You are Flua, a warm, encouraging {target} tutor for Brazilian students.",
-        level_style,
-        f"Scenario: {req.scenario}.",
-        greet,
-        "Teach ONE point at a time; have the student produce or repeat; correct gently. "
-        'When they get it right, start with "Correct!", praise them, and move on. Keep every turn short (1-3 sentences).',
-        f"Lesson context:\n{context}" if context else "",
-    ]))
 
 
-async def create_session(req: RealtimeSessionRequest) -> dict:
+def _transcription_prompt(req: RealtimeSessionRequest, user: AuthUser | None) -> str:
+    """Bias the speech-to-text toward the student's real words.
+
+    gpt-4o-transcribe accepts a free-text prompt that nudges spelling/vocabulary
+    (https://developers.openai.com/api/docs/guides/realtime-transcription). We
+    do NOT set `language` (that would force one language and mistranscribe the
+    other) — the learner mixes Portuguese and the target language, so we only
+    hint the bilingual context + the student's name so it stops inventing words
+    like "Budern" for "Podemos"."""
+    target = "espanhol" if req.language == "es" else "inglês"
+    name = _resolve_student_name(req, user)
+    first = name.split()[0] if name else ""
+    who = f", de um estudante brasileiro chamado {first}" if first else ", de um estudante brasileiro"
+    return (
+        f"Áudio de prática de {target}{who}. "
+        f"O estudante pode falar português do Brasil ou {target}. "
+        "Transcreva fielmente as palavras realmente ditas; não invente, não complete "
+        "e não traduza palavras. Se o áudio estiver incerto, prefira transcrever menos a chutar."
+    )
+
+
+async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = None) -> dict:
     """Create the ephemeral client secret; returns {clientSecret, model, instructions}."""
     settings = get_settings()
-    instructions = build_tutor_instructions(req)
+    instructions = build_tutor_instructions_from_request(req, user)
 
     if req.pipelineMode:
         return {"clientSecret": None, "model": None, "instructions": instructions}
 
     if not settings.openai_api_key:
         raise HTTPException(500, "OPENAI_API_KEY not configured")
+
+    turn_detection = _turn_detection(req.turnMode)
+    logger.info(
+        "[Realtime] session config language=%s mode=%s turnMode=%s vad=%s",
+        req.language, req.mode, req.turnMode, turn_detection,
+    )
 
     session_config = {
         "type": "realtime",
@@ -67,12 +122,15 @@ async def create_session(req: RealtimeSessionRequest) -> dict:
         "audio": {
             "input": {
                 "noise_reduction": {"type": "near_field"},
-                "transcription": {"model": "whisper-1"},
-                "turn_detection": {
-                    "type": "semantic_vad",
-                    "eagerness": "auto",
-                    "interrupt_response": True,
+                "transcription": {
+                    "model": "gpt-4o-transcribe",
+                    "prompt": _transcription_prompt(req, user),
                 },
+                # Turn-taking config depends on turnMode (see _turn_detection):
+                # educational tolerates learner pauses and is client-triggered;
+                # responsive is the snappy auto-reply VAD. near_field noise
+                # reduction runs before VAD so background noise won't false-trigger.
+                "turn_detection": turn_detection,
             },
             "output": {"voice": req.voice},
         },

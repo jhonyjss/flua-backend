@@ -1,73 +1,72 @@
 # FlueAI Backend (FastAPI)
 
-Backend separado do FlueAI — concentra as **integrações de IA** e o **billing**, extraídos do servidor Nitro do app Nuxt (`gamenglish/server/api`). O frontend continua autenticando via Supabase e envia o access token como `Authorization: Bearer` — os paths são idênticos aos do Nuxt para permitir cutover por proxy/env var, sem mudar o cliente.
+Backend separado do FlueAI — concentra **todas as integrações de IA** e o **billing**, extraídos do servidor Nitro do app Nuxt. O frontend autentica via Supabase e envia o access token como `Authorization: Bearer`; os paths `/api/ai/*`, `/api/voice/*`, `/api/avatar/*` e `/api/realtime/*` são idênticos ao contrato antigo do Nuxt.
 
 ## Stack
 
-Python 3.12 · FastAPI · httpx · PyJWT (verificação do JWT do Supabase) · Stripe SDK · pytest. Provedores chamados via REST (Anthropic, OpenAI, Google TTS, ElevenLabs, Deepgram) — sem SDKs pesados, fácil de mockar.
+Python 3.12 · FastAPI · httpx · PyJWT · Stripe SDK · pytest. Provedores via REST (Anthropic, OpenAI, Replicate, Google TTS, ElevenLabs, Deepgram).
 
 ## Rodando
 
 ```bash
-cp .env.example .env        # preencha as chaves
-docker compose up --build   # API em http://localhost:8000 (docs em /docs)
+cp .env.example .env
+docker compose up --build   # http://localhost:8000 (docs em /docs)
 
 # ou local:
 pip install -r requirements-dev.txt
 uvicorn app.main:app --reload --port 8000
-pytest                      # 40 testes, todos com provedores mockados
+pytest
 ```
 
-## Endpoints (paridade com o Nuxt)
+No Nuxt, `NUXT_PUBLIC_API_BASE=http://localhost:8000` (default em `nuxt.config.ts`). Os services em `app/services/aiService.ts`, `avatarService.ts`, `voiceService.ts` e `realtimeService.ts` chamam este backend via `apiFetch`.
 
-| Endpoint | Origem no Nuxt | Status |
-|---|---|---|
-| `GET /health` | — | ✅ |
-| `POST /api/ai/grammar-analysis` | `server/api/ai/grammar-analysis.post.ts` | ✅ |
-| `POST /api/ai/conversation-response` | `server/api/ai/conversation-response.post.ts` | ✅ |
-| `POST /api/ai/help-answer` | `server/api/ai/help-answer.post.ts` | ✅ |
-| `POST /api/ai/learning-recommendations` | `server/api/ai/learning-recommendations.post.ts` | ✅ |
-| `POST /api/ai/transcribe` (multipart) | `server/api/ai/transcribe.post.ts` | ✅ Deepgram nova-2 |
-| `POST /api/avatar/speak` | `server/api/avatar/speak.post.ts` | ✅ Google/ElevenLabs/OpenAI/Deepgram + chunking |
-| `POST /api/realtime/session` | `server/api/realtime/session.post.ts` | ✅ gpt-realtime, client_secrets, semantic_vad, retry |
-| `POST /api/stripe/create-checkout-session` | `server/api/stripe/...` | ✅ |
-| `POST /api/stripe/create-portal-session` | idem | ✅ |
-| `POST /api/stripe/cancel-subscription` | idem | ✅ |
-| `GET /api/stripe/get-invoices` | idem | ✅ |
-| `POST /api/stripe/webhook` | idem | ⚠️ verifica assinatura + dispatch; **sync das tabelas Supabase ainda no Nuxt** (TODO no código) |
-| `GET/PATCH /api/users/me/profile`, `…/dashboard-stats`, `…/streak`, `…/completed-lessons`, `…/sessions`, `…/subscription` | `useAuth`/`useLessonProgress`/`useStreaks`/`useSubscription` | ✅ |
-| `…/progress`, `…/unlocked-lessons`, `…/in-progress-lessons`, `…/lessons/{id}/topics`, `…/achievements` (GET) | `useLessonProgress`/`useStreaks` | ✅ |
-| `POST …/lessons/{id}/start\|complete\|unlock`, `…/lessons/{id}/topics`, `…/sessions`, `…/xp`, `…/practice`, `…/achievements/{id}` | lógica server-side atômica | ✅ |
-| `GET/POST /api/users/me/vocabulary`, `…/vocabulary/summary`, `GET …/grammar-progress` | `useProgress`/`useFlashcards` | ✅ |
-| `GET /api/content/speaking-classes\|grammar-bank\|vocabulary-bank` | `useLessons`/banks | ✅ |
-| `assist / generate-class / generate-room / generate-image / dynamic-examples / validate-objective / generate-suggestions` | `server/api/ai/*` | 🔜 fase 2 (mesmo padrão de `services/ai_endpoints.py`) |
-| `voice/*`, `session/*`, `admin/*`, `blog`, `whatsapp/zapi` | — | 🔜 fases seguintes |
+## Endpoints — paridade 100% com o Nuxt (rotas Nitro removidas)
+
+| Endpoint | Status |
+|---|---|
+| `GET /health` | ✅ |
+| **AI** | |
+| `POST /api/ai/grammar-analysis` | ✅ |
+| `POST /api/ai/conversation-response` | ✅ (cenários, lessonContext, teacherMode) |
+| `POST /api/ai/help-answer` | ✅ |
+| `POST /api/ai/learning-recommendations` | ✅ |
+| `POST /api/ai/validate-objective` | ✅ |
+| `POST /api/ai/generate-suggestions` | ✅ |
+| `POST /api/ai/dynamic-examples` | ✅ |
+| `POST /api/ai/assist` | ✅ |
+| `POST /api/ai/generate-class` | ✅ |
+| `POST /api/ai/generate-room` | ✅ |
+| `POST /api/ai/generate-image` | ✅ (Replicate + Supabase Storage) |
+| `POST /api/ai/transcribe` | ✅ JSON base64 PCM + multipart |
+| `POST /api/ai/speech-correct` | ✅ pipeline ASR |
+| **Voice** | |
+| `POST /api/voice/chat` | ✅ OpenAI Responses + tutor prompt |
+| `GET/POST /api/voice/usage` | ✅ Supabase `voice_usage` |
+| **Avatar** | |
+| `POST /api/avatar/speak` | ✅ |
+| `POST /api/avatar/tts-whisper` | ✅ TTS + Whisper timestamps |
+| `GET /api/avatar/model` | ✅ proxy GLB Ready Player Me |
+| **Realtime** | |
+| `POST /api/realtime/session` | ✅ |
+| **Billing / users / content** | ✅ (inalterados) |
 
 ## Arquitetura
 
 ```
 app/
-  core/      config (pydantic-settings) · auth (JWT Supabase HS256) · rate_limit (sliding window) · http (client mockável)
-  schemas/   contratos Pydantic espelhando as interfaces TS do Nuxt
-  services/  anthropic_client · ai_endpoints (prompts puros/testáveis) · tts · stt · realtime · stripe_service · supabase_admin
-  routers/   ai · avatar · realtime · billing · health
-tests/       40 testes — auth, rate limit, IA (Anthropic mockado), TTS, realtime, billing/webhook
+  core/       config · auth · rate_limit · http
+  schemas/    ai · voice · avatar · speech · …
+  services/
+    ai/       conversation · grammar · validate_objective · … (prompts modulares)
+    voice/    chat · usage
+    avatar/   tts_whisper · model_proxy
+    openai_client · replicate_client · anthropic_client · stt · tts · realtime
+  routers/    ai · voice · avatar · realtime · billing · health · …
+tests/        pytest com MockTransport — sem chamadas de rede reais
 ```
 
-Decisões principais: prompts e parsing são **funções puras** (testáveis sem rede); todo HTTP de saída passa por `core/http.http_client()` (os testes injetam `httpx.MockTransport`); rate limit em memória por usuário (trocar por Redis em multi-réplica); Stripe price IDs só em env vars.
-
-## Migração (cutover sem downtime)
-
-1. Deploy deste serviço (`docker compose up`) com as mesmas chaves do Nuxt.
-2. No Nuxt, aponte os `$fetch('/api/ai/...')` para `NUXT_PUBLIC_API_BASE` (este serviço) — paths são idênticos; ou proxie via Nitro `routeRules`.
-3. Valide os fluxos de voz/IA em staging; o webhook do Stripe permanece no Nuxt até o sync de tabelas ser portado (item ⚠️ acima).
-4. Porte os endpoints fase 2 e por fim aposente o `server/api` do Nuxt.
+Prompts do tutor: fonte única em `app/services/tutor_instructions.py` (usado por `/api/realtime/session` e `/api/voice/chat`).
 
 ## Git
 
-Repositório independente — `git init` já executado nesta pasta; adicione o remote:
-
-```bash
-git remote add origin git@github.com:SEU_USUARIO/flueai-backend.git
-git push -u origin main
-```
+Repositório independente em `flueai-ai-backend/`; pode ser versionado à parte do monorepo Nuxt.

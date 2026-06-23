@@ -118,3 +118,18 @@ async def upsert(table: str, row: dict, on_conflict: str) -> None:
         )
     if res.status_code not in (200, 201):
         raise HTTPException(502, f"Supabase upsert error {res.status_code}: {res.text[:200]}")
+
+
+async def rpc(fn: str, params: dict) -> list[dict] | dict:
+    """Call a Postgres function via PostgREST RPC (e.g. vector search)."""
+    settings = get_settings()
+    _require_config(settings)
+    async with http_client(timeout=20.0) as client:
+        res = await client.post(
+            f"{settings.supabase_url}/rest/v1/rpc/{fn}",
+            json=params,
+            headers=_headers(settings),
+        )
+    if res.status_code not in (200, 201):
+        raise HTTPException(502, f"Supabase rpc error {res.status_code}: {res.text[:200]}")
+    return res.json()

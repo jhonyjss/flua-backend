@@ -1,0 +1,16 @@
+# Keep secrets, VCS and local cruft out of the build context / image.
+.env
+.env.*
+!.env.example
+.git
+.gitignore
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+tests/
+*.md
+docker-compose.yml
+.DS_Store

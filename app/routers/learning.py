@@ -11,8 +11,11 @@ from app.schemas.learning import (
     AwardXpRequest,
     ClassSessionRequest,
     CompleteLessonRequest,
+    ConversationCreditStatus,
+    HeartbeatRequest,
     InProgressLessons,
     LessonProgressRow,
+    LessonTimeStatus,
     OkResponse,
     PracticeResult,
     RecordPracticeRequest,
@@ -23,7 +26,7 @@ from app.schemas.learning import (
     UnlockLessonRequest,
     XpResult,
 )
-from app.services import learning
+from app.services import conversation_credits, learning, lesson_timer
 
 router = APIRouter(prefix="/api/users/me", tags=["learning"])
 
@@ -48,6 +51,32 @@ async def in_progress_lessons(user: AuthUser = Depends(get_current_user)) -> InP
 @router.get("/lessons/{lesson_id}/topics", response_model=TopicIds)
 async def lesson_topics(lesson_id: str, user: AuthUser = Depends(get_current_user)) -> TopicIds:
     return TopicIds(topicIds=await learning.completed_topic_ids(user.id, lesson_id))
+
+
+# ── Per-lesson time budget (server-enforced; consistent across devices) ──
+@router.get("/lessons/{lesson_id}/time", response_model=LessonTimeStatus)
+async def lesson_time(lesson_id: str, user: AuthUser = Depends(get_current_user)) -> LessonTimeStatus:
+    return LessonTimeStatus(**await lesson_timer.get_status(user.id, lesson_id))
+
+
+@router.post("/lessons/{lesson_id}/time/heartbeat", response_model=LessonTimeStatus)
+async def lesson_time_heartbeat(
+    lesson_id: str, body: HeartbeatRequest, user: AuthUser = Depends(get_current_user),
+) -> LessonTimeStatus:
+    return LessonTimeStatus(**await lesson_timer.add_time(user.id, lesson_id, body.deltaSeconds))
+
+
+# ── Free-conversation credit pool (5 min/week free · 90/180 min/month paid) ──
+@router.get("/conversation/time", response_model=ConversationCreditStatus)
+async def conversation_time(user: AuthUser = Depends(get_current_user)) -> ConversationCreditStatus:
+    return ConversationCreditStatus(**await conversation_credits.get_status(user.id))
+
+
+@router.post("/conversation/time/heartbeat", response_model=ConversationCreditStatus)
+async def conversation_time_heartbeat(
+    body: HeartbeatRequest, user: AuthUser = Depends(get_current_user),
+) -> ConversationCreditStatus:
+    return ConversationCreditStatus(**await conversation_credits.add_time(user.id, body.deltaSeconds))
 
 
 @router.get("/achievements", response_model=AchievementIds)

@@ -17,6 +17,8 @@ from app.schemas.users import (
     Streak,
     SubscriptionInfo,
     UpdateProfileRequest,
+    SkillAverages,
+    SkillWeeklyPoint,
     UserProfile,
 )
 from app.services import supabase_admin as db
@@ -167,3 +169,43 @@ def map_subscription(row: dict | None) -> SubscriptionInfo:
 async def get_subscription(user_id: str) -> SubscriptionInfo:
     row = await db.select_one("stripe_subscriptions", {"user_id": user_id})
     return map_subscription(row)
+
+
+def _int(value: object) -> int:
+    return int(value) if isinstance(value, (int, float)) else 0
+
+
+async def get_skill_averages(user_id: str, language: str = "en") -> SkillAverages:
+    """Confidence-weighted per-skill averages (user_skill_averages view)."""
+    row = await db.select_one(
+        "user_skill_averages", {"user_id": user_id, "language": language}
+    )
+    if not row:
+        return SkillAverages()
+    return SkillAverages(
+        grammar=_int(row.get("grammar")),
+        vocabulary=_int(row.get("vocabulary")),
+        pronunciation=_int(row.get("pronunciation")),
+        conversation=_int(row.get("conversation")),
+        comprehension=_int(row.get("comprehension")),
+        evaluationsCount=_int(row.get("evaluations_count")),
+    )
+
+
+async def get_skill_weekly(user_id: str, language: str = "en") -> list[SkillWeeklyPoint]:
+    """Weekly per-skill series for the evolution chart (user_skill_weekly view)."""
+    rows = await db.select_many(
+        "user_skill_weekly",
+        {"user_id": user_id, "language": language},
+        order="week.asc",
+    )
+    return [
+        SkillWeeklyPoint(
+            week=str(r.get("week", "")),
+            grammar=_int(r.get("grammar")),
+            vocabulary=_int(r.get("vocabulary")),
+            pronunciation=_int(r.get("pronunciation")),
+            conversation=_int(r.get("conversation")),
+        )
+        for r in rows
+    ]

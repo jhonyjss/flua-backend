@@ -20,7 +20,11 @@ class Settings(BaseSettings):
     # AI providers
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-sonnet-4-5"
+    anthropic_model_haiku: str = "claude-3-5-haiku-20241022"
+    anthropic_model_sonnet: str = "claude-sonnet-4-20250514"
     openai_api_key: str = ""
+    openai_voice_model: str = "gpt-4o-mini"
+    replicate_api_key: str = ""
     elevenlabs_api_key: str = ""
     google_tts_api_key: str = ""
     deepgram_api_key: str = ""
