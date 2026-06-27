@@ -158,7 +158,10 @@ def map_subscription(row: dict | None) -> SubscriptionInfo:
     status = row.get("status")
     return SubscriptionInfo(
         isSubscribed=status in ACTIVE_STATUSES,
-        planLevel=row.get("plan_level") or row.get("plan"),
+        # The table stores the tier in `plan_name` (e.g. "starter_monthly").
+        # There are no `plan_level`/`plan` columns, so without this fallback
+        # planLevel was always None → every paid user was treated as "free".
+        planLevel=row.get("plan_level") or row.get("plan") or row.get("plan_name"),
         planName=row.get("plan_name"),
         status=status,
         cancelAtPeriodEnd=bool(row.get("cancel_at_period_end")),
@@ -167,8 +170,17 @@ def map_subscription(row: dict | None) -> SubscriptionInfo:
 
 
 async def get_subscription(user_id: str) -> SubscriptionInfo:
-    row = await db.select_one("stripe_subscriptions", {"user_id": user_id})
-    return map_subscription(row)
+    # A user can have multiple rows (an old/canceled sub + the current one).
+    # select_one returns an arbitrary row — which could be the canceled one,
+    # wrongly marking a paying user as unsubscribed. Pick the active sub (else
+    # the most recently updated row).
+    rows = await db.select_many(
+        "stripe_subscriptions", {"user_id": user_id}, order="updated_at.desc", limit=20
+    )
+    if not rows:
+        return SubscriptionInfo()
+    chosen = next((r for r in rows if r.get("status") in ACTIVE_STATUSES), rows[0])
+    return map_subscription(chosen)
 
 
 def _int(value: object) -> int:

@@ -119,3 +119,25 @@ def test_status_fails_open_when_table_unreadable(client, auth_headers, mock_tran
     # Infra error must not block the student — permissive status returned.
     assert res.status_code == 200
     assert res.json()["expired"] is False
+
+
+# ── Regression: paid users were shown as "free" ──────────────────────────
+
+
+def test_map_subscription_derives_plan_level_from_plan_name():
+    """The table has no plan_level/plan column — only plan_name. Without the
+    fallback, planLevel was always None and every paid user became 'free'."""
+    from app.services.user_data import map_subscription
+
+    info = map_subscription({"status": "active", "plan_name": "starter_monthly"})
+    assert info.isSubscribed is True
+    assert info.planLevel == "starter_monthly"  # feeds _base_plan → "starter", not "free"
+
+
+def test_base_plan_maps_suffixed_plan_name_to_tier():
+    from app.services.conversation_credits import _base_plan
+
+    assert _base_plan("starter_monthly", True) == "starter"
+    assert _base_plan("pro_yearly", True) == "pro"
+    assert _base_plan(None, True) == "free"          # missing level → free
+    assert _base_plan("starter_monthly", False) == "free"  # not subscribed → free
