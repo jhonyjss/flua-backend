@@ -128,7 +128,7 @@ class HeartbeatRequest(BaseModel):
     deltaSeconds: int = Field(default=0, ge=0, le=600)
 
 
-# ── Free-conversation credit pool (daily limits by plan) ──
+# ── Free-conversation credit pool (free weekly, starter daily, pro unlimited) ──
 class ConversationCreditStatus(BaseModel):
     limitSeconds: int
     consumedSeconds: int
@@ -136,4 +136,5 @@ class ConversationCreditStatus(BaseModel):
     expired: bool
     planLevel: str
     isFree: bool
+    isUnlimited: bool = False
     periodLabel: str

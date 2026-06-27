@@ -66,7 +66,7 @@ async def lesson_time_heartbeat(
     return LessonTimeStatus(**await lesson_timer.add_time(user.id, lesson_id, body.deltaSeconds))
 
 
-# ── Free-conversation credit pool (daily limits by plan) ──
+# ── Free-conversation credit pool (free weekly, starter daily, pro unlimited) ──
 @router.get("/conversation/time", response_model=ConversationCreditStatus)
 async def conversation_time(user: AuthUser = Depends(get_current_user)) -> ConversationCreditStatus:
     return ConversationCreditStatus(**await conversation_credits.get_status(user.id))

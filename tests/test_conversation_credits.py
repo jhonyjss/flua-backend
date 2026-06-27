@@ -1,4 +1,4 @@
-"""Free-conversation credit pool (daily limits by plan)."""
+"""Free-conversation credit pool (free weekly, starter daily, pro unlimited)."""
 import json
 
 import httpx
@@ -21,7 +21,7 @@ def _sub_handler(plan_level=None, status="active", usage=None):
     return handler
 
 
-def test_free_plan_gets_five_minutes_per_day(client, auth_headers, mock_transport):
+def test_free_plan_gets_five_minutes_per_week(client, auth_headers, mock_transport):
     mock_transport(_sub_handler())
     res = client.get("/api/users/me/conversation/time", headers=auth_headers)
     assert res.status_code == 200
@@ -30,7 +30,8 @@ def test_free_plan_gets_five_minutes_per_day(client, auth_headers, mock_transpor
     assert data["remainingSeconds"] == 300
     assert data["expired"] is False
     assert data["isFree"] is True
-    assert data["periodLabel"] == "dia"
+    assert data["isUnlimited"] is False
+    assert data["periodLabel"] == "semana"
 
 
 def test_starter_plan_gets_ten_minutes_per_day(client, auth_headers, mock_transport):
@@ -40,21 +41,27 @@ def test_starter_plan_gets_ten_minutes_per_day(client, auth_headers, mock_transp
     data = res.json()
     assert data["limitSeconds"] == 10 * 60
     assert data["isFree"] is False
+    assert data["isUnlimited"] is False
     assert data["periodLabel"] == "dia"
 
 
-def test_pro_plan_gets_thirty_minutes_per_day(client, auth_headers, mock_transport):
+def test_pro_plan_gets_unlimited_conversation(client, auth_headers, mock_transport):
     mock_transport(_sub_handler(plan_level="pro_yearly"))  # suffixed level still maps to pro
     res = client.get("/api/users/me/conversation/time", headers=auth_headers)
     assert res.status_code == 200
-    assert res.json()["limitSeconds"] == 30 * 60
+    data = res.json()
+    assert data["limitSeconds"] == 0
+    assert data["remainingSeconds"] == 0
+    assert data["expired"] is False
+    assert data["isUnlimited"] is True
+    assert data["periodLabel"] == "livre"
 
 
-def test_premium_plan_gets_sixty_minutes_per_day(client, auth_headers, mock_transport):
+def test_premium_plan_gets_unlimited_conversation(client, auth_headers, mock_transport):
     mock_transport(_sub_handler(plan_level="premium_monthly"))
     res = client.get("/api/users/me/conversation/time", headers=auth_headers)
     assert res.status_code == 200
-    assert res.json()["limitSeconds"] == 60 * 60
+    assert res.json()["isUnlimited"] is True
 
 
 def test_heartbeat_accumulates_clamps_and_expires_for_free(client, auth_headers, mock_transport):
@@ -76,12 +83,24 @@ def test_heartbeat_accumulates_clamps_and_expires_for_free(client, auth_headers,
     assert r1.json()["consumedSeconds"] == 90
     assert r1.json()["expired"] is False
 
-    # Accumulates until the 5-min (300s) daily free budget is spent.
+    # Accumulates until the 5-min (300s) weekly free budget is spent.
     for _ in range(3):
         r = client.post("/api/users/me/conversation/time/heartbeat", json={"deltaSeconds": 90}, headers=auth_headers)
     assert state["consumed"] >= 300
     assert r.json()["expired"] is True
     assert r.json()["remainingSeconds"] == 0
+
+
+def test_heartbeat_does_not_track_pro_usage(client, auth_headers, mock_transport):
+    def usage(request: httpx.Request) -> httpx.Response:
+        raise AssertionError("unlimited plans must not read or write conversation_credits")
+
+    mock_transport(_sub_handler(plan_level="pro", usage=usage))
+    res = client.post("/api/users/me/conversation/time/heartbeat", json={"deltaSeconds": 90}, headers=auth_headers)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["isUnlimited"] is True
+    assert data["expired"] is False
 
 
 def test_conversation_endpoints_require_auth(client):

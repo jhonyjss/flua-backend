@@ -1,10 +1,10 @@
 """Server-enforced free-conversation credit pool (Flua "conversa livre").
 
 A PERIODIC pool (not per-session), by plan:
-  free    → 5 minutes per calendar DAY
+  free    → 5 minutes per calendar WEEK
   starter → 10 minutes per calendar DAY
-  pro     → 30 minutes per calendar DAY
-  premium → 60 minutes per calendar DAY
+  pro     → unlimited
+  premium → unlimited
 
 The limit and the period are recomputed from the live subscription on every
 call, so a plan upgrade takes effect immediately and each new calendar period
@@ -23,10 +23,9 @@ from datetime import datetime, timezone
 from app.services import supabase_admin as db
 from app.services.user_data import get_subscription
 
-DAY_SECONDS_FREE = 5 * 60
+WEEK_SECONDS_FREE = 5 * 60
 DAY_SECONDS_STARTER = 10 * 60
-DAY_SECONDS_PRO = 30 * 60
-DAY_SECONDS_PREMIUM = 60 * 60
+UNLIMITED_SECONDS = 0
 
 # Heartbeats run ~every 15s; allow slack for tab-throttling/retries but never
 # more than this per call so a forged delta can't drain the pool.
@@ -35,10 +34,10 @@ MAX_HEARTBEAT_DELTA = 90
 _TABLE = "conversation_credits"
 
 _LIMITS = {
-    "free": DAY_SECONDS_FREE,
+    "free": WEEK_SECONDS_FREE,
     "starter": DAY_SECONDS_STARTER,
-    "pro": DAY_SECONDS_PRO,
-    "premium": DAY_SECONDS_PREMIUM,
+    "pro": UNLIMITED_SECONDS,
+    "premium": UNLIMITED_SECONDS,
 }
 
 
@@ -64,24 +63,37 @@ def _base_plan(plan_level: str | None, is_subscribed: bool) -> str:
     return "starter"
 
 
+def _is_unlimited(plan: str) -> bool:
+    return plan in {"pro", "premium"}
+
+
 def _period_key(plan: str, now: datetime) -> str:
-    """All plans renew daily, keyed by UTC calendar day ("2026-06-27")."""
+    """free → ISO week ("2026-W24"); starter → calendar day ("2026-06-27")."""
+    if plan == "free":
+        year, week, _ = now.isocalendar()
+        return f"{year}-W{week:02d}"
     return now.strftime("%Y-%m-%d")
 
 
 def _period_label(plan: str) -> str:
+    if _is_unlimited(plan):
+        return "livre"
+    if plan == "free":
+        return "semana"
     return "dia"
 
 
 def _status(plan: str, limit: int, consumed: int) -> dict:
+    unlimited = _is_unlimited(plan)
     consumed = max(0, consumed)
     return {
         "limitSeconds": limit,
         "consumedSeconds": consumed,
-        "remainingSeconds": max(0, limit - consumed),
-        "expired": consumed >= limit,
+        "remainingSeconds": 0 if unlimited else max(0, limit - consumed),
+        "expired": False if unlimited else consumed >= limit,
         "planLevel": plan,
         "isFree": plan == "free",
+        "isUnlimited": unlimited,
         "periodLabel": _period_label(plan),
     }
 
@@ -94,11 +106,13 @@ async def _plan_state(user_id: str) -> tuple[str, int, str]:
         plan = _base_plan(sub.planLevel, sub.isSubscribed)
     except Exception:
         plan = "pro"  # fail open — treat as a generous paid plan
-    return plan, _LIMITS.get(plan, DAY_SECONDS_FREE), _period_key(plan, now)
+    return plan, _LIMITS.get(plan, WEEK_SECONDS_FREE), _period_key(plan, now)
 
 
 async def get_status(user_id: str) -> dict:
     plan, limit, period_key = await _plan_state(user_id)
+    if _is_unlimited(plan):
+        return _status(plan, limit, 0)
     try:
         row = await db.select_one(_TABLE, {"user_id": user_id, "period_key": period_key})
     except Exception:
@@ -110,6 +124,8 @@ async def get_status(user_id: str) -> dict:
 async def add_time(user_id: str, delta_seconds: int) -> dict:
     """Accumulate consumed conversation time for the current period."""
     plan, limit, period_key = await _plan_state(user_id)
+    if _is_unlimited(plan):
+        return _status(plan, limit, 0)
     delta = max(0, min(int(delta_seconds or 0), MAX_HEARTBEAT_DELTA))
     try:
         row = await db.select_one(_TABLE, {"user_id": user_id, "period_key": period_key})
