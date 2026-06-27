@@ -78,6 +78,12 @@ def create_app() -> FastAPI:
                 "Speech pipeline warm-up skipped: %s", exc
             )
 
+    @app.on_event("shutdown")
+    async def _close_http_clients() -> None:
+        from app.core.http import close_http_clients
+
+        await close_http_clients()
+
     app.include_router(health.router)
     app.include_router(ai.router)
     app.include_router(avatar.router)

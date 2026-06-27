@@ -2,7 +2,7 @@
 useFlashcards / useLessons / useGrammarBank / useVocabularyBank)."""
 from typing import Any
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response
 
 from app.core.auth import AuthUser, get_current_user
 from app.schemas.learning import (
@@ -49,23 +49,29 @@ async def grammar_progress(user: AuthUser = Depends(get_current_user)) -> list[d
 
 @content_router.get("/speaking-classes", response_model=list[dict[str, Any]])
 async def speaking_classes(
+    response: Response,
     level: str | None = Query(default=None),
     user: AuthUser = Depends(get_current_user),
 ) -> list[dict]:
+    response.headers["Cache-Control"] = "private, max-age=300, stale-while-revalidate=600"
     return await study.speaking_classes(level)
 
 
 @content_router.get("/grammar-bank", response_model=list[dict[str, Any]])
 async def grammar_bank(
+    response: Response,
     level: str | None = Query(default=None),
     user: AuthUser = Depends(get_current_user),
 ) -> list[dict]:
+    response.headers["Cache-Control"] = "private, max-age=300, stale-while-revalidate=600"
     return await study.grammar_bank(level)
 
 
 @content_router.get("/vocabulary-bank", response_model=list[dict[str, Any]])
 async def vocabulary_bank(
+    response: Response,
     level: str | None = Query(default=None),
     user: AuthUser = Depends(get_current_user),
 ) -> list[dict]:
+    response.headers["Cache-Control"] = "private, max-age=300, stale-while-revalidate=600"
     return await study.vocabulary_bank(level)

@@ -2,9 +2,37 @@
 
 `compute_vocabulary_summary` is a pure helper (unit-tested without network).
 """
+import asyncio
 from datetime import datetime, timedelta, timezone
+from time import monotonic
+from typing import Awaitable, Callable, TypeVar
 
 from app.services import supabase_admin as db
+
+T = TypeVar("T")
+CONTENT_CACHE_TTL_SECONDS = 600
+_content_cache: dict[str, tuple[float, object]] = {}
+_content_promises: dict[str, asyncio.Task[object]] = {}
+
+
+async def _cached_content(key: str, loader: Callable[[], Awaitable[T]]) -> T:
+    cached = _content_cache.get(key)
+    now = monotonic()
+    if cached and cached[0] > now:
+        return cached[1]  # type: ignore[return-value]
+
+    pending = _content_promises.get(key)
+    if pending is not None:
+        return await pending  # type: ignore[return-value]
+
+    request = asyncio.create_task(loader())
+    _content_promises[key] = request
+    try:
+        value = await request
+        _content_cache[key] = (monotonic() + CONTENT_CACHE_TTL_SECONDS, value)
+        return value
+    finally:
+        _content_promises.pop(key, None)
 
 
 def compute_vocabulary_summary(words: list[dict]) -> dict:
@@ -76,21 +104,30 @@ async def grammar_progress(user_id: str) -> list[dict]:
 # ── Content banks (not user-scoped) ───────────────────────────────────
 
 async def speaking_classes(level: str | None = None) -> list[dict]:
-    filters = {"is_published": "true"}
-    if level:
-        filters["level"] = level
-    return await db.select_many("speaking_classes", filters, order="order_index.asc")
+    async def load() -> list[dict]:
+        filters = {"is_published": "true"}
+        if level:
+            filters["level"] = level
+        return await db.select_many("speaking_classes", filters, order="order_index.asc")
+
+    return await _cached_content(f"speaking_classes:{level or 'all'}", load)
 
 
 async def grammar_bank(level: str | None = None) -> list[dict]:
-    filters: dict[str, str] = {}
-    if level:
-        filters["level"] = level
-    return await db.select_many("grammar_bank", filters)
+    async def load() -> list[dict]:
+        filters: dict[str, str] = {}
+        if level:
+            filters["level"] = level
+        return await db.select_many("grammar_bank", filters)
+
+    return await _cached_content(f"grammar_bank:{level or 'all'}", load)
 
 
 async def vocabulary_bank(level: str | None = None) -> list[dict]:
-    filters: dict[str, str] = {}
-    if level:
-        filters["level"] = level
-    return await db.select_many("vocabulary_bank", filters)
+    async def load() -> list[dict]:
+        filters: dict[str, str] = {}
+        if level:
+            filters["level"] = level
+        return await db.select_many("vocabulary_bank", filters)
+
+    return await _cached_content(f"vocabulary_bank:{level or 'all'}", load)
