@@ -67,6 +67,23 @@ def _support_language_rules(explanation_language: str, target_label: str) -> str
 - O aluno escolheu explicações em português do Brasil. Use português para explicar, corrigir e destravar, na medida que o nível indica."""
 
 
+def _advanced_immersion_rules(target_label: str) -> str:
+    """Advanced course = total immersion: the tutor speaks ONLY the target language."""
+    return f"""# Idioma (AVANÇADO — imersão total, regra inviolável)
+- Fale EXCLUSIVAMENTE em {target_label}, 100% da aula, do início ao fim. NUNCA use português — nem para cumprimentar, explicar, corrigir, elogiar ou destravar.
+- Se o aluno não entender, reformule em {target_label} mais simples e devagar; JAMAIS recorra ao português.
+- Mesmo que o aluno fale português, responda em {target_label} e conduza-o de volta ao {target_label} com naturalidade e gentileza."""
+
+
+def _intermediate_choice_rules(target_label: str) -> str:
+    """Intermediate course = the STUDENT picks the language at the start."""
+    return f"""# Idioma (INTERMEDIÁRIO — o ALUNO escolhe, regra de ouro)
+- LOGO NO INÍCIO, antes de qualquer conteúdo, pergunte ao aluno se ele se sente confortável em fazer a aula toda em {target_label} ou se prefere em português. Faça essa pergunta e ESPERE a resposta antes de continuar.
+- Se ele escolher SÓ {target_label}: a partir daí fale EXCLUSIVAMENTE em {target_label} (imersão); quando ele travar, reformule em {target_label} mais simples — NÃO volte ao português a menos que ele peça.
+- Se ele preferir português (ou não escolher claramente): misture {target_label} e português com naturalidade, usando o português para destravar e explicar erros sutis.
+- O aluno pode TROCAR a qualquer momento ("vamos voltar pro português", "let's continue in English") — atenda na hora e siga assim até ele pedir de novo."""
+
+
 _GOAL_LABELS = {
     "travel": "viagens (aeroporto, hotel, pedir informações, turismo)",
     "work": "trabalho (reuniões, e-mails, entrevistas, vocabulário profissional)",
@@ -115,19 +132,29 @@ def _build_instructions_english(
     has_lesson = bool(lesson_context) and not is_free
     name_rules = _name_rules(name_ref)
 
-    if level == "beginner":
+    if level == "advanced":
         level_guide = """# Nível do aluno
-Iniciante. Fale 90% em português do Brasil. Use inglês americano APENAS nas frases e palavras que está ensinando, sempre seguidas de tradução. Explicações, elogios e correções são em português."""
+Avançado. Conversa de nível nativo: vocabulário rico, situações reais e naturalidade total."""
+        language_adaptation = _advanced_immersion_rules("inglês americano")
+        support_language = ""  # imersão — nunca explica em português
     elif level == "intermediate":
         level_guide = """# Nível do aluno
-Intermediário. Mistura natural de português do Brasil e inglês americano. Mais inglês na prática, português para destravar e explicar erros sutis."""
-    else:
+Intermediário. Mais inglês na prática; quanto de português usar depende da escolha do aluno (veja "Idioma" abaixo)."""
+        language_adaptation = _intermediate_choice_rules("inglês americano")
+        support_language = ""  # a escolha do aluno governa o idioma de apoio
+    else:  # beginner
         level_guide = """# Nível do aluno
-Avançado. Predominantemente inglês americano. Vocabulário rico e situações reais. Português apenas se o aluno pedir ou travar de verdade."""
-
-    language_adaptation = _language_adaptation_rules("inglês americano")
-    support_language = _support_language_rules(explanation_language, "inglês americano")
+Iniciante. Fale 90% em português do Brasil. Use inglês americano APENAS nas frases e palavras que está ensinando, sempre seguidas de tradução. Explicações, elogios e correções são em português."""
+        language_adaptation = _language_adaptation_rules("inglês americano")
+        support_language = _support_language_rules(explanation_language, "inglês americano")
     goals_focus = _goals_focus(learning_goals)
+
+    if level == "advanced":
+        proportion_line = '- Você ensina em IMERSÃO TOTAL: fale SOMENTE em inglês americano (en-US). Veja "# Idioma" abaixo.'
+    elif level == "intermediate":
+        proportion_line = '- A proporção entre português e inglês americano segue a ESCOLHA do aluno. Veja "# Idioma" abaixo.'
+    else:
+        proportion_line = '- Seu idioma de apoio é português do Brasil; o idioma-alvo de ensino é inglês americano. A proporção entre eles é ADAPTATIVA — veja "# Idioma adaptativo" abaixo.'
 
     scenario_guide = (
         f"\n\n# Cenário de role-play\n{scenario}. Fique no personagem enquanto ensina."
@@ -154,6 +181,19 @@ Avançado. Predominantemente inglês americano. Vocabulário rico e situações 
         greeting = (
             'Cumprimente de forma acolhedora em uma frase e pergunte "Como posso te chamar?" e pare. '
             f"Assim que o aluno disser o nome, {free_menu} — e espere a escolha dele antes de conduzir."
+        )
+    elif level == "advanced" and has_name:
+        greeting = (
+            f"Abra a aula FALANDO SÓ EM INGLÊS: cumprimente {name_ref} pelo nome e anuncie o tema da aula em 1–2 "
+            "frases curtas, em inglês e SEM tradução. Em seguida traga a primeira expressão/estrutura e já peça o "
+            "aluno para tentar. Nada de português em momento algum."
+        )
+    elif level == "intermediate" and has_name:
+        greeting = (
+            f"Abra em 2 turnos: 1) cumprimente {name_ref} pelo nome (1 frase) e pergunte se ele se sente confortável "
+            "em fazer a aula toda em inglês ou se prefere em português — o que for melhor pra ele. Faça SÓ essa "
+            "pergunta e PARE, esperando a resposta. 2) Só depois que ele escolher, comece o tema da aula seguindo a "
+            "escolha de idioma."
         )
     elif has_name:
         greeting = (
@@ -204,7 +244,7 @@ Só se despeça quando TODAS as metas tiverem sido concluídas. Se o aluno tenta
 
 # Identidade linguística (regra inviolável)
 - Os ÚNICOS idiomas permitidos são português do Brasil (pt-BR) e inglês americano (en-US). NUNCA use um terceiro idioma.
-- Seu idioma de apoio é português do Brasil; o idioma-alvo de ensino é inglês americano. A proporção entre eles é ADAPTATIVA — veja "Idioma adaptativo" abaixo.
+{proportion_line}
 - NUNCA fale espanhol. Nunca use palavras como "cuéntame", "puedes", "vamos a ver".
 - Use acentos corretos em português: você, inglês, é, está, não, também, atenção, correção.
 
@@ -274,18 +314,21 @@ def _build_instructions_spanish(
     has_lesson = bool(lesson_context) and not is_free
     name_rules = _name_rules(name_ref)
 
-    if level == "beginner":
+    if level == "advanced":
         level_guide = """# Nível do aluno
-Iniciante. Fale 90% em português do Brasil. Use espanhol APENAS nas frases e palavras que está ensinando, sempre seguidas de tradução."""
+Avançado. Conversa de nível nativo: vocabulário rico, situações reais e naturalidade total."""
+        language_adaptation = _advanced_immersion_rules("espanhol")
+        support_language = ""  # imersão — nunca explica em português
     elif level == "intermediate":
         level_guide = """# Nível do aluno
-Intermediário. Mistura natural de português do Brasil e espanhol. Mais espanhol na prática, português para destravar."""
-    else:
+Intermediário. Mais espanhol na prática; quanto de português usar depende da escolha do aluno (veja "Idioma" abaixo)."""
+        language_adaptation = _intermediate_choice_rules("espanhol")
+        support_language = ""  # a escolha do aluno governa o idioma de apoio
+    else:  # beginner
         level_guide = """# Nível do aluno
-Avançado. Predominantemente espanhol. Vocabulário rico e situações reais."""
-
-    language_adaptation = _language_adaptation_rules("espanhol")
-    support_language = _support_language_rules(explanation_language, "espanhol")
+Iniciante. Fale 90% em português do Brasil. Use espanhol APENAS nas frases e palavras que está ensinando, sempre seguidas de tradução."""
+        language_adaptation = _language_adaptation_rules("espanhol")
+        support_language = _support_language_rules(explanation_language, "espanhol")
     goals_focus = _goals_focus(learning_goals)
 
     scenario_guide = (
@@ -313,6 +356,17 @@ Avançado. Predominantemente espanhol. Vocabulário rico e situações reais."""
         greeting = (
             'Cumprimente de forma acolhedora em uma frase, pergunte "Como posso te chamar?" e pare. '
             f"Assim que o aluno disser o nome, {free_menu}."
+        )
+    elif level == "advanced" and has_name:
+        greeting = (
+            f"Abra a aula FALANDO SÓ EM ESPANHOL: cumprimente {name_ref} pelo nome e diga o tema da aula em 1–2 "
+            "frases curtas, em espanhol e SEM tradução. Nada de português em momento algum."
+        )
+    elif level == "intermediate" and has_name:
+        greeting = (
+            f"Abra em 2 turnos: 1) cumprimente {name_ref} pelo nome (1 frase) e pergunte se ele se sente confortável "
+            "em fazer a aula toda em espanhol ou se prefere em português. Faça SÓ essa pergunta e PARE. 2) Só depois "
+            "que ele escolher, comece o tema da aula seguindo a escolha de idioma."
         )
     elif has_name:
         greeting = (

@@ -75,3 +75,35 @@ def test_free_practice_spanish_menu():
     )
     assert "apenas conversar em espanhol" in out
     assert "Prática livre" in out
+
+
+# ── Level-based language behavior (advanced immersion / intermediate choice) ──
+
+
+def test_advanced_is_english_only_immersion():
+    out = build_tutor_instructions("advanced", "english-tutor", "Aula", "Jhony", "en")
+    assert "imersão total" in out
+    assert "EXCLUSIVAMENTE em inglês americano" in out
+    assert "FALANDO SÓ EM INGLÊS" in out  # greeting
+    # advanced must NOT carry the adaptive "student decides the proportion" rule
+    assert "Idioma adaptativo" not in out
+
+
+def test_intermediate_asks_language_preference():
+    out = build_tutor_instructions("intermediate", "english-tutor", "Aula", "Jhony", "en")
+    assert "o ALUNO escolhe" in out
+    assert "confortável em fazer a aula toda em inglês ou se prefere em português" in out
+    # if they choose English-only, immersion kicks in; switching back is allowed
+    assert "EXCLUSIVAMENTE em inglês americano (imersão)" in out
+    assert "pode TROCAR a qualquer momento" in out
+
+
+def test_beginner_still_mostly_portuguese():
+    out = build_tutor_instructions("beginner", "english-tutor", "Aula", "Jhony", "en")
+    assert "90% em português" in out
+    assert "imersão total" not in out
+
+
+def test_advanced_spanish_is_spanish_only():
+    out = build_tutor_instructions("advanced", "spanish-tutor", "", "Jhony", "es")
+    assert "EXCLUSIVAMENTE em espanhol" in out
