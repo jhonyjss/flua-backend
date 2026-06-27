@@ -1,4 +1,4 @@
-"""Free-conversation credit pool (5 min/week free · 90/180 min/month paid)."""
+"""Free-conversation credit pool (daily limits by plan)."""
 import json
 
 import httpx
@@ -21,7 +21,7 @@ def _sub_handler(plan_level=None, status="active", usage=None):
     return handler
 
 
-def test_free_plan_gets_five_minutes_per_week(client, auth_headers, mock_transport):
+def test_free_plan_gets_five_minutes_per_day(client, auth_headers, mock_transport):
     mock_transport(_sub_handler())
     res = client.get("/api/users/me/conversation/time", headers=auth_headers)
     assert res.status_code == 200
@@ -30,24 +30,31 @@ def test_free_plan_gets_five_minutes_per_week(client, auth_headers, mock_transpo
     assert data["remainingSeconds"] == 300
     assert data["expired"] is False
     assert data["isFree"] is True
-    assert data["periodLabel"] == "semana"
+    assert data["periodLabel"] == "dia"
 
 
-def test_starter_plan_gets_ninety_minutes_per_month(client, auth_headers, mock_transport):
+def test_starter_plan_gets_ten_minutes_per_day(client, auth_headers, mock_transport):
     mock_transport(_sub_handler(plan_level="starter"))
     res = client.get("/api/users/me/conversation/time", headers=auth_headers)
     assert res.status_code == 200
     data = res.json()
-    assert data["limitSeconds"] == 90 * 60
+    assert data["limitSeconds"] == 10 * 60
     assert data["isFree"] is False
-    assert data["periodLabel"] == "mês"
+    assert data["periodLabel"] == "dia"
 
 
-def test_pro_plan_gets_double_the_starter_budget(client, auth_headers, mock_transport):
+def test_pro_plan_gets_thirty_minutes_per_day(client, auth_headers, mock_transport):
     mock_transport(_sub_handler(plan_level="pro_yearly"))  # suffixed level still maps to pro
     res = client.get("/api/users/me/conversation/time", headers=auth_headers)
     assert res.status_code == 200
-    assert res.json()["limitSeconds"] == 180 * 60
+    assert res.json()["limitSeconds"] == 30 * 60
+
+
+def test_premium_plan_gets_sixty_minutes_per_day(client, auth_headers, mock_transport):
+    mock_transport(_sub_handler(plan_level="premium_monthly"))
+    res = client.get("/api/users/me/conversation/time", headers=auth_headers)
+    assert res.status_code == 200
+    assert res.json()["limitSeconds"] == 60 * 60
 
 
 def test_heartbeat_accumulates_clamps_and_expires_for_free(client, auth_headers, mock_transport):
@@ -69,7 +76,7 @@ def test_heartbeat_accumulates_clamps_and_expires_for_free(client, auth_headers,
     assert r1.json()["consumedSeconds"] == 90
     assert r1.json()["expired"] is False
 
-    # Accumulates until the 5-min (300s) weekly free budget is spent.
+    # Accumulates until the 5-min (300s) daily free budget is spent.
     for _ in range(3):
         r = client.post("/api/users/me/conversation/time/heartbeat", json={"deltaSeconds": 90}, headers=auth_headers)
     assert state["consumed"] >= 300

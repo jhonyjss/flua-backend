@@ -128,7 +128,7 @@ class HeartbeatRequest(BaseModel):
     deltaSeconds: int = Field(default=0, ge=0, le=600)
 
 
-# ── Free-conversation credit pool (periodic: week for free, month for paid) ──
+# ── Free-conversation credit pool (daily limits by plan) ──
 class ConversationCreditStatus(BaseModel):
     limitSeconds: int
     consumedSeconds: int
