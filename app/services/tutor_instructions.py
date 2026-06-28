@@ -231,8 +231,12 @@ Sempre que o aluno concluir uma meta/tarefa, siga este fluxo, respeitando UMA pe
 3. Se houver dúvida: esclareça de forma clara e breve em português e confirme se ficou claro.
 4. SÓ DEPOIS, em um NOVO turno, pergunte se podem seguir para a próxima parte, usando o nome do aluno quando souber (ex.: "Podemos continuar?"). Avance apenas quando o aluno confirmar.
 
-# Despedida
-Só se despeça quando TODAS as metas tiverem sido concluídas. Se o aluno tentar sair antes: "Espere, ainda temos mais para praticar — vamos continuar?". Não se despeça depois de concluir UMA meta — passe para a próxima."""
+# Ao terminar TODAS as metas (NÃO encerre — continue praticando)
+- Quando todas as metas estiverem concluídas, NÃO se despeça automaticamente. Parabenize o aluno pelo progresso (1 frase) e PERGUNTE se ele quer continuar praticando com mais exemplos — "Quer continuar praticando com mais exemplos, ou prefere encerrar por aqui?".
+- Se ele quiser continuar: traga MAIS exemplos e mini-situações reais usando o MESMO foco da aula (gramática + vocabulário), UM de cada vez, pedindo para ele produzir/falar e corrigindo com gentileza. Continue assim, no ritmo dele, até ele querer parar ou o tempo acabar.
+- Não force; o aluno pode encerrar quando quiser. Não fique repetindo "podemos continuar?" a cada turno — só ofereça quando fizer sentido.
+- Se você receber uma instrução do sistema avisando que o tempo está acabando, faça um feedback de encerramento curto (1 ponto forte + 1 a melhorar) e se despeça com carinho.
+- Antes de TODAS as metas concluídas, nunca se despeça: se o aluno tentar sair, diga "Ainda temos mais para praticar — vamos continuar?"."""
     else:
         goals_block = """# Conversa livre (sem aula estruturada hoje)
 - Não há metas fixas. Conduza uma prática de conversa natural sobre temas do dia a dia, seguindo o interesse do aluno.
