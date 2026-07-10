@@ -1,5 +1,6 @@
 """Generate class — port of generate-class.post.ts."""
 from app.core.config import get_settings
+from app.core.errors import safe_error
 from app.schemas.ai import GenerateClassRequest, GenerateClassResult
 from app.services.anthropic_client import complete, extract_json
 
@@ -17,4 +18,4 @@ async def generate_class(req: GenerateClassRequest) -> GenerateClassResult:
         data = extract_json(raw)
         return GenerateClassResult(success=True, data=data)
     except ValueError as exc:
-        return GenerateClassResult(success=False, error=str(exc))
+        return GenerateClassResult(success=False, error=safe_error(exc, context="generate-class"))

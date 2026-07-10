@@ -1,6 +1,8 @@
 """Help answer — port of help-answer.post.ts."""
 from app.core.config import get_settings
+from app.core.errors import safe_error
 from app.schemas.ai import HelpAnswerRequest, HelpAnswerResult
+from app.services.ai.prompt_safety import INJECTION_GUARD
 from app.services.anthropic_client import complete, extract_json
 
 SYSTEM_PROMPT = """You are a bilingual English teacher (Portuguese/English) helping a Brazilian student.
@@ -42,7 +44,7 @@ async def help_answer(req: HelpAnswerRequest) -> HelpAnswerResult:
         )
     try:
         raw = await complete(
-            SYSTEM_PROMPT,
+            SYSTEM_PROMPT + INJECTION_GUARD,
             _user_prompt(req),
             max_tokens=512,
             temperature=0.3,
@@ -54,5 +56,8 @@ async def help_answer(req: HelpAnswerRequest) -> HelpAnswerResult:
             explanationPt=data.get("explanationPt", ""),
             exampleAnswer=data.get("exampleAnswer", ""),
         )
-    except (ValueError, Exception) as exc:
-        return HelpAnswerResult(success=False, error=str(exc) or "Não foi possível responder agora.")
+    except Exception as exc:
+        return HelpAnswerResult(
+            success=False,
+            error=safe_error(exc, context="help-answer", user_message="Não foi possível responder agora."),
+        )

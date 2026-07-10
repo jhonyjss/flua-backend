@@ -5,6 +5,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, Query, Response
 
 from app.core.auth import AuthUser, get_current_user
+from app.core.errors import safe_error
 from app.schemas.learning import (
     SaveResult,
     VocabularySummary,
@@ -39,7 +40,7 @@ async def save_vocabulary(
         data = await study.save_vocabulary_word(user.id, body.model_dump())
         return SaveResult(success=True, data=data)
     except Exception as err:  # surface a clean error to the client
-        return SaveResult(success=False, error=str(err))
+        return SaveResult(success=False, error=safe_error(err, context="save-vocabulary"))
 
 
 @user_router.get("/grammar-progress", response_model=list[dict[str, Any]])

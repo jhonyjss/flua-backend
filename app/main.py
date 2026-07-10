@@ -1,10 +1,13 @@
 """FlueAI backend — FastAPI application factory."""
 import logging
+import uuid
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.core.config import get_settings
+from app.core.telegram import notify_telegram
 from app.routers import (
     ai,
     avatar,
@@ -55,8 +58,9 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=settings.cors_origin_list,
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        # Narrowed from "*": only the verbs/headers the frontend actually uses.
+        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type"],
     )
 
     @app.middleware("http")
@@ -66,6 +70,27 @@ def create_app() -> FastAPI:
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "no-referrer"
         return response
+
+    @app.exception_handler(Exception)
+    async def _unhandled_exception(request: Request, exc: Exception) -> JSONResponse:
+        """Alert on any unhandled 500 and return a generic, ref'd response.
+
+        HTTPException / validation errors have their own handlers and are not
+        caught here — only genuine unhandled bugs, which are what we want paged.
+        """
+        ref = uuid.uuid4().hex[:8]
+        logging.getLogger("flueai.errors").exception(
+            "[unhandled] ref=%s %s %s", ref, request.method, request.url.path
+        )
+        await notify_telegram(
+            f"🐞 Backend 500 (ref: {ref})\n{request.method} {request.url.path}\n"
+            f"{type(exc).__name__}: {str(exc)[:300]}",
+            signature=f"be:{type(exc).__name__}:{request.url.path}",
+        )
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "error": f"Ocorreu um erro inesperado. (ref: {ref})"},
+        )
 
     @app.on_event("startup")
     def _warm_speech_pipeline() -> None:

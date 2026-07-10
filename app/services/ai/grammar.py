@@ -1,5 +1,6 @@
 """Grammar analysis — port of grammar-analysis.post.ts."""
 from app.schemas.ai import GrammarAnalysisRequest, GrammarAnalysisResult
+from app.services.ai.prompt_safety import INJECTION_GUARD
 from app.services.anthropic_client import complete, extract_json
 
 
@@ -19,6 +20,7 @@ def build_grammar_system_prompt(req: GrammarAnalysisRequest) -> str:
         '"severity": "minor"|"important"|"critical"}], '
         '"correctedMessage": str, "encouragement": str (English), "encouragementPt": str (Portuguese), '
         '"phrasesUsed": [str], "overallScore": int 0-100}'
+        + INJECTION_GUARD
     )
 
 

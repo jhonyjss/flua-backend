@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.auth import AuthUser
 from app.core.config import get_settings
+from app.core.errors import safe_error
 from app.core.rate_limit import rate_limited
 from app.schemas.voice import (
     VoiceChatRequest,
@@ -28,7 +29,7 @@ async def chat(
     try:
         reply = await voice_chat(body)
     except ValueError as exc:
-        raise HTTPException(400, str(exc)) from exc
+        raise HTTPException(400, safe_error(exc, context="voice-chat")) from exc
     return VoiceChatResult(reply=reply)
 
 

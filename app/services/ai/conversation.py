@@ -7,7 +7,9 @@ from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
 
+from app.core.errors import safe_error
 from app.schemas.ai import ConversationHistoryItem, ConversationResponseRequest, NpcCharacter
+from app.services.ai.prompt_safety import INJECTION_GUARD
 from app.services.anthropic_client import complete
 
 _DATA_DIR = Path(__file__).resolve().parent / "data"
@@ -254,7 +256,7 @@ def _sanitize_beginner(text: str) -> str:
 
 async def run_conversation(req: ConversationResponseRequest) -> tuple[bool, str, str | None]:
     safe_user = req.userMessage.strip()[:2000]
-    system = build_system_prompt(req)
+    system = build_system_prompt(req) + INJECTION_GUARD
     user_msg = _build_user_message(req, safe_user)
     try:
         raw = await complete(
@@ -266,7 +268,7 @@ async def run_conversation(req: ConversationResponseRequest) -> tuple[bool, str,
             temperature=0.5,
         )
     except Exception as exc:
-        return False, "", str(exc)
+        return False, "", safe_error(exc, context="conversation-response")
 
     response = raw.strip()
     if req.userLevel == "beginner" and not req.teacherMode and not req.portugueseExplanations:

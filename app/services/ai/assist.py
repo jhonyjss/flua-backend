@@ -1,6 +1,8 @@
 """Assist — port of assist.post.ts."""
 from app.core.config import get_settings
+from app.core.errors import safe_error
 from app.schemas.ai import AssistRequest, AssistResult
+from app.services.ai.prompt_safety import INJECTION_GUARD, wrap_user_input
 from app.services.anthropic_client import complete
 
 SYSTEM_PROMPTS = {
@@ -20,13 +22,13 @@ async def assist(req: AssistRequest) -> AssistResult:
     system = SYSTEM_PROMPTS.get(req.action)
     if not system:
         return AssistResult(success=False, error="Invalid action")
-    user = req.text
+    user = wrap_user_input(req.text)
     if req.action == "translate" and req.targetLanguage:
-        user = f"Translate to {req.targetLanguage}:\n\n{req.text}"
+        user = f"Translate to {req.targetLanguage}:\n\n{wrap_user_input(req.text)}"
     elif req.action == "suggest" and req.context and req.field:
         user = f"Context: {req.context}\n\nSuggest content for the \"{req.field}\" field."
     try:
-        result = await complete(system, user, max_tokens=1024, temperature=0.4)
+        result = await complete(system + INJECTION_GUARD, user, max_tokens=1024, temperature=0.4)
         return AssistResult(success=True, result=result.strip())
     except Exception as exc:
-        return AssistResult(success=False, error=str(exc))
+        return AssistResult(success=False, error=safe_error(exc, context="assist"))

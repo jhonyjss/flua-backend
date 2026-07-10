@@ -11,6 +11,7 @@ from app.core.config import get_settings
 from app.schemas.learning_intel import LearningProfile
 from app.services import learning_intel
 from app.services.ai import guardrails, rag
+from app.services.ai.prompt_safety import INJECTION_GUARD
 from app.services.anthropic_client import complete
 
 
@@ -29,6 +30,7 @@ def build_system_prompt(profile: LearningProfile, context: str, sufficient: bool
         "mencione, suponha ou reaproveite dados de outro aluno.\n\n"
         f"# {guardrails.anti_hallucination_rules(sufficient)}"
         f"{rag_block}"
+        + INJECTION_GUARD
     )
 
 

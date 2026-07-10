@@ -6,6 +6,7 @@ import uuid
 import httpx
 
 from app.core.config import get_settings
+from app.core.errors import safe_error
 from app.schemas.ai import GenerateImageRequest, GenerateImageResult
 from app.services.replicate_client import generate_image_url
 
@@ -55,7 +56,7 @@ async def generate_image(req: GenerateImageRequest) -> GenerateImageResult:
             use_flux=use_flux,
         )
     except Exception as exc:
-        return GenerateImageResult(success=False, error=str(exc))
+        return GenerateImageResult(success=False, error=safe_error(exc, context="generate-image"))
 
     storage_url = image_url
     try:

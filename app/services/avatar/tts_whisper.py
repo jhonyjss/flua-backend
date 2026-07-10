@@ -1,6 +1,7 @@
 """TTS + Whisper timestamps for TalkingHead lip-sync."""
 from __future__ import annotations
 
+from app.core.errors import safe_error
 from app.schemas.avatar import TtsWhisperRequest, TtsWhisperResult
 from app.services.openai_client import audio_base64, tts_whisper_timestamps
 
@@ -22,7 +23,7 @@ async def tts_whisper(req: TtsWhisperRequest) -> TtsWhisperResult:
     try:
         audio, whisper_words = await tts_whisper_timestamps(text, voice=voice)
     except Exception as exc:
-        return TtsWhisperResult(success=False, words=[], wtimes=[], wdurations=[], provider="browser", error=str(exc))
+        return TtsWhisperResult(success=False, words=[], wtimes=[], wdurations=[], provider="browser", error=safe_error(exc, context="tts-whisper"))
 
     words: list[str] = []
     wtimes: list[float] = []
