@@ -1,4 +1,4 @@
-"""Server-enforced per-lesson time budget (5 min free / 15 min paid)."""
+"""Server-enforced per-lesson time budget (10 min free / 15 min paid)."""
 import json
 
 import httpx
@@ -10,7 +10,7 @@ def _free_subscription_handler(extra=None):
     def handler(request: httpx.Request) -> httpx.Response:
         path = request.url.path
         if "stripe_subscriptions" in path:
-            return httpx.Response(200, json=[])  # free → 5 min
+            return httpx.Response(200, json=[])  # free → 10 min
         if extra is not None and "lesson_time_usage" in path:
             return extra(request)
         if "lesson_time_usage" in path:
@@ -19,13 +19,13 @@ def _free_subscription_handler(extra=None):
     return handler
 
 
-def test_free_plan_gets_five_minute_budget(client, auth_headers, mock_transport):
+def test_free_plan_gets_ten_minute_budget(client, auth_headers, mock_transport):
     mock_transport(_free_subscription_handler())
     res = client.get("/api/users/me/lessons/beginner-01/time", headers=auth_headers)
     assert res.status_code == 200
     data = res.json()
-    assert data["limitSeconds"] == 300
-    assert data["remainingSeconds"] == 300
+    assert data["limitSeconds"] == 600
+    assert data["remainingSeconds"] == 600
     assert data["expired"] is False
 
 
@@ -60,10 +60,10 @@ def test_heartbeat_accumulates_clamps_and_expires(client, auth_headers, mock_tra
     assert r1.json()["consumedSeconds"] == 90
     assert r1.json()["expired"] is False
 
-    # Accumulates across heartbeats until the 5-min (300s) free budget is spent.
-    for _ in range(3):
+    # Accumulates across heartbeats until the 10-min (600s) free budget is spent.
+    for _ in range(6):
         r = client.post("/api/users/me/lessons/L1/time/heartbeat", json={"deltaSeconds": 90}, headers=auth_headers)
-    assert state["consumed"] >= 300
+    assert state["consumed"] >= 600
     assert r.json()["expired"] is True
     assert r.json()["remainingSeconds"] == 0
 

@@ -1,6 +1,6 @@
 """Server-enforced per-lesson time budget.
 
-The free plan gets 5 minutes per lesson and paid plans 15 minutes. The server
+The free plan gets 10 minutes per lesson and paid plans 15 minutes. The server
 is the source of truth (consumed seconds persisted per user+lesson), so the
 limit holds across devices — the client only displays a countdown and sends
 periodic heartbeats.
@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from app.services import supabase_admin as db
 from app.services.user_data import get_subscription
 
-FREE_LIMIT_SECONDS = 5 * 60
+FREE_LIMIT_SECONDS = 10 * 60
 PAID_LIMIT_SECONDS = 15 * 60
 # Heartbeats run ~every 15s; allow some slack for tab-throttling/retries but
 # never more than this per call so a forged delta can't drain the budget.
