@@ -14,9 +14,11 @@ from app.services.tutor_instructions import build_tutor_instructions, cap_lesson
 # NOT "gpt-4o-realtime-preview" (the deprecated beta — 404s with model_not_found).
 # The model is bound to the ephemeral token here; the browser SDP handshake must
 # NOT also pass ?model= (it would mismatch the token's resolved snapshot).
+# The actual model/transcription/noise-reduction are read from settings
+# (env-overridable) — see app/core/config.py. This constant is only a fallback.
 logger = logging.getLogger(__name__)
 
-REALTIME_MODEL = "gpt-realtime"
+REALTIME_MODEL = "gpt-realtime-2"
 
 
 def _turn_detection(turn_mode: str) -> dict:
@@ -44,6 +46,10 @@ def _turn_detection(turn_mode: str) -> dict:
         "type": "server_vad",
         "threshold": 0.5,
         "prefix_padding_ms": 300,
+        # 1400ms (not the playground's 500ms default) is deliberate: educational
+        # mode is client-triggered and must tolerate learners who pause between
+        # words. A short window would finalize the transcript mid-sentence and
+        # cut them off. See tests/test_realtime.py (silence >= 1200).
         "silence_duration_ms": 1400,
         "create_response": False,
         "interrupt_response": False,
@@ -98,6 +104,19 @@ def _transcription_prompt(req: RealtimeSessionRequest, user: AuthUser | None) ->
     )
 
 
+# Transcription models that accept a biasing `prompt`. gpt-realtime-whisper does
+# NOT — passing `prompt` to it 400s ("prompt parameter is not supported"), which
+# would break the whole session. Anything else falls back to a prompt-less config.
+_PROMPT_CAPABLE_TRANSCRIBE = {"gpt-4o-transcribe", "gpt-4o-mini-transcribe", "whisper-1"}
+
+
+def _transcription_config(req: RealtimeSessionRequest, user: AuthUser | None, model: str) -> dict:
+    cfg: dict = {"model": model}
+    if model in _PROMPT_CAPABLE_TRANSCRIBE:
+        cfg["prompt"] = _transcription_prompt(req, user)
+    return cfg
+
+
 async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = None) -> dict:
     """Create the ephemeral client secret; returns {clientSecret, model, instructions}."""
     settings = get_settings()
@@ -109,23 +128,23 @@ async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = No
     if not settings.openai_api_key:
         raise HTTPException(500, "OPENAI_API_KEY not configured")
 
+    model = settings.openai_realtime_model or REALTIME_MODEL
     turn_detection = _turn_detection(req.turnMode)
     logger.info(
-        "[Realtime] session config language=%s mode=%s turnMode=%s vad=%s",
-        req.language, req.mode, req.turnMode, turn_detection,
+        "[Realtime] session config model=%s language=%s mode=%s turnMode=%s vad=%s",
+        model, req.language, req.mode, req.turnMode, turn_detection,
     )
 
     session_config = {
         "type": "realtime",
-        "model": REALTIME_MODEL,
+        "model": model,
         "instructions": instructions,
         "audio": {
             "input": {
-                "noise_reduction": {"type": "near_field"},
-                "transcription": {
-                    "model": "gpt-4o-transcribe",
-                    "prompt": _transcription_prompt(req, user),
-                },
+                "noise_reduction": {"type": settings.openai_realtime_noise_reduction},
+                "transcription": _transcription_config(
+                    req, user, settings.openai_realtime_transcribe_model,
+                ),
                 # Turn-taking config depends on turnMode (see _turn_detection):
                 # educational tolerates learner pauses and is client-triggered;
                 # responsive is the snappy auto-reply VAD. near_field noise
@@ -150,19 +169,22 @@ async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = No
             if attempt < MAX_RETRIES:
                 await asyncio.sleep(0.5 * (attempt + 1))
                 continue
-            raise HTTPException(504, f"OpenAI Realtime timeout: {last_error[:200]}") from err
+            logger.warning("realtime session timeout after retries: %s", last_error)
+            raise HTTPException(504, "O serviço de voz está temporariamente indisponível. Tente novamente.") from err
 
         if res.status_code >= 500 and attempt < MAX_RETRIES:
             last_error = res.text[:200]
             await asyncio.sleep(0.5 * (attempt + 1))
             continue
         if res.status_code != 200:
-            raise HTTPException(502, f"OpenAI Realtime error {res.status_code}: {res.text[:200]}")
+            logger.warning("realtime upstream error %s: %s", res.status_code, res.text[:200])
+            raise HTTPException(502, "O serviço de voz retornou um erro. Tente novamente em instantes.")
 
         data = res.json()
         secret = data.get("value") or (data.get("client_secret") or {}).get("value")
         if not secret:
             raise HTTPException(502, "OpenAI did not return a client secret")
-        return {"clientSecret": secret, "model": REALTIME_MODEL, "instructions": instructions}
+        return {"clientSecret": secret, "model": model, "instructions": instructions}
 
-    raise HTTPException(502, f"OpenAI Realtime failed after retries: {last_error}")
+    logger.warning("realtime session failed after retries: %s", last_error)
+    raise HTTPException(502, "O serviço de voz falhou após várias tentativas. Tente novamente.")

@@ -4,6 +4,7 @@ import httpx
 import jwt
 
 from app.core.auth import AuthUser
+from app.core.config import get_settings
 from app.schemas.realtime import RealtimeSessionRequest
 from app.services.realtime import _turn_detection, build_tutor_instructions_from_request
 from app.services.tutor_instructions import build_tutor_instructions, cap_lesson_context
@@ -167,7 +168,7 @@ def test_session_returns_client_secret(client, auth_headers, mock_transport):
     assert res.status_code == 200
     data = res.json()
     assert data["clientSecret"] == "ek_live_abc"
-    assert data["model"] == "gpt-realtime"
+    assert data["model"] == get_settings().openai_realtime_model  # env-configurable (default gpt-realtime-2.1-mini)
     assert "client_secrets" in captured["url"]
 
 

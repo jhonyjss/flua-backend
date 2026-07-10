@@ -24,10 +24,24 @@ class Settings(BaseSettings):
     anthropic_model_sonnet: str = "claude-sonnet-4-20250514"
     openai_api_key: str = ""
     openai_voice_model: str = "gpt-4o-mini"
+    # OpenAI Realtime (voice class). Env-overridable so models can be swapped
+    # without a redeploy. Values must be valid IDs from GET /v1/models or the
+    # session mint 404s (model_not_found) and voice breaks entirely.
+    # mini = ~3x cheaper audio ($10/$20 per 1M vs $32/$64) than the full family.
+    openai_realtime_model: str = "gpt-realtime-2.1-mini"
+    # gpt-4o-transcribe keeps the biasing `prompt` (accuracy for PT/EN + names);
+    # gpt-realtime-whisper is cheaper but drops the prompt. STT cost is tiny next
+    # to the realtime audio, so accuracy wins by default.
+    openai_realtime_transcribe_model: str = "gpt-4o-transcribe"
+    openai_realtime_noise_reduction: str = "far_field"  # near_field | far_field
     replicate_api_key: str = ""
     elevenlabs_api_key: str = ""
     google_tts_api_key: str = ""
     deepgram_api_key: str = ""
+
+    # Telegram error alerts (dormant unless both are set)
+    telegram_bot_token: str = ""
+    telegram_chat_id: str = ""
 
     # Stripe
     stripe_secret_key: str = ""
