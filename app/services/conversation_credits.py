@@ -27,6 +27,11 @@ WEEK_SECONDS_FREE = 5 * 60
 DAY_SECONDS_STARTER = 10 * 60
 UNLIMITED_SECONDS = 0
 
+# Paid-only cutover: pre-existing accounts get a 7-day grace window to keep their
+# free minutes; after this instant nothing is free. Keep in sync with the
+# frontend (useSubscription.LEGACY_GRACE_ENDS_AT).
+LEGACY_GRACE_ENDS_AT = datetime(2026, 7, 19, 23, 59, 59, tzinfo=timezone.utc)
+
 # Heartbeats run ~every 15s; allow slack for tab-throttling/retries but never
 # more than this per call so a forged delta can't drain the pool.
 MAX_HEARTBEAT_DELTA = 90
@@ -98,6 +103,20 @@ def _status(plan: str, limit: int, consumed: int) -> dict:
     }
 
 
+async def _has_legacy_free_access(user_id: str) -> bool:
+    """Pre-cutover accounts keep the free conversation allowance, but only during
+    the 7-day grace window. After it, nothing is free — even legacy accounts must
+    subscribe. New accounts never get free seconds. Fails OPEN (treats as legacy)
+    inside the window so an infra hiccup never wrongly blocks someone entitled."""
+    if datetime.now(timezone.utc) >= LEGACY_GRACE_ENDS_AT:
+        return False
+    try:
+        row = await db.select_one("profiles", {"id": user_id})
+        return bool((row or {}).get("legacy_free_access"))
+    except Exception:
+        return True
+
+
 async def _plan_state(user_id: str) -> tuple[str, int, str]:
     """(base_plan, limit_seconds, period_key) for the user's current plan."""
     now = datetime.now(timezone.utc)
@@ -106,7 +125,12 @@ async def _plan_state(user_id: str) -> tuple[str, int, str]:
         plan = _base_plan(sub.planLevel, sub.isSubscribed)
     except Exception:
         plan = "pro"  # fail open — treat as a generous paid plan
-    return plan, _LIMITS.get(plan, WEEK_SECONDS_FREE), _period_key(plan, now)
+    limit = _LIMITS.get(plan, WEEK_SECONDS_FREE)
+    # Paid-only strategy: the free tier's minutes belong to grandfathered
+    # accounts only. A new (non-legacy) free user has no free conversation.
+    if plan == "free" and not await _has_legacy_free_access(user_id):
+        limit = 0
+    return plan, limit, _period_key(plan, now)
 
 
 async def get_status(user_id: str) -> dict:
