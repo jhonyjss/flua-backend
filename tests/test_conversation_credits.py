@@ -1,18 +1,32 @@
-"""Free-conversation credit pool (free weekly, starter daily, pro unlimited)."""
+"""Free-conversation credit pool (free weekly, starter daily, pro unlimited).
+
+Paid-only strategy: a *new* (non-legacy) free account gets 0 free seconds.
+Pre-cutover accounts keep the weekly free minutes only during the legacy grace
+window (LEGACY_GRACE_ENDS_AT). Legacy tests freeze that deadline into the future
+so they don't become date-dependent after the real grace ends.
+"""
+import datetime as dt
 import json
 
 import httpx
 
+from app.services import conversation_credits as cc
 
-def _sub_handler(plan_level=None, status="active", usage=None):
+FAR_FUTURE = dt.datetime(2999, 1, 1, tzinfo=dt.timezone.utc)
+
+
+def _sub_handler(plan_level=None, status="active", usage=None, legacy=False):
     """MockTransport handler. `plan_level=None` → free (no subscription row).
-    `usage` lets a test drive the conversation_credits table behaviour."""
+    `usage` lets a test drive the conversation_credits table behaviour.
+    `legacy` sets profiles.legacy_free_access for the grace-window check."""
     def handler(request: httpx.Request) -> httpx.Response:
         path = request.url.path
         if "stripe_subscriptions" in path:
             if plan_level is None:
                 return httpx.Response(200, json=[])
             return httpx.Response(200, json=[{"status": status, "plan_level": plan_level}])
+        if "profiles" in path:
+            return httpx.Response(200, json=[{"id": "u", "legacy_free_access": legacy}])
         if usage is not None and "conversation_credits" in path:
             return usage(request)
         if "conversation_credits" in path:
@@ -21,8 +35,24 @@ def _sub_handler(plan_level=None, status="active", usage=None):
     return handler
 
 
-def test_free_plan_gets_five_minutes_per_week(client, auth_headers, mock_transport):
-    mock_transport(_sub_handler())
+def test_new_free_account_gets_no_conversation(client, auth_headers, mock_transport):
+    """Paid-only: a non-legacy free account has no free conversation minutes."""
+    mock_transport(_sub_handler())  # free, legacy=False
+    res = client.get("/api/users/me/conversation/time", headers=auth_headers)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["limitSeconds"] == 0
+    assert data["remainingSeconds"] == 0
+    assert data["expired"] is True
+    assert data["isFree"] is True
+    assert data["isUnlimited"] is False
+    assert data["periodLabel"] == "semana"
+
+
+def test_legacy_free_gets_five_minutes_within_grace(client, auth_headers, mock_transport, monkeypatch):
+    """Grandfathered accounts keep 5 min/week, but only inside the grace window."""
+    monkeypatch.setattr(cc, "LEGACY_GRACE_ENDS_AT", FAR_FUTURE)
+    mock_transport(_sub_handler(legacy=True))
     res = client.get("/api/users/me/conversation/time", headers=auth_headers)
     assert res.status_code == 200
     data = res.json()
@@ -30,8 +60,16 @@ def test_free_plan_gets_five_minutes_per_week(client, auth_headers, mock_transpo
     assert data["remainingSeconds"] == 300
     assert data["expired"] is False
     assert data["isFree"] is True
-    assert data["isUnlimited"] is False
     assert data["periodLabel"] == "semana"
+
+
+def test_legacy_free_locked_after_grace(client, auth_headers, mock_transport, monkeypatch):
+    """After the grace deadline even legacy accounts get 0 — nothing is free."""
+    monkeypatch.setattr(cc, "LEGACY_GRACE_ENDS_AT", dt.datetime(2000, 1, 1, tzinfo=dt.timezone.utc))
+    mock_transport(_sub_handler(legacy=True))
+    data = client.get("/api/users/me/conversation/time", headers=auth_headers).json()
+    assert data["limitSeconds"] == 0
+    assert data["expired"] is True
 
 
 def test_starter_plan_gets_ten_minutes_per_day(client, auth_headers, mock_transport):
@@ -64,7 +102,9 @@ def test_premium_plan_gets_unlimited_conversation(client, auth_headers, mock_tra
     assert res.json()["isUnlimited"] is True
 
 
-def test_heartbeat_accumulates_clamps_and_expires_for_free(client, auth_headers, mock_transport):
+def test_heartbeat_accumulates_clamps_and_expires_for_free(client, auth_headers, mock_transport, monkeypatch):
+    # Exercise the 5-min weekly free budget via a grandfathered account inside grace.
+    monkeypatch.setattr(cc, "LEGACY_GRACE_ENDS_AT", FAR_FUTURE)
     state = {"consumed": 0, "exists": False}
 
     def usage(request: httpx.Request) -> httpx.Response:
@@ -76,7 +116,7 @@ def test_heartbeat_accumulates_clamps_and_expires_for_free(client, auth_headers,
         state["exists"] = True
         return httpx.Response(201 if request.method == "POST" else 200, json=[{"id": "row1"}])
 
-    mock_transport(_sub_handler(usage=usage))
+    mock_transport(_sub_handler(usage=usage, legacy=True))
 
     # A forged 500s delta is clamped to the 90s max.
     r1 = client.post("/api/users/me/conversation/time/heartbeat", json={"deltaSeconds": 500}, headers=auth_headers)
@@ -110,13 +150,16 @@ def test_conversation_endpoints_require_auth(client):
     ).status_code in (401, 403)
 
 
-def test_status_fails_open_when_table_unreadable(client, auth_headers, mock_transport):
+def test_status_fails_open_when_table_unreadable(client, auth_headers, mock_transport, monkeypatch):
+    monkeypatch.setattr(cc, "LEGACY_GRACE_ENDS_AT", FAR_FUTURE)
+
     def usage(request: httpx.Request) -> httpx.Response:
         return httpx.Response(500, text="relation does not exist")
 
-    mock_transport(_sub_handler(usage=usage))
+    # An entitled user (legacy, in grace) whose usage table is unreadable must
+    # NOT be blocked by the infra error — permissive status returned.
+    mock_transport(_sub_handler(usage=usage, legacy=True))
     res = client.get("/api/users/me/conversation/time", headers=auth_headers)
-    # Infra error must not block the student — permissive status returned.
     assert res.status_code == 200
     assert res.json()["expired"] is False
 
