@@ -199,3 +199,62 @@ def test_retries_then_fails_on_5xx(client, auth_headers, mock_transport):
     res = client.post("/api/realtime/session", json={}, headers=auth_headers)
     assert res.status_code == 502
     assert calls["n"] == 2  # initial + 1 retry
+
+
+# ── Free conversation is paid-only on the server too ──────────────────────────
+def _plan_and_openai(plan_level=None, consumed=0, calls=None):
+    """Supabase answers for the plan and the period usage; OpenAI answers the client secret."""
+    def handler(request: httpx.Request) -> httpx.Response:
+        path = request.url.path
+        if "client_secrets" in path:
+            if calls is not None:
+                calls.append("openai")
+            return httpx.Response(200, json={"value": "ek_live_abc"})
+        if "stripe_subscriptions" in path:
+            rows = [] if plan_level is None else [{"status": "active", "plan_level": plan_level}]
+            return httpx.Response(200, json=rows)
+        if "profiles" in path:
+            return httpx.Response(200, json=[{"id": "u", "legacy_free_access": False}])
+        if "conversation_credits" in path:
+            rows = [{"id": "row-1", "consumed_seconds": consumed}] if consumed else []
+            return httpx.Response(200, json=rows)
+        return httpx.Response(200, json=[])
+    return handler
+
+
+def test_free_practice_refused_for_free_account_without_calling_openai(client, auth_headers, mock_transport):
+    calls = []
+    mock_transport(_plan_and_openai(plan_level=None, calls=calls))
+    res = client.post("/api/realtime/session", json={"mode": "free_practice"}, headers=auth_headers)
+    assert res.status_code == 403
+    assert res.json()["detail"]["code"] == "conversation_not_available"
+    assert calls == []  # no OpenAI money spent
+
+
+def test_free_practice_refused_when_period_minutes_are_spent(client, auth_headers, mock_transport):
+    calls = []
+    mock_transport(_plan_and_openai(plan_level="starter_monthly", consumed=10 * 60, calls=calls))
+    res = client.post("/api/realtime/session", json={"mode": "free_practice"}, headers=auth_headers)
+    assert res.status_code == 403
+    assert res.json()["detail"]["expired"] is True
+    assert calls == []
+
+
+def test_free_practice_allowed_with_minutes_left(client, auth_headers, mock_transport):
+    mock_transport(_plan_and_openai(plan_level="starter_monthly", consumed=120))
+    res = client.post("/api/realtime/session", json={"mode": "free_practice"}, headers=auth_headers)
+    assert res.status_code == 200
+    assert res.json()["clientSecret"] == "ek_live_abc"
+
+
+def test_free_practice_allowed_on_unlimited_plan(client, auth_headers, mock_transport):
+    mock_transport(_plan_and_openai(plan_level="pro_yearly"))
+    res = client.post("/api/realtime/session", json={"mode": "free_practice"}, headers=auth_headers)
+    assert res.status_code == 200
+
+
+def test_guided_lesson_stays_open_to_free_accounts(client, auth_headers, mock_transport):
+    # Lessons have their own per-lesson budget (lesson_timer); the conversation gate must not touch them.
+    mock_transport(_plan_and_openai(plan_level=None))
+    res = client.post("/api/realtime/session", json={"mode": "lesson"}, headers=auth_headers)
+    assert res.status_code == 200

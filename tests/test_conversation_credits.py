@@ -15,7 +15,7 @@ from app.services import conversation_credits as cc
 FAR_FUTURE = dt.datetime(2999, 1, 1, tzinfo=dt.timezone.utc)
 
 
-def _sub_handler(plan_level=None, status="active", usage=None, legacy=False):
+def _sub_handler(plan_level=None, status="active", usage=None, legacy=False, role="student"):
     """MockTransport handler. `plan_level=None` → free (no subscription row).
     `usage` lets a test drive the conversation_credits table behaviour.
     `legacy` sets profiles.legacy_free_access for the grace-window check."""
@@ -26,7 +26,7 @@ def _sub_handler(plan_level=None, status="active", usage=None, legacy=False):
                 return httpx.Response(200, json=[])
             return httpx.Response(200, json=[{"status": status, "plan_level": plan_level}])
         if "profiles" in path:
-            return httpx.Response(200, json=[{"id": "u", "legacy_free_access": legacy}])
+            return httpx.Response(200, json=[{"id": "u", "legacy_free_access": legacy, "role": role}])
         if usage is not None and "conversation_credits" in path:
             return usage(request)
         if "conversation_credits" in path:
@@ -184,3 +184,12 @@ def test_base_plan_maps_suffixed_plan_name_to_tier():
     assert _base_plan("pro_yearly", True) == "pro"
     assert _base_plan(None, True) == "free"          # missing level → free
     assert _base_plan("starter_monthly", False) == "free"  # not subscribed → free
+
+
+def test_admin_gets_unlimited_conversation_without_a_subscription(client, auth_headers, mock_transport):
+    """Admins have no Stripe row but must not be locked out (parity with the site's isAdmin)."""
+    mock_transport(_sub_handler(plan_level=None, role="admin"))
+    data = client.get("/api/users/me/conversation/time", headers=auth_headers).json()
+    assert data["isUnlimited"] is True
+    assert data["expired"] is False
+    assert data["planLevel"] == "premium"

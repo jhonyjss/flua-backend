@@ -117,9 +117,21 @@ async def _has_legacy_free_access(user_id: str) -> bool:
         return True
 
 
+async def _is_admin(user_id: str) -> bool:
+    """Admins (profiles.role = 'admin') get the conversation unlimited, the server-side twin of the
+    site's isAdmin bypass in useLessonAccess. Fails CLOSED: an unreadable profile is not an admin."""
+    try:
+        row = await db.select_one("profiles", {"id": user_id})
+        return (row or {}).get("role") == "admin"
+    except Exception:
+        return False
+
+
 async def _plan_state(user_id: str) -> tuple[str, int, str]:
     """(base_plan, limit_seconds, period_key) for the user's current plan."""
     now = datetime.now(timezone.utc)
+    if await _is_admin(user_id):
+        return "premium", _LIMITS["premium"], _period_key("premium", now)
     try:
         sub = await get_subscription(user_id)
         plan = _base_plan(sub.planLevel, sub.isSubscribed)
@@ -131,6 +143,14 @@ async def _plan_state(user_id: str) -> tuple[str, int, str]:
     if plan == "free" and not await _has_legacy_free_access(user_id):
         limit = 0
     return plan, limit, _period_key(plan, now)
+
+
+def can_converse(status: dict) -> bool:
+    """Whether a status allows starting a free conversation: an unlimited plan, or minutes left
+    in the current period. Mirrors the clients' gate (site FreePractice, app canConverse)."""
+    if status.get("isUnlimited"):
+        return True
+    return status.get("limitSeconds", 0) > 0 and not status.get("expired") and status.get("remainingSeconds", 0) > 0
 
 
 async def get_status(user_id: str) -> dict:
