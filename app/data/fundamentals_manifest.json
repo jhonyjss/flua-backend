@@ -1,0 +1,645 @@
+{
+  "contentVersion": "0.2.0",
+  "track": "fundamentals",
+  "activities": [
+    {
+      "id": "fund-u1-l1",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u1-l1-e1",
+        "fund-u1-l1-e2",
+        "fund-u1-l1-e3",
+        "fund-u1-l1-e4",
+        "fund-u1-l1-e5",
+        "fund-u1-l1-e6",
+        "fund-u1-l1-e7",
+        "fund-u1-l1-e8"
+      ],
+      "concepts": [
+        "c-hello",
+        "c-goodbye",
+        "c-i-am",
+        "c-my-name-is",
+        "c-whats-your-name"
+      ]
+    },
+    {
+      "id": "fund-u1-l2",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u1-l2-e1",
+        "fund-u1-l2-e2",
+        "fund-u1-l2-e3",
+        "fund-u1-l2-e4",
+        "fund-u1-l2-e5",
+        "fund-u1-l2-e6",
+        "fund-u1-l2-e7",
+        "fund-u1-l2-e8"
+      ],
+      "concepts": [
+        "c-hi",
+        "c-nice-to-meet-you",
+        "c-im",
+        "c-my-name-is"
+      ]
+    },
+    {
+      "id": "fund-u1-l3",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u1-l3-e1",
+        "fund-u1-l3-e2",
+        "fund-u1-l3-e3",
+        "fund-u1-l3-e4",
+        "fund-u1-l3-e5",
+        "fund-u1-l3-e6",
+        "fund-u1-l3-e7",
+        "fund-u1-l3-e8"
+      ],
+      "concepts": [
+        "c-you-are",
+        "c-are-you",
+        "c-yes-i-am",
+        "c-no-im-not"
+      ]
+    },
+    {
+      "id": "fund-u1-l4",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u1-l4-e1",
+        "fund-u1-l4-e2",
+        "fund-u1-l4-e3",
+        "fund-u1-l4-e4",
+        "fund-u1-l4-e5",
+        "fund-u1-l4-e6",
+        "fund-u1-l4-e7",
+        "fund-u1-l4-e8"
+      ],
+      "concepts": [
+        "c-how-are-you",
+        "c-im-fine",
+        "c-see-you",
+        "c-goodbye",
+        "c-nice-to-meet-you"
+      ]
+    },
+    {
+      "id": "fund-u1-cp",
+      "kind": "checkpoint",
+      "mainExerciseIds": [
+        "fund-u1-cp-e1",
+        "fund-u1-cp-e2",
+        "fund-u1-cp-e3",
+        "fund-u1-cp-e4",
+        "fund-u1-cp-e5",
+        "fund-u1-cp-e6",
+        "fund-u1-cp-e7",
+        "fund-u1-cp-e8",
+        "fund-u1-cp-e9",
+        "fund-u1-cp-e10"
+      ],
+      "concepts": [
+        "c-hello",
+        "c-i-am",
+        "c-whats-your-name",
+        "c-are-you",
+        "c-nice-to-meet-you",
+        "c-you-are",
+        "c-im-fine",
+        "c-see-you",
+        "c-my-name-is",
+        "c-no-im-not"
+      ]
+    },
+    {
+      "id": "fund-u2-l1",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u2-l1-e1",
+        "fund-u2-l1-e2",
+        "fund-u2-l1-e3",
+        "fund-u2-l1-e4",
+        "fund-u2-l1-e5",
+        "fund-u2-l1-e6",
+        "fund-u2-l1-e7",
+        "fund-u2-l1-e8"
+      ],
+      "concepts": [
+        "c-im-from",
+        "c-countries",
+        "c-where-are-you-from",
+        "c-are-you-from"
+      ]
+    },
+    {
+      "id": "fund-u2-l2",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u2-l2-e1",
+        "fund-u2-l2-e2",
+        "fund-u2-l2-e3",
+        "fund-u2-l2-e4",
+        "fund-u2-l2-e5",
+        "fund-u2-l2-e6",
+        "fund-u2-l2-e7",
+        "fund-u2-l2-e8"
+      ],
+      "concepts": [
+        "c-brazilian",
+        "c-nationalities",
+        "c-country-or-nationality"
+      ]
+    },
+    {
+      "id": "fund-u2-l3",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u2-l3-e1",
+        "fund-u2-l3-e2",
+        "fund-u2-l3-e3",
+        "fund-u2-l3-e4",
+        "fund-u2-l3-e5",
+        "fund-u2-l3-e6",
+        "fund-u2-l3-e7",
+        "fund-u2-l3-e8"
+      ],
+      "concepts": [
+        "c-numbers-1-10",
+        "c-numbers-11-20",
+        "c-phone-number"
+      ]
+    },
+    {
+      "id": "fund-u2-l4",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u2-l4-e1",
+        "fund-u2-l4-e2",
+        "fund-u2-l4-e3",
+        "fund-u2-l4-e4",
+        "fund-u2-l4-e5",
+        "fund-u2-l4-e6",
+        "fund-u2-l4-e7",
+        "fund-u2-l4-e8"
+      ],
+      "concepts": [
+        "c-im-years-old",
+        "c-tens",
+        "c-teen-vs-ty",
+        "c-how-old-are-you"
+      ]
+    },
+    {
+      "id": "fund-u2-cp",
+      "kind": "checkpoint",
+      "mainExerciseIds": [
+        "fund-u2-cp-e1",
+        "fund-u2-cp-e2",
+        "fund-u2-cp-e3",
+        "fund-u2-cp-e4",
+        "fund-u2-cp-e5",
+        "fund-u2-cp-e6",
+        "fund-u2-cp-e7",
+        "fund-u2-cp-e8",
+        "fund-u2-cp-e9",
+        "fund-u2-cp-e10"
+      ],
+      "concepts": [
+        "c-where-are-you-from",
+        "c-country-or-nationality",
+        "c-countries",
+        "c-teen-vs-ty",
+        "c-im-years-old",
+        "c-im-from",
+        "c-numbers-11-20",
+        "c-how-old-are-you",
+        "c-phone-number",
+        "c-brazilian"
+      ]
+    },
+    {
+      "id": "fund-u3-l1",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u3-l1-e1",
+        "fund-u3-l1-e2",
+        "fund-u3-l1-e3",
+        "fund-u3-l1-e4",
+        "fund-u3-l1-e5",
+        "fund-u3-l1-e6",
+        "fund-u3-l1-e7",
+        "fund-u3-l1-e8"
+      ],
+      "concepts": [
+        "c-mother-father",
+        "c-brother-sister",
+        "c-son-daughter",
+        "c-my-family-member"
+      ]
+    },
+    {
+      "id": "fund-u3-l2",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u3-l2-e1",
+        "fund-u3-l2-e2",
+        "fund-u3-l2-e3",
+        "fund-u3-l2-e4",
+        "fund-u3-l2-e5",
+        "fund-u3-l2-e6",
+        "fund-u3-l2-e7",
+        "fund-u3-l2-e8"
+      ],
+      "concepts": [
+        "c-phone-key-bag",
+        "c-book-pen",
+        "c-table-chair",
+        "c-it-is-object"
+      ]
+    },
+    {
+      "id": "fund-u3-l3",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u3-l3-e1",
+        "fund-u3-l3-e2",
+        "fund-u3-l3-e3",
+        "fund-u3-l3-e4",
+        "fund-u3-l3-e5",
+        "fund-u3-l3-e6",
+        "fund-u3-l3-e7",
+        "fund-u3-l3-e8"
+      ],
+      "concepts": [
+        "c-apple-egg-orange",
+        "c-a-an-meaning",
+        "c-article-an",
+        "c-article-a"
+      ]
+    },
+    {
+      "id": "fund-u3-l4",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u3-l4-e1",
+        "fund-u3-l4-e2",
+        "fund-u3-l4-e3",
+        "fund-u3-l4-e4",
+        "fund-u3-l4-e5",
+        "fund-u3-l4-e6",
+        "fund-u3-l4-e7",
+        "fund-u3-l4-e8"
+      ],
+      "concepts": [
+        "c-this-near",
+        "c-that-far",
+        "c-this-is-my",
+        "c-what-is-that"
+      ]
+    },
+    {
+      "id": "fund-u3-cp",
+      "kind": "checkpoint",
+      "mainExerciseIds": [
+        "fund-u3-cp-e1",
+        "fund-u3-cp-e2",
+        "fund-u3-cp-e3",
+        "fund-u3-cp-e4",
+        "fund-u3-cp-e5",
+        "fund-u3-cp-e6",
+        "fund-u3-cp-e7",
+        "fund-u3-cp-e8",
+        "fund-u3-cp-e9",
+        "fund-u3-cp-e10"
+      ],
+      "concepts": [
+        "c-mother-father",
+        "c-son-daughter",
+        "c-phone-key-bag",
+        "c-article-an",
+        "c-article-a",
+        "c-this-near",
+        "c-my-family-member",
+        "c-what-is-that",
+        "c-that-far",
+        "c-table-chair"
+      ]
+    },
+    {
+      "id": "fund-u4-l1",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u4-l1-e1",
+        "fund-u4-l1-e2",
+        "fund-u4-l1-e3",
+        "fund-u4-l1-e4",
+        "fund-u4-l1-e5",
+        "fund-u4-l1-e6",
+        "fund-u4-l1-e7",
+        "fund-u4-l1-e8"
+      ],
+      "concepts": [
+        "c-verb-work-study",
+        "c-verb-eat-drink",
+        "c-i-plus-verb"
+      ]
+    },
+    {
+      "id": "fund-u4-l2",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u4-l2-e1",
+        "fund-u4-l2-e2",
+        "fund-u4-l2-e3",
+        "fund-u4-l2-e4",
+        "fund-u4-l2-e5",
+        "fund-u4-l2-e6",
+        "fund-u4-l2-e7",
+        "fund-u4-l2-e8"
+      ],
+      "concepts": [
+        "c-get-up-sleep",
+        "c-morning-night",
+        "c-go-to-work",
+        "c-every-day"
+      ]
+    },
+    {
+      "id": "fund-u4-l3",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u4-l3-e1",
+        "fund-u4-l3-e2",
+        "fund-u4-l3-e3",
+        "fund-u4-l3-e4",
+        "fund-u4-l3-e5",
+        "fund-u4-l3-e6",
+        "fund-u4-l3-e7",
+        "fund-u4-l3-e8"
+      ],
+      "concepts": [
+        "c-i-like",
+        "c-coffee-tea-music",
+        "c-do-you-like",
+        "c-yes-i-do"
+      ]
+    },
+    {
+      "id": "fund-u4-l4",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u4-l4-e1",
+        "fund-u4-l4-e2",
+        "fund-u4-l4-e3",
+        "fund-u4-l4-e4",
+        "fund-u4-l4-e5",
+        "fund-u4-l4-e6",
+        "fund-u4-l4-e7",
+        "fund-u4-l4-e8"
+      ],
+      "concepts": [
+        "c-i-dont-like",
+        "c-like-vs-dont-like",
+        "c-no-i-dont",
+        "c-i-dont-verb"
+      ]
+    },
+    {
+      "id": "fund-u4-cp",
+      "kind": "checkpoint",
+      "mainExerciseIds": [
+        "fund-u4-cp-e1",
+        "fund-u4-cp-e2",
+        "fund-u4-cp-e3",
+        "fund-u4-cp-e4",
+        "fund-u4-cp-e5",
+        "fund-u4-cp-e6",
+        "fund-u4-cp-e7",
+        "fund-u4-cp-e8",
+        "fund-u4-cp-e9",
+        "fund-u4-cp-e10"
+      ],
+      "concepts": [
+        "c-verb-work-study",
+        "c-verb-eat-drink",
+        "c-i-plus-verb",
+        "c-morning-night",
+        "c-every-day",
+        "c-like-vs-dont-like",
+        "c-yes-i-do",
+        "c-no-i-dont",
+        "c-i-dont-like",
+        "c-go-to-work"
+      ]
+    },
+    {
+      "id": "fund-u5-l1",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u5-l1-e1",
+        "fund-u5-l1-e2",
+        "fund-u5-l1-e3",
+        "fund-u5-l1-e4",
+        "fund-u5-l1-e5",
+        "fund-u5-l1-e6",
+        "fund-u5-l1-e7",
+        "fund-u5-l1-e8"
+      ],
+      "concepts": [
+        "c-drinks",
+        "c-please",
+        "c-thank-you"
+      ]
+    },
+    {
+      "id": "fund-u5-l2",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u5-l2-e1",
+        "fund-u5-l2-e2",
+        "fund-u5-l2-e3",
+        "fund-u5-l2-e4",
+        "fund-u5-l2-e5",
+        "fund-u5-l2-e6",
+        "fund-u5-l2-e7",
+        "fund-u5-l2-e8"
+      ],
+      "concepts": [
+        "c-food",
+        "c-a-an",
+        "c-with"
+      ]
+    },
+    {
+      "id": "fund-u5-l3",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u5-l3-e1",
+        "fund-u5-l3-e2",
+        "fund-u5-l3-e3",
+        "fund-u5-l3-e4",
+        "fund-u5-l3-e5",
+        "fund-u5-l3-e6",
+        "fund-u5-l3-e7",
+        "fund-u5-l3-e8"
+      ],
+      "concepts": [
+        "c-id-like",
+        "c-can-i-have",
+        "c-what-would-you-like"
+      ]
+    },
+    {
+      "id": "fund-u5-l4",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u5-l4-e1",
+        "fund-u5-l4-e2",
+        "fund-u5-l4-e3",
+        "fund-u5-l4-e4",
+        "fund-u5-l4-e5",
+        "fund-u5-l4-e6",
+        "fund-u5-l4-e7",
+        "fund-u5-l4-e8"
+      ],
+      "concepts": [
+        "c-how-much",
+        "c-dollars",
+        "c-here-you-go"
+      ]
+    },
+    {
+      "id": "fund-u5-cp",
+      "kind": "checkpoint",
+      "mainExerciseIds": [
+        "fund-u5-cp-e1",
+        "fund-u5-cp-e2",
+        "fund-u5-cp-e3",
+        "fund-u5-cp-e4",
+        "fund-u5-cp-e5",
+        "fund-u5-cp-e6",
+        "fund-u5-cp-e7",
+        "fund-u5-cp-e8",
+        "fund-u5-cp-e9",
+        "fund-u5-cp-e10"
+      ],
+      "concepts": [
+        "c-drinks",
+        "c-please",
+        "c-thank-you",
+        "c-food",
+        "c-a-an",
+        "c-id-like",
+        "c-what-would-you-like",
+        "c-can-i-have",
+        "c-dollars",
+        "c-how-much"
+      ]
+    },
+    {
+      "id": "fund-u6-l1",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u6-l1-e1",
+        "fund-u6-l1-e2",
+        "fund-u6-l1-e3",
+        "fund-u6-l1-e4",
+        "fund-u6-l1-e5",
+        "fund-u6-l1-e6",
+        "fund-u6-l1-e7",
+        "fund-u6-l1-e8"
+      ],
+      "concepts": [
+        "c-chat-how-are-you",
+        "c-chat-introduce",
+        "c-chat-nice-to-meet-you"
+      ]
+    },
+    {
+      "id": "fund-u6-l2",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u6-l2-e1",
+        "fund-u6-l2-e2",
+        "fund-u6-l2-e3",
+        "fund-u6-l2-e4",
+        "fund-u6-l2-e5",
+        "fund-u6-l2-e6",
+        "fund-u6-l2-e7",
+        "fund-u6-l2-e8"
+      ],
+      "concepts": [
+        "c-chat-where-from",
+        "c-chat-and-you",
+        "c-chat-family"
+      ]
+    },
+    {
+      "id": "fund-u6-l3",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u6-l3-e1",
+        "fund-u6-l3-e2",
+        "fund-u6-l3-e3",
+        "fund-u6-l3-e4",
+        "fund-u6-l3-e5",
+        "fund-u6-l3-e6",
+        "fund-u6-l3-e7",
+        "fund-u6-l3-e8"
+      ],
+      "concepts": [
+        "c-chat-do-you-like",
+        "c-chat-short-answers",
+        "c-chat-routine"
+      ]
+    },
+    {
+      "id": "fund-u6-l4",
+      "kind": "lesson",
+      "mainExerciseIds": [
+        "fund-u6-l4-e1",
+        "fund-u6-l4-e2",
+        "fund-u6-l4-e3",
+        "fund-u6-l4-e4",
+        "fund-u6-l4-e5",
+        "fund-u6-l4-e6",
+        "fund-u6-l4-e7",
+        "fund-u6-l4-e8"
+      ],
+      "concepts": [
+        "c-chat-order",
+        "c-chat-pay",
+        "c-chat-closing"
+      ]
+    },
+    {
+      "id": "fund-u6-cp",
+      "kind": "checkpoint",
+      "mainExerciseIds": [
+        "fund-u6-cp-e1",
+        "fund-u6-cp-e2",
+        "fund-u6-cp-e3",
+        "fund-u6-cp-e4",
+        "fund-u6-cp-e5",
+        "fund-u6-cp-e6",
+        "fund-u6-cp-e7",
+        "fund-u6-cp-e8",
+        "fund-u6-cp-e9",
+        "fund-u6-cp-e10"
+      ],
+      "concepts": [
+        "c-chat-how-are-you",
+        "c-chat-introduce",
+        "c-chat-nice-to-meet-you",
+        "c-chat-where-from",
+        "c-chat-family",
+        "c-chat-short-answers",
+        "c-chat-routine",
+        "c-chat-do-you-like",
+        "c-chat-pay",
+        "c-chat-order"
+      ]
+    }
+  ]
+}

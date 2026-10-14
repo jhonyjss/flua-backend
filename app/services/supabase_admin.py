@@ -52,13 +52,17 @@ async def select_many(
     order: str | None = None,
     limit: int | None = None,
     in_filters: dict[str, list[str]] | None = None,
+    op_filters: dict[str, str] | None = None,
 ) -> list[dict]:
-    """SELECT <select> FROM table WHERE ... [IN (...)] [ORDER BY] [LIMIT]."""
+    """SELECT <select> FROM table WHERE ... [IN (...)] [ORDER BY] [LIMIT].
+
+    `op_filters` takes PostgREST operators as they are, e.g. {"due_day": "lte.2026-10-14"}."""
     settings = get_settings()
     _require_config(settings)
     params: dict[str, str] = {k: f"eq.{v}" for k, v in filters.items()}
     for col, values in (in_filters or {}).items():
         params[col] = f"in.({','.join(values)})"
+    params.update(op_filters or {})
     params["select"] = select
     if order:
         params["order"] = order
@@ -118,6 +122,45 @@ async def upsert(table: str, row: dict, on_conflict: str) -> None:
         )
     if res.status_code not in (200, 201):
         raise HTTPException(502, f"Supabase upsert error {res.status_code}: {res.text[:200]}")
+
+
+async def delete_storage_prefix(bucket: str, prefix: str) -> int:
+    """Removes every object under `prefix` in `bucket`; returns how many were removed."""
+    settings = get_settings()
+    _require_config(settings)
+    async with http_client(timeout=20.0) as client:
+        listed = await client.post(
+            f"{settings.supabase_url}/storage/v1/object/list/{bucket}",
+            json={"prefix": prefix, "limit": 1000},
+            headers=_headers(settings),
+        )
+        if listed.status_code != 200:
+            raise HTTPException(502, f"Supabase storage list error {listed.status_code}: {listed.text[:200]}")
+        names = [f"{prefix.rstrip('/')}/{item['name']}" for item in listed.json() if item.get("name")]
+        if not names:
+            return 0
+        removed = await client.request(
+            "DELETE",
+            f"{settings.supabase_url}/storage/v1/object/{bucket}",
+            json={"prefixes": names},
+            headers=_headers(settings),
+        )
+    if removed.status_code not in (200, 204):
+        raise HTTPException(502, f"Supabase storage delete error {removed.status_code}: {removed.text[:200]}")
+    return len(names)
+
+
+async def delete_auth_user(user_id: str) -> None:
+    """Deletes the Supabase Auth user; profiles and every user table cascade from it."""
+    settings = get_settings()
+    _require_config(settings)
+    async with http_client(timeout=15.0) as client:
+        res = await client.delete(
+            f"{settings.supabase_url}/auth/v1/admin/users/{user_id}",
+            headers=_headers(settings),
+        )
+    if res.status_code not in (200, 204):
+        raise HTTPException(502, f"Supabase auth delete error {res.status_code}: {res.text[:200]}")
 
 
 async def rpc(fn: str, params: dict) -> list[dict] | dict:

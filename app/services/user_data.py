@@ -37,6 +37,8 @@ def map_profile(row: dict) -> UserProfile:
         explanationLanguage=row.get("explanation_language") or "pt",
         targetLanguage=row.get("target_language") or "en",
         learningGoals=row.get("learning_goals") or [],
+        dailyGoalXp=row.get("daily_goal_xp") or 20,
+        motivation=row.get("motivation") or "daily",
     )
 
 
@@ -56,6 +58,10 @@ def build_profile_update(body: UpdateProfileRequest) -> dict:
         values["target_language"] = body.targetLanguage
     if body.learningGoals is not None:
         values["learning_goals"] = body.learningGoals
+    if body.dailyGoalXp is not None:
+        values["daily_goal_xp"] = body.dailyGoalXp
+    if body.motivation is not None:
+        values["motivation"] = body.motivation
     return values
 
 

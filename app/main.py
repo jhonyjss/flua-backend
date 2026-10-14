@@ -10,6 +10,7 @@ from app.core.config import get_settings
 from app.core.telegram import notify_telegram
 from app.routers import (
     ai,
+    app_progress,
     avatar,
     billing,
     health,
@@ -117,6 +118,7 @@ def create_app() -> FastAPI:
     app.include_router(billing.router)
     app.include_router(users.router)
     app.include_router(learning.router)
+    app.include_router(app_progress.router)
     app.include_router(learning_intel.router)
     app.include_router(study.user_router)
     app.include_router(study.content_router)

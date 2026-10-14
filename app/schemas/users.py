@@ -3,6 +3,8 @@
 Field names are camelCase to mirror the frontend mappers (useAuth profile map
 and the DashStats interface used by the dashboards).
 """
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -18,6 +20,9 @@ class UserProfile(BaseModel):
     explanationLanguage: str = "pt"
     targetLanguage: str = "en"
     learningGoals: list[str] = []
+    # The app's daily focus and motivation (flueai-app docs/backend-contract.md, 3.2).
+    dailyGoalXp: int = 20
+    motivation: str = "daily"
 
 
 class UpdateProfileRequest(BaseModel):
@@ -25,6 +30,8 @@ class UpdateProfileRequest(BaseModel):
     explanationLanguage: str | None = Field(default=None, pattern="^(pt|en)$")
     targetLanguage: str | None = Field(default=None, pattern="^(en|es)$")
     learningGoals: list[str] | None = None
+    dailyGoalXp: Literal[20, 40, 60] | None = None
+    motivation: Literal["daily", "travel", "work"] | None = None
 
 
 class RecentSession(BaseModel):

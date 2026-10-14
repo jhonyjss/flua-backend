@@ -2,6 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.auth import AuthUser, get_current_user
+from app.core.rate_limit import rate_limited
 from app.schemas.users import (
     CompletedLessons,
     DashboardStats,
@@ -13,7 +14,7 @@ from app.schemas.users import (
     UpdateProfileRequest,
     UserProfile,
 )
-from app.services import user_data
+from app.services import account, user_data
 
 router = APIRouter(prefix="/api/users/me", tags=["users"])
 
@@ -76,3 +77,11 @@ async def sessions(
 @router.get("/subscription", response_model=SubscriptionInfo)
 async def subscription(user: AuthUser = Depends(get_current_user)) -> SubscriptionInfo:
     return await user_data.get_subscription(user.id)
+
+
+@router.delete("", status_code=204)
+async def delete_me(
+    user: AuthUser = Depends(rate_limited("delete_account", max_requests=3, window_seconds=3600)),
+) -> None:
+    """Deletes the whole Flue.AI account (app and web): subscription, files, progress, login."""
+    await account.delete_account(user.id)
