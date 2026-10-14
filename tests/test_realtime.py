@@ -30,6 +30,12 @@ def test_instructions_include_name_level_and_context():
     assert "não seja perfeccionista" in text.lower()
 
 
+def test_request_topic_reaches_the_free_practice_opening():
+    req = RealtimeSessionRequest(studentName="Jhony", mode="free_practice", topic="Primeiros contatos")
+    opening = build_tutor_instructions_from_request(req).split("# Como começar")[-1]
+    assert "hoje vão praticar Primeiros contatos" in opening
+
+
 def test_spanish_language_changes_target():
     req = RealtimeSessionRequest(language="es", level="advanced")
     assert "espanhol" in build_tutor_instructions_from_request(req).lower()

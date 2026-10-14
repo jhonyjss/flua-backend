@@ -12,6 +12,15 @@ def cap_lesson_context(raw: str, cap: int = LESSON_CONTEXT_CAP) -> str:
     return raw[:cap] + "\n[…aula truncada para preservar qualidade da resposta…]"
 
 
+TOPIC_CAP = 120
+
+
+def cap_topic(raw: str, cap: int = TOPIC_CAP) -> str:
+    """The free-practice theme is quoted inside one instruction line: collapse it
+    to a single short line so a client can't smuggle extra instructions in."""
+    return " ".join((raw or "").split())[:cap]
+
+
 def _name_rules(name_ref: str) -> str:
     """Identity block. The empty-name branch is the root-cause fix for the AI
     inventing/borrowing a name (e.g. greeting "André" from a practice example):
@@ -109,10 +118,18 @@ def _goals_focus(learning_goals: list[str] | None) -> str:
 - Ao escolher temas, exemplos, vocabulário e situações de prática, puxe para esses focos sempre que fizer sentido. Use-os como tema padrão da conversa livre."""
 
 
-def _free_practice_block(target_label: str) -> str:
+def _free_practice_block(target_label: str, topic: str = "") -> str:
+    goal_line = (
+        f"- O tema de hoje já foi escolhido: {topic}. NÃO ofereça menu de opções: conduza a conversa nesse tema, "
+        "no nível do aluno. Se ele pedir outro assunto, siga o pedido dele."
+        if topic
+        else "- PRIMEIRO descubra o objetivo do aluno: deixe-o escolher o assunto (praticar uma situação real, "
+        f"revisar vocabulário, tirar uma dúvida, ou apenas conversar em {target_label}). Espere a escolha dele "
+        "antes de conduzir — não pule para frases genéricas."
+    )
     return f"""# Prática livre (conversa guiada pelo ALUNO — NÃO é aula estruturada)
 - NÃO existe trilha fixa, lista de metas, pontuação nem marcadores de avaliação. NUNCA comece sua fala com "Correct!"/"Correto!" e NUNCA conduza uma sequência rígida de aula.
-- PRIMEIRO descubra o objetivo do aluno: deixe-o escolher o assunto (praticar uma situação real, revisar vocabulário, tirar uma dúvida, ou apenas conversar em {target_label}). Espere a escolha dele antes de conduzir — não pule para frases genéricas.
+{goal_line}
 - Adapte 100% ao tema escolhido:
   - Ex.: "quero praticar entrevista de emprego" → conduza uma simulação de entrevista, UMA pergunta por vez, corrigindo as respostas com calma (ex.: "Vamos simular uma entrevista. First question: Tell me about yourself.").
   - Ex.: "quero tirar dúvida de phrasal verbs" → pergunte qual ele quer revisar, ou ofereça alguns comuns ligados ao foco dele (ex.: work out, carry out, follow up).
@@ -121,14 +138,29 @@ def _free_practice_block(target_label: str) -> str:
 - Pode se despedir com naturalidade quando o aluno quiser encerrar."""
 
 
+def _topic_greeting(name_ref: str, topic: str, target_label: str) -> str:
+    """Free practice on a theme the client chose: open on it, no goal menu."""
+    first_turn = (
+        f"diga em uma frase que hoje vão praticar {topic}. Em seguida, faça já a primeira pergunta curta desse "
+        f"tema em {target_label} e PARE, esperando a resposta. NÃO ofereça menu de opções."
+    )
+    if name_ref:
+        return f"Cumprimente {name_ref} pelo nome e {first_turn}"
+    return (
+        'Cumprimente de forma acolhedora em uma frase, pergunte "Como posso te chamar?" e pare. '
+        f"Assim que o aluno disser o nome, {first_turn}"
+    )
+
+
 def _build_instructions_english(
     level: str, scenario: str, lesson_context: str, student_name: str,
     explanation_language: str = "pt", learning_goals: list[str] | None = None,
-    mode: str = "lesson",
+    mode: str = "lesson", topic: str = "",
 ) -> str:
     name_ref = student_name.split()[0] if student_name.strip() else ""
     has_name = bool(name_ref)
     is_free = mode == "free_practice"
+    topic = cap_topic(topic) if is_free else ""
     # In free practice, any lesson_context is only a THEME hint — never a rigid syllabus.
     has_lesson = bool(lesson_context) and not is_free
     name_rules = _name_rules(name_ref)
@@ -173,7 +205,9 @@ Iniciante. Fale 90% em português do Brasil. Use inglês americano APENAS nas fr
         "pergunte sobre o que ele gostaria de conversar hoje, oferecendo as opções: "
         "praticar uma situação real, revisar vocabulário, tirar dúvidas ou apenas conversar em inglês"
     )
-    if is_free and has_name:
+    if topic:
+        greeting = _topic_greeting(name_ref, topic, "inglês")
+    elif is_free and has_name:
         greeting = (
             f"Cumprimente {name_ref} pelo nome em uma frase e, em seguida, {free_menu}. "
             "Faça SÓ essa pergunta e PARE, esperando o aluno escolher. NÃO comece nenhuma aula nem frase pronta antes da escolha dele."
@@ -209,7 +243,7 @@ Só depois de {name_ref} responder passe para os tópicos da aula."""
         greeting = 'Cumprimente de forma acolhedora em uma frase, pergunte "Como posso te chamar?" e pare.'
 
     if is_free:
-        goals_block = _free_practice_block("inglês americano")
+        goals_block = _free_practice_block("inglês americano", topic)
     elif has_lesson:
         goals_block = f"""# Avaliação de metas
 - Uma meta está concluída com EXACT_MATCH ou ACCEPTABLE_EQUIVALENT.
@@ -313,11 +347,12 @@ Você fala primeiro, imediatamente ao conectar. {greeting}"""
 def _build_instructions_spanish(
     level: str, scenario: str, lesson_context: str, student_name: str,
     explanation_language: str = "pt", learning_goals: list[str] | None = None,
-    mode: str = "lesson",
+    mode: str = "lesson", topic: str = "",
 ) -> str:
     name_ref = student_name.split()[0] if student_name.strip() else ""
     has_name = bool(name_ref)
     is_free = mode == "free_practice"
+    topic = cap_topic(topic) if is_free else ""
     has_lesson = bool(lesson_context) and not is_free
     name_rules = _name_rules(name_ref)
 
@@ -354,7 +389,9 @@ Iniciante. Fale 90% em português do Brasil. Use espanhol APENAS nas frases e pa
         "pergunte sobre o que ele gostaria de conversar hoje, oferecendo as opções: "
         "praticar uma situação real, revisar vocabulário, tirar dúvidas ou apenas conversar em espanhol"
     )
-    if is_free and has_name:
+    if topic:
+        greeting = _topic_greeting(name_ref, topic, "espanhol")
+    elif is_free and has_name:
         greeting = (
             f"Cumprimente {name_ref} pelo nome em uma frase e, em seguida, {free_menu}. "
             "Faça SÓ essa pergunta e PARE, esperando o aluno escolher."
@@ -385,7 +422,7 @@ Iniciante. Fale 90% em português do Brasil. Use espanhol APENAS nas frases e pa
         greeting = 'Cumprimente de forma acolhedora em uma frase, pergunte "Como posso te chamar?" e pare.'
 
     if is_free:
-        goals_block = _free_practice_block("espanhol")
+        goals_block = _free_practice_block("espanhol", topic)
     elif has_lesson:
         goals_block = f"""# Avaliação de metas
 - Uma meta está concluída com EXACT_MATCH ou ACCEPTABLE_EQUIVALENT.
@@ -432,11 +469,12 @@ def build_tutor_instructions(
     explanation_language: str = "pt",
     learning_goals: list[str] | None = None,
     mode: str = "lesson",
+    topic: str = "",
 ) -> str:
     if language == "es":
         return _build_instructions_spanish(
-            level, scenario, lesson_context, student_name, explanation_language, learning_goals, mode,
+            level, scenario, lesson_context, student_name, explanation_language, learning_goals, mode, topic,
         )
     return _build_instructions_english(
-        level, scenario, lesson_context, student_name, explanation_language, learning_goals, mode,
+        level, scenario, lesson_context, student_name, explanation_language, learning_goals, mode, topic,
     )

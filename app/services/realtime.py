@@ -80,6 +80,7 @@ def build_tutor_instructions_from_request(
         explanation_language=req.explanationLanguage,
         learning_goals=req.learningGoals,
         mode=req.mode,
+        topic=req.topic,
     )
 
 

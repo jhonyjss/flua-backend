@@ -21,6 +21,10 @@ class RealtimeSessionRequest(BaseModel):
     # "lesson" follows the structured lesson path; "free_practice" is open,
     # student-led conversation (asks the goal first, no rigid syllabus).
     mode: Literal["lesson", "free_practice"] = "lesson"
+    # Free practice only: a theme the client already chose (the app sends the
+    # learner's unit, e.g. "Primeiros contatos — Cumprimentar e se apresentar").
+    # Flua opens on it instead of the goal menu. Empty keeps the menu (the site).
+    topic: str = ""
     # Turn-taking: "educational" (default) tolerates long learner pauses and lets
     # the CLIENT decide when Flua responds (no barge-in); "responsive" keeps the
     # snappy auto-reply VAD (opt-in / future premium).

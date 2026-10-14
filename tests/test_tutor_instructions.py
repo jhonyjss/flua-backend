@@ -77,6 +77,69 @@ def test_free_practice_spanish_menu():
     assert "Prática livre" in out
 
 
+# ── Free practice with a topic chosen by the client (the app's unit theme) ──
+
+TOPIC = "Primeiros contatos — Cumprimentar e se apresentar"
+MENU = "praticar uma situação real, revisar vocabulário, tirar dúvidas"
+
+
+def test_free_practice_with_topic_opens_on_it_instead_of_the_menu():
+    out = build_tutor_instructions(
+        "beginner", "english-tutor", "", "Jhony", "en", mode="free_practice", topic=TOPIC,
+    )
+    opening = out.split("# Como começar")[-1]
+    assert f"hoje vão praticar {TOPIC}" in opening
+    assert "Cumprimente Jhony pelo nome" in opening
+    assert MENU not in out
+    assert f"O tema de hoje já foi escolhido: {TOPIC}." in out
+    # still open practice, never the structured lesson path
+    assert "Prática livre" in out
+    assert "Avaliação de metas" not in out
+
+
+def test_free_practice_with_topic_asks_name_first_when_unknown():
+    out = build_tutor_instructions(
+        "beginner", "english-tutor", "", "", "en", mode="free_practice", topic=TOPIC,
+    )
+    opening = out.split("# Como começar")[-1]
+    assert "Como posso te chamar?" in opening
+    assert f"hoje vão praticar {TOPIC}" in opening
+    assert MENU not in out
+
+
+def test_free_practice_spanish_with_topic():
+    out = build_tutor_instructions(
+        "beginner", "spanish-tutor", "", "Jhony", "es", mode="free_practice", topic="En el café",
+    )
+    assert "hoje vão praticar En el café" in out.split("# Como começar")[-1]
+    assert "apenas conversar em espanhol" not in out
+
+
+def test_blank_topic_keeps_the_menu():
+    out = build_tutor_instructions(
+        "beginner", "english-tutor", "", "Jhony", "en", mode="free_practice", topic="   ",
+    )
+    assert MENU in out
+    assert "O tema de hoje já foi escolhido" not in out
+
+
+def test_topic_is_one_short_line():
+    out = build_tutor_instructions(
+        "beginner", "english-tutor", "", "Jhony", "en", mode="free_practice",
+        topic="Primeiros\ncontatos " + "x" * 300,
+    )
+    chosen = out.split("O tema de hoje já foi escolhido: ")[1].split(". NÃO ofereça")[0]
+    # newline collapsed to a space, then capped at 120 chars: "Primeiros contatos " (19) + 101 x
+    assert chosen == "Primeiros contatos " + "x" * 101
+
+
+def test_topic_is_ignored_in_lesson_mode():
+    out = build_tutor_instructions(
+        "beginner", "english-tutor", "Aula: To Be", "Jhony", "en", mode="lesson", topic=TOPIC,
+    )
+    assert TOPIC not in out
+
+
 # ── Level-based language behavior (advanced immersion / intermediate choice) ──
 
 
