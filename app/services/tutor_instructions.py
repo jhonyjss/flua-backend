@@ -190,7 +190,8 @@ def _guided_lesson_block() -> str:
   2. repetir: o aluno repete a frase-modelo.
   3. sua vez: faça o pedido "sua vez" do item, em português, SEM dizer a resposta. O aluno fala uma frase própria.
 - Depois de cada fala do aluno nas etapas repetir e sua vez, o app pede que você chame registrar_resultado. Avalie SÓ a última fala do aluno:
-  - correto: palavras e estrutura certas. Sotaque, ritmo e pronúncia NÃO contam. Em "sua vez", vale qualquer frase correta que cumpra o pedido, com os dados do próprio aluno (o nome dele, não o do exemplo).
+  - correto: palavras e estrutura certas. Sotaque, ritmo e pronúncia NÃO contam. Em "sua vez", vale qualquer frase correta que cumpra o pedido; nomes e dados podem ser outros, diferentes dos do exemplo.
+  - Não dê notas nem porcentagens ("50% natural"): o feedback é só sobre palavras e estrutura.
   - parcial: acertou só parte; ponha em forma_correta a frase completa.
   - incorreto: errou palavra, ordem ou estrutura; ponha em forma_correta a frase certa.
   - fora_do_roteiro: dúvida, pedido de ajuda, fala só em português ou qualquer coisa que não seja uma tentativa.
