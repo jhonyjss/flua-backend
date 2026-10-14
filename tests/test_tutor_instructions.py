@@ -133,6 +133,64 @@ def test_topic_is_one_short_line():
     assert chosen == "Primeiros contatos " + "x" * 101
 
 
+GUIDED = {
+    "title": "Apresentações",
+    "skill": "se apresentar",
+    "items": [
+        {"id": "c-i-am", "english": "I am Ana.", "portuguese": "Eu sou Ana.", "note": "I sempre vem com am."},
+        {"id": "c-my-name-is", "english": "My name is Ana.", "portuguese": "Meu nome é Ana.",
+         "note": "My name\nsempre vem com is.", "cue": "Diga o seu nome para a Flua.",
+         "accepts": ["My name is <nome>.", "I am <nome>."]},
+    ],
+}
+
+
+def _guided(name="Jhony", resume=0):
+    return build_tutor_instructions(
+        "beginner", "english-tutor", "", name, "en", mode="guided_lesson", guided=GUIDED, resume_from_item=resume,
+    )
+
+
+def test_guided_lesson_opens_with_the_lesson_proposal_then_teaches_item_one():
+    opening = _guided().split("# Como começar")[-1]
+    assert "Cumprimente Jhony pelo nome" in opening
+    assert "hoje ele vai aprender a se apresentar" in opening
+    assert "são 2 itens" in opening
+    assert "ensine o item 1 (c-i-am)" in opening
+    assert MENU not in _guided()
+
+
+def test_guided_lesson_lists_every_item_on_one_line_with_its_cue():
+    out = _guided()
+    assert '1. id=c-i-am | frase: "I am Ana." | tradução: "Eu sou Ana." | nota: I sempre vem com am.' in out
+    assert "nota: My name sempre vem com is." in out  # newline collapsed
+    assert 'sua vez: "Diga o seu nome para a Flua." | aceitas: My name is <nome>. / I am <nome>.' in out
+    # an item without a cue lets Flua write the "sua vez" request herself
+    assert "sua vez: (crie um pedido curto em português" in out.split("2. id=")[0]
+
+
+def test_guided_lesson_is_driven_by_the_tool_not_by_flua():
+    out = _guided()
+    assert "registrar_resultado" in out
+    assert "NUNCA avance de item ou de etapa por conta própria" in out
+    # the structured-lesson scaffolding (spoken "Correct!" marker) and the free-practice menu stay out
+    assert "Marcador de avaliação" not in out
+    assert "Prática livre" not in out
+
+
+def test_guided_lesson_resume_skips_the_opening():
+    opening = _guided(resume=1).split("# Como começar")[-1]
+    assert "Vamos continuar de onde paramos" in opening
+    assert "ensine o item 2 (c-my-name-is)" in opening
+    assert "hoje ele vai aprender" not in opening
+
+
+def test_guided_lesson_asks_the_name_first_when_unknown():
+    opening = _guided(name="").split("# Como começar")[-1]
+    assert "Como posso te chamar?" in opening
+    assert "ensine o item 1 (c-i-am)" in opening
+
+
 def test_topic_is_ignored_in_lesson_mode():
     out = build_tutor_instructions(
         "beginner", "english-tutor", "Aula: To Be", "Jhony", "en", mode="lesson", topic=TOPIC,

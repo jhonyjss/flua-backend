@@ -3,7 +3,7 @@
 User-scoped under /api/users/me/* (the JWT subject is the security boundary).
 Writes run their multi-step logic server-side (atomic).
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.core.auth import AuthUser, get_current_user
 from app.schemas.learning import (
@@ -26,7 +26,8 @@ from app.schemas.learning import (
     UnlockLessonRequest,
     XpResult,
 )
-from app.services import conversation_credits, learning, lesson_timer
+from app.schemas.realtime import GuidedLessonAccess
+from app.services import conversation_credits, guided_access, learning, lesson_timer
 
 router = APIRouter(prefix="/api/users/me", tags=["learning"])
 
@@ -67,6 +68,16 @@ async def lesson_time_heartbeat(
 
 
 # ── Free-conversation credit pool (free weekly, starter daily, pro unlimited) ──
+@router.get("/guided-lesson/access", response_model=GuidedLessonAccess)
+async def guided_lesson_access(
+    lessonId: str = Query(min_length=1, max_length=64, pattern=r"^[a-z0-9-]+$"),
+    user: AuthUser = Depends(get_current_user),
+) -> GuidedLessonAccess:
+    """What the app shows on a lesson (read-only); POST /api/realtime/session is what decides."""
+    access = await guided_access.get_access(user.id, lessonId)
+    return GuidedLessonAccess(canStart=access.can_start, reason=access.reason, trialLessonId=access.trial_lesson_id)
+
+
 @router.get("/conversation/time", response_model=ConversationCreditStatus)
 async def conversation_time(user: AuthUser = Depends(get_current_user)) -> ConversationCreditStatus:
     return ConversationCreditStatus(**await conversation_credits.get_status(user.id))

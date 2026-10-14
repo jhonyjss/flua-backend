@@ -117,7 +117,7 @@ async def _has_legacy_free_access(user_id: str) -> bool:
         return True
 
 
-async def _is_admin(user_id: str) -> bool:
+async def is_admin(user_id: str) -> bool:
     """Admins (profiles.role = 'admin') get the conversation unlimited, the server-side twin of the
     site's isAdmin bypass in useLessonAccess. Fails CLOSED: an unreadable profile is not an admin."""
     try:
@@ -130,7 +130,7 @@ async def _is_admin(user_id: str) -> bool:
 async def _plan_state(user_id: str) -> tuple[str, int, str]:
     """(base_plan, limit_seconds, period_key) for the user's current plan."""
     now = datetime.now(timezone.utc)
-    if await _is_admin(user_id):
+    if await is_admin(user_id):
         return "premium", _LIMITS["premium"], _period_key("premium", now)
     try:
         sub = await get_subscription(user_id)

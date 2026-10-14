@@ -152,17 +152,90 @@ def _topic_greeting(name_ref: str, topic: str, target_label: str) -> str:
     )
 
 
+def _one_line(raw: str, cap: int) -> str:
+    return " ".join((raw or "").split())[:cap]
+
+
+def _guided_plan_block(guided: dict) -> str:
+    """The lesson the app sent, one line per item. Every field is collapsed to a
+    capped single line so plan text can't open a new instruction section."""
+    lines = [
+        f"# Plano da aula: {_one_line(guided['title'], 80)}",
+        f"Objetivo: no fim, o aluno consegue {_one_line(guided['skill'], 120)}.",
+        "Itens, nesta ordem (use o id em registrar_resultado):",
+    ]
+    for n, item in enumerate(guided["items"], 1):
+        parts = [f"{n}. id={_one_line(item['id'], 64)}", f'frase: "{_one_line(item["english"], 160)}"']
+        if (portuguese := _one_line(item.get("portuguese", ""), 160)):
+            parts.append(f'tradução: "{portuguese}"')
+        if (note := _one_line(item.get("note", ""), 200)):
+            parts.append(f"nota: {note}")
+        cue = _one_line(item.get("cue", ""), 200)
+        parts.append(
+            f'sua vez: "{cue}"' if cue else
+            "sua vez: (crie um pedido curto em português que leve o aluno a dizer uma frase própria com "
+            "essa estrutura, sem dizer a resposta)"
+        )
+        accepts = [a for a in (_one_line(a, 160) for a in item.get("accepts") or []) if a]
+        if accepts:
+            parts.append(f"aceitas: {' / '.join(accepts)}")
+        lines.append(" | ".join(parts))
+    return "\n".join(lines)
+
+
+def _guided_lesson_block() -> str:
+    return """# Aula guiada (o roteiro é do app — siga-o à risca)
+- Cada item tem 3 etapas, nesta ordem:
+  1. ensinar: diga a frase em inglês, a tradução e a nota em no máximo 2 frases curtas e peça para o aluno repetir. PARE e espere.
+  2. repetir: o aluno repete a frase-modelo.
+  3. sua vez: faça o pedido "sua vez" do item, em português, SEM dizer a resposta. O aluno fala uma frase própria.
+- Depois de cada fala do aluno nas etapas repetir e sua vez, o app pede que você chame registrar_resultado. Avalie SÓ a última fala do aluno:
+  - correto: palavras e estrutura certas. Sotaque, ritmo e pronúncia NÃO contam. Em "sua vez", vale qualquer frase correta que cumpra o pedido, com os dados do próprio aluno (o nome dele, não o do exemplo).
+  - parcial: acertou só parte; ponha em forma_correta a frase completa.
+  - incorreto: errou palavra, ordem ou estrutura; ponha em forma_correta a frase certa.
+  - fora_do_roteiro: dúvida, pedido de ajuda, fala só em português ou qualquer coisa que não seja uma tentativa.
+  - Em o_que_ouviu, copie o que o aluno disse, sem corrigir.
+- A resposta de registrar_resultado traz o próximo passo. Faça exatamente o que ela disser, numa única fala: feedback curto e o próximo pedido.
+- NUNCA avance de item ou de etapa por conta própria, NUNCA pule itens e NUNCA encerre a aula antes da instrução de encerramento.
+- Para o aluno é só uma aula: não fale de itens, etapas, ids nem ferramentas, e não use "Correct!" como marcador."""
+
+
+def _guided_greeting(name_ref: str, guided: dict, resume_from_item: int) -> str:
+    items = guided["items"]
+    start = items[resume_from_item]
+    teach = (
+        f"ensine o item {resume_from_item + 1} ({_one_line(start['id'], 64)}) (etapa ensinar) "
+        "e PARE, esperando o aluno repetir."
+    )
+    if resume_from_item > 0:
+        who = f"chame {name_ref} pelo nome, " if name_ref else ""
+        return f'Retome a aula: {who}diga "Vamos continuar de onde paramos" e {teach}'
+    count = "é 1 item" if len(items) == 1 else f"são {len(items)} itens"
+    proposal = (
+        f"apresente a aula em até 2 frases: hoje ele vai aprender a {_one_line(guided['skill'], 120)}; "
+        f"{count}; funciona assim: você fala, ele repete e depois tenta sozinho. Em seguida, {teach}"
+    )
+    if name_ref:
+        return f"Cumprimente {name_ref} pelo nome e {proposal}"
+    return (
+        'Cumprimente de forma acolhedora em uma frase, pergunte "Como posso te chamar?" e pare. '
+        f"Assim que o aluno disser o nome, {proposal}"
+    )
+
+
 def _build_instructions_english(
     level: str, scenario: str, lesson_context: str, student_name: str,
     explanation_language: str = "pt", learning_goals: list[str] | None = None,
     mode: str = "lesson", topic: str = "",
+    guided: dict | None = None, resume_from_item: int = 0,
 ) -> str:
     name_ref = student_name.split()[0] if student_name.strip() else ""
     has_name = bool(name_ref)
     is_free = mode == "free_practice"
+    is_guided = mode == "guided_lesson" and bool(guided)
     topic = cap_topic(topic) if is_free else ""
     # In free practice, any lesson_context is only a THEME hint — never a rigid syllabus.
-    has_lesson = bool(lesson_context) and not is_free
+    has_lesson = bool(lesson_context) and not is_free and not is_guided
     name_rules = _name_rules(name_ref)
 
     if level == "advanced":
@@ -196,7 +269,8 @@ Iniciante. Fale 90% em português do Brasil. Use inglês americano APENAS nas fr
     )
 
     lesson_guide = (
-        f"\n\n# Aula de hoje\n{lesson_context}\n\nConduza a aula seguindo esses tópicos, um de cada vez. Não pule etapas."
+        f"\n\n{_guided_plan_block(guided)}" if is_guided
+        else f"\n\n# Aula de hoje\n{lesson_context}\n\nConduza a aula seguindo esses tópicos, um de cada vez. Não pule etapas."
         if lesson_context
         else ""
     )
@@ -205,7 +279,9 @@ Iniciante. Fale 90% em português do Brasil. Use inglês americano APENAS nas fr
         "pergunte sobre o que ele gostaria de conversar hoje, oferecendo as opções: "
         "praticar uma situação real, revisar vocabulário, tirar dúvidas ou apenas conversar em inglês"
     )
-    if topic:
+    if is_guided:
+        greeting = _guided_greeting(name_ref, guided, resume_from_item)
+    elif topic:
         greeting = _topic_greeting(name_ref, topic, "inglês")
     elif is_free and has_name:
         greeting = (
@@ -242,7 +318,9 @@ Só depois de {name_ref} responder passe para os tópicos da aula."""
     else:
         greeting = 'Cumprimente de forma acolhedora em uma frase, pergunte "Como posso te chamar?" e pare.'
 
-    if is_free:
+    if is_guided:
+        goals_block = _guided_lesson_block()
+    elif is_free:
         goals_block = _free_practice_block("inglês americano", topic)
     elif has_lesson:
         goals_block = f"""# Avaliação de metas
@@ -348,12 +426,14 @@ def _build_instructions_spanish(
     level: str, scenario: str, lesson_context: str, student_name: str,
     explanation_language: str = "pt", learning_goals: list[str] | None = None,
     mode: str = "lesson", topic: str = "",
+    guided: dict | None = None, resume_from_item: int = 0,
 ) -> str:
     name_ref = student_name.split()[0] if student_name.strip() else ""
     has_name = bool(name_ref)
     is_free = mode == "free_practice"
+    is_guided = mode == "guided_lesson" and bool(guided)
     topic = cap_topic(topic) if is_free else ""
-    has_lesson = bool(lesson_context) and not is_free
+    has_lesson = bool(lesson_context) and not is_free and not is_guided
     name_rules = _name_rules(name_ref)
 
     if level == "advanced":
@@ -380,7 +460,8 @@ Iniciante. Fale 90% em português do Brasil. Use espanhol APENAS nas frases e pa
     )
 
     lesson_guide = (
-        f"\n\n# Aula de hoje\n{lesson_context}\n\nConduza a aula seguindo esses tópicos, um de cada vez. Não pule etapas."
+        f"\n\n{_guided_plan_block(guided)}" if is_guided
+        else f"\n\n# Aula de hoje\n{lesson_context}\n\nConduza a aula seguindo esses tópicos, um de cada vez. Não pule etapas."
         if lesson_context
         else ""
     )
@@ -389,7 +470,9 @@ Iniciante. Fale 90% em português do Brasil. Use espanhol APENAS nas frases e pa
         "pergunte sobre o que ele gostaria de conversar hoje, oferecendo as opções: "
         "praticar uma situação real, revisar vocabulário, tirar dúvidas ou apenas conversar em espanhol"
     )
-    if topic:
+    if is_guided:
+        greeting = _guided_greeting(name_ref, guided, resume_from_item)
+    elif topic:
         greeting = _topic_greeting(name_ref, topic, "espanhol")
     elif is_free and has_name:
         greeting = (
@@ -421,7 +504,9 @@ Iniciante. Fale 90% em português do Brasil. Use espanhol APENAS nas frases e pa
     else:
         greeting = 'Cumprimente de forma acolhedora em uma frase, pergunte "Como posso te chamar?" e pare.'
 
-    if is_free:
+    if is_guided:
+        goals_block = _guided_lesson_block()
+    elif is_free:
         goals_block = _free_practice_block("espanhol", topic)
     elif has_lesson:
         goals_block = f"""# Avaliação de metas
@@ -470,11 +555,11 @@ def build_tutor_instructions(
     learning_goals: list[str] | None = None,
     mode: str = "lesson",
     topic: str = "",
+    guided: dict | None = None,
+    resume_from_item: int = 0,
 ) -> str:
-    if language == "es":
-        return _build_instructions_spanish(
-            level, scenario, lesson_context, student_name, explanation_language, learning_goals, mode, topic,
-        )
-    return _build_instructions_english(
+    builder = _build_instructions_spanish if language == "es" else _build_instructions_english
+    return builder(
         level, scenario, lesson_context, student_name, explanation_language, learning_goals, mode, topic,
+        guided, resume_from_item,
     )

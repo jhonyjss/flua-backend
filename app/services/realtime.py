@@ -81,7 +81,30 @@ def build_tutor_instructions_from_request(
         learning_goals=req.learningGoals,
         mode=req.mode,
         topic=req.topic,
+        guided=req.plan.model_dump() if req.plan else None,
+        resume_from_item=req.resumeFromItem,
     )
+
+
+# Guided lesson: Flua reports every evaluation here instead of the app reading her
+# captions. The app forces it per response (tool_choice on response.create) after
+# each learner attempt and answers with the next step (flueai-app docs/aula-guiada-spec.md).
+GUIDED_LESSON_TOOL = {
+    "type": "function",
+    "name": "registrar_resultado",
+    "description": "Registra a avaliação da última fala do aluno na etapa atual da aula guiada.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "item_id": {"type": "string", "description": "O id do item atual, como no plano da aula."},
+            "etapa": {"type": "string", "enum": ["repetir", "sozinho"]},
+            "resultado": {"type": "string", "enum": ["correto", "parcial", "incorreto", "fora_do_roteiro"]},
+            "o_que_ouviu": {"type": "string", "description": "A frase do aluno, como foi transcrita."},
+            "forma_correta": {"type": "string", "description": "A frase certa, quando o resultado não for correto."},
+        },
+        "required": ["item_id", "etapa", "resultado", "o_que_ouviu"],
+    },
+}
 
 
 def _transcription_prompt(req: RealtimeSessionRequest, user: AuthUser | None) -> str:
@@ -155,6 +178,9 @@ async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = No
             "output": {"voice": req.voice},
         },
     }
+    if req.mode == "guided_lesson":
+        session_config["tools"] = [GUIDED_LESSON_TOOL]
+        session_config["tool_choice"] = "auto"
 
     last_error = "unknown"
     for attempt in range(MAX_RETRIES + 1):
