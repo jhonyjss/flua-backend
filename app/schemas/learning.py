@@ -122,6 +122,8 @@ class LessonTimeStatus(BaseModel):
     consumedSeconds: int
     remainingSeconds: int
     expired: bool
+    # Admins: no lesson budget (the session mint lets them past it too); clients don't count down.
+    isUnlimited: bool = False
 
 
 class HeartbeatRequest(BaseModel):

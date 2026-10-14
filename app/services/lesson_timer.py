@@ -17,6 +17,7 @@ Design choices:
 from datetime import datetime, timezone
 
 from app.services import supabase_admin as db
+from app.services.conversation_credits import is_admin
 from app.services.user_data import get_subscription
 
 FREE_LIMIT_SECONDS = 10 * 60
@@ -32,13 +33,14 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _status(limit: int, consumed: int) -> dict:
+def _status(limit: int, consumed: int, unlimited: bool = False) -> dict:
     consumed = max(0, consumed)
     return {
         "limitSeconds": limit,
         "consumedSeconds": consumed,
-        "remainingSeconds": max(0, limit - consumed),
-        "expired": consumed >= limit,
+        "remainingSeconds": limit if unlimited else max(0, limit - consumed),
+        "expired": False if unlimited else consumed >= limit,
+        "isUnlimited": unlimited,
     }
 
 
@@ -53,17 +55,19 @@ async def limit_for_user(user_id: str) -> int:
 
 async def get_status(user_id: str, lesson_id: str) -> dict:
     limit = await limit_for_user(user_id)
+    unlimited = await is_admin(user_id)
     try:
         row = await db.select_one(_TABLE, {"user_id": user_id, "lesson_id": lesson_id})
     except Exception:
-        return _status(limit, 0)  # table missing / unreachable → fail open
+        return _status(limit, 0, unlimited)  # table missing / unreachable → fail open
     consumed = int((row or {}).get("consumed_seconds") or 0)
-    return _status(limit, consumed)
+    return _status(limit, consumed, unlimited)
 
 
 async def add_time(user_id: str, lesson_id: str, delta_seconds: int) -> dict:
     """Accumulate consumed time for (user, lesson) and return the new status."""
     limit = await limit_for_user(user_id)
+    unlimited = await is_admin(user_id)
     delta = max(0, min(int(delta_seconds or 0), MAX_HEARTBEAT_DELTA))
     try:
         row = await db.select_one(_TABLE, {"user_id": user_id, "lesson_id": lesson_id})
@@ -82,9 +86,9 @@ async def add_time(user_id: str, lesson_id: str, delta_seconds: int) -> dict:
                 "consumed_seconds": new_consumed,
                 "limit_seconds": limit,
             })
-        return _status(limit, new_consumed)
+        return _status(limit, new_consumed, unlimited)
     except Exception:
-        return _status(limit, 0)  # fail open
+        return _status(limit, 0, unlimited)  # fail open
 
 
 async def reset(user_id: str, lesson_id: str) -> None:

@@ -82,3 +82,30 @@ def test_status_fails_open_when_usage_table_unreadable(client, auth_headers, moc
     # Infra error must not lock the student out — permissive status returned.
     assert res.status_code == 200
     assert res.json()["expired"] is False
+
+
+def test_admin_lesson_time_is_unlimited(client, auth_headers, mock_transport):
+    # Server-side twin of the session mint, which lets admins past the lesson budget: the app's
+    # countdown must not end an admin's lesson either.
+    def handler(request: httpx.Request) -> httpx.Response:
+        path = request.url.path
+        if "profiles" in path:
+            return httpx.Response(200, json=[{"id": "u", "role": "admin"}])
+        if "lesson_time_usage" in path:
+            return httpx.Response(200, json=[{"id": "row-1", "consumed_seconds": 3600}])
+        return httpx.Response(200, json=[])
+
+    mock_transport(handler)
+    status = client.get("/api/users/me/lessons/fund-u1-l2/time", headers=auth_headers).json()
+    assert status["isUnlimited"] is True
+    assert status["expired"] is False
+    beat = client.post(
+        "/api/users/me/lessons/fund-u1-l2/time/heartbeat", json={"deltaSeconds": 30}, headers=auth_headers,
+    ).json()
+    assert beat["isUnlimited"] is True
+    assert beat["expired"] is False
+
+
+def test_non_admin_status_says_limited(client, auth_headers, mock_transport):
+    mock_transport(_free_subscription_handler())
+    assert client.get("/api/users/me/lessons/beginner-01/time", headers=auth_headers).json()["isUnlimited"] is False
