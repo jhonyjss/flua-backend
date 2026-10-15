@@ -75,6 +75,8 @@ class SubscriptionInfo(BaseModel):
     status: str | None = None
     cancelAtPeriodEnd: bool = False
     currentPeriodEnd: str | None = None
+    # Where it was bought: "stripe" (site), "app_store" or "play_store" (app, through RevenueCat).
+    source: str | None = None
 
 
 class SkillAverages(BaseModel):

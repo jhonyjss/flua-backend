@@ -3,7 +3,7 @@
 User-scoped under /api/users/me/* (the JWT subject is the security boundary).
 Writes run their multi-step logic server-side (atomic).
 """
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.auth import AuthUser, get_current_user
 from app.schemas.learning import (
@@ -99,6 +99,8 @@ async def achievements(user: AuthUser = Depends(get_current_user)) -> Achievemen
 async def unlock_achievement(
     achievement_id: str, user: AuthUser = Depends(get_current_user),
 ) -> OkResponse:
+    if achievement_id not in learning.WEB_ACHIEVEMENTS:
+        raise HTTPException(422, "Unknown achievement")
     await learning.unlock_achievements(user.id, [achievement_id])
     return OkResponse()
 

@@ -51,6 +51,11 @@ class Settings(BaseSettings):
     stripe_price_pro_monthly: str = ""
     stripe_price_pro_yearly: str = ""
 
+    # RevenueCat (in-app purchases on the App Store and Google Play)
+    revenuecat_secret_key: str = ""
+    # The exact Authorization header value set on the RevenueCat webhook (e.g. "Bearer <random>").
+    revenuecat_webhook_auth: str = ""
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

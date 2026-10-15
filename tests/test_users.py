@@ -135,7 +135,8 @@ def test_streak_endpoint_defaults_when_missing(client, auth_headers, mock_transp
 def test_subscription_endpoint(client, auth_headers, mock_transport):
     rows = [{"status": "active", "plan_level": "starter", "plan_name": "Starter_monthly",
              "cancel_at_period_end": False, "current_period_end": "2026-07-08T00:00:00Z"}]
-    mock_transport(make_supabase_handler({"stripe_subscriptions": rows}))
+    # No purchase in the app stores: the Stripe plan is the one returned.
+    mock_transport(make_supabase_handler({"stripe_subscriptions": rows, "app_store_subscriptions": []}))
     res = client.get("/api/users/me/subscription", headers=auth_headers)
     assert res.status_code == 200
     data = res.json()

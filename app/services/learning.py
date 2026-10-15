@@ -11,15 +11,18 @@ from datetime import date, datetime, timedelta, timezone
 from app.services import supabase_admin as db
 
 XP_PER_LEVEL = 200
+# What the web may grant through POST /achievements/{id} (useStreaks.ts). The app's achievements
+# (first_unit, reviews_5, fundamentals_complete) are decided by finish_app_session only.
+WEB_ACHIEVEMENTS = frozenset({
+    "first_lesson", "lessons_5", "lessons_10", "lessons_24",
+    "streak_3", "streak_7", "streak_14", "streak_30",
+    "perfect_rating", "beginner_complete", "intermediate_complete", "messages_100", "messages_500",
+})
 STREAK_MILESTONES = [(3, "streak_3"), (7, "streak_7"), (14, "streak_14"), (30, "streak_30")]
 
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
-
-
-def _today() -> str:
-    return date.today().isoformat()
 
 
 def normalize_topic_ids(value) -> list[str]:
@@ -243,24 +246,13 @@ async def recent_sessions(user_id: str, limit: int) -> list[dict]:
 # ── XP / level ────────────────────────────────────────────────────────
 
 async def award_xp(user_id: str, amount: int) -> dict | None:
-    profile = await db.select_one("profiles", {"id": user_id})
-    if not profile:
-        return None
-    result = apply_xp(profile.get("xp") or 0, profile.get("level") or 1, amount)
-    await db.update("profiles", {"id": user_id}, {"xp": result["newXp"], "level": result["newLevel"]})
-    return result
+    """XP the web awards, through the shared core (award_web_xp): a ledger entry under a row lock, so the
+    app's "Foco de hoje" counts it and two requests can't lose one. Same answer as apply_xp."""
+    result = await db.rpc("award_web_xp", {"p_user_id": user_id, "p_amount": amount})
+    return result if isinstance(result, dict) else None
 
 
 # ── Streaks / achievements ────────────────────────────────────────────
-
-async def get_or_create_streak(user_id: str) -> dict:
-    row = await db.select_one("user_streaks", {"user_id": user_id})
-    if row:
-        return row
-    created = await db.insert("user_streaks", {"user_id": user_id})
-    return created or {"user_id": user_id, "current_streak": 0, "longest_streak": 0,
-                       "total_practice_days": 0, "weekly_activity": []}
-
 
 async def unlocked_achievement_ids(user_id: str) -> list[str]:
     rows = await db.select_many("user_achievements", {"user_id": user_id}, select="achievement_id")
@@ -277,27 +269,11 @@ async def unlock_achievements(user_id: str, achievement_ids: list[str]) -> None:
 
 
 async def record_practice(user_id: str, time_seconds: int, lesson_completed: bool) -> dict:
-    streak_row = await get_or_create_streak(user_id)
-    transition = compute_streak_transition(streak_row, _today())
-
-    await db.update("user_streaks", {"user_id": user_id}, {
-        "current_streak": transition["current_streak"],
-        "longest_streak": transition["longest_streak"],
-        "last_practice_date": _today(),
-        "streak_start_date": transition["streak_start_date"],
-        "weekly_activity": transition["weekly_activity"],
-        "total_practice_days": (streak_row.get("total_practice_days") or 0) + (1 if transition["isNewDay"] else 0),
-        "total_lessons_completed": (streak_row.get("total_lessons_completed") or 0) + (1 if lesson_completed else 0),
-        "total_time_seconds": (streak_row.get("total_time_seconds") or 0) + time_seconds,
+    """A practice on the web, through the shared core (record_web_practice): the streak day is the São
+    Paulo day the app uses, under a row lock. Same answer as before (compute_streak_transition)."""
+    result = await db.rpc("record_web_practice", {
+        "p_user_id": user_id, "p_time_seconds": time_seconds, "p_lesson_completed": lesson_completed,
     })
-
-    already = await unlocked_achievement_ids(user_id)
-    to_unlock = streak_achievements(transition["current_streak"], already)
-    if to_unlock:
-        await unlock_achievements(user_id, to_unlock)
-
-    return {
-        "streak": transition["current_streak"],
-        "isNewDay": transition["isNewDay"],
-        "achievementsUnlocked": to_unlock,
-    }
+    if not isinstance(result, dict):
+        raise TypeError("record_web_practice returned no result")
+    return result

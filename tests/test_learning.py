@@ -1,3 +1,5 @@
+import json
+
 import httpx
 
 from app.services.learning import (
@@ -8,7 +10,6 @@ from app.services.learning import (
     streak_achievements,
 )
 from app.services.study import compute_vocabulary_summary
-
 
 # ── Pure helpers ──────────────────────────────────────────────────────
 
@@ -151,26 +152,56 @@ def test_complete_lesson_endpoint(client, auth_headers, mock_transport):
     assert '"score":100' in body
 
 
-def test_award_xp_endpoint(client, auth_headers, mock_transport):
-    mock_transport(supabase_handler({"profiles": [{"id": "u", "xp": 180, "level": 1}]}))
+def _core(answers, calls):
+    """The web's XP and streak go through Postgres functions (stage B3); fake them at the HTTP boundary."""
+    def handler(request: httpx.Request) -> httpx.Response:
+        name = request.url.path.rsplit("/", 1)[-1]
+        calls.append((name, json.loads(request.content) if request.content else None))
+        answer = answers.get(name, [])
+        # A function returning NULL comes back from PostgREST as the JSON literal null.
+        return httpx.Response(200, content=json.dumps(answer).encode(), headers={"content-type": "application/json"})
+
+    return handler
+
+
+def test_award_xp_goes_through_the_core_and_keeps_its_answer(client, auth_headers, mock_transport):
+    calls = []
+    mock_transport(_core({"award_web_xp": {"newXp": 230, "newLevel": 2, "leveledUp": True}}, calls))
     res = client.post("/api/users/me/xp", json={"amount": 50}, headers=auth_headers)
     assert res.status_code == 200
     assert res.json() == {"newXp": 230, "newLevel": 2, "leveledUp": True}
+    assert calls == [("award_web_xp", {"p_user_id": "00000000-0000-0000-0000-000000000001", "p_amount": 50})]
 
 
-def test_record_practice_endpoint(client, auth_headers, mock_transport):
-    streak_row = [{"user_id": "u", "current_streak": 2, "longest_streak": 2,
-                   "last_practice_date": None, "weekly_activity": [], "total_practice_days": 0}]
-    mock_transport(supabase_handler({"user_streaks": streak_row, "user_achievements": []}))
+def test_award_xp_without_profile_is_a_no_op(client, auth_headers, mock_transport):
+    mock_transport(_core({"award_web_xp": None}, []))
+    res = client.post("/api/users/me/xp", json={"amount": 50}, headers=auth_headers)
+    assert res.json() == {"newXp": 0, "newLevel": 1, "leveledUp": False}
+
+
+def test_record_practice_goes_through_the_core(client, auth_headers, mock_transport):
+    calls = []
+    mock_transport(_core(
+        {"record_web_practice": {"streak": 3, "isNewDay": True, "achievementsUnlocked": ["streak_3"]}}, calls,
+    ))
     res = client.post(
-        "/api/users/me/practice",
-        json={"timeSeconds": 120, "lessonCompleted": True},
-        headers=auth_headers,
+        "/api/users/me/practice", json={"timeSeconds": 120, "lessonCompleted": True}, headers=auth_headers,
     )
-    assert res.status_code == 200
-    body = res.json()
-    assert body["isNewDay"] is True
-    assert body["streak"] == 1
+    assert res.json() == {"streak": 3, "isNewDay": True, "achievementsUnlocked": ["streak_3"]}
+    assert calls == [("record_web_practice", {
+        "p_user_id": "00000000-0000-0000-0000-000000000001", "p_time_seconds": 120, "p_lesson_completed": True,
+    })]
+
+
+def test_web_can_only_grant_web_achievements(client, auth_headers, mock_transport):
+    calls = []
+    mock_transport(_core({}, calls))
+    assert client.post("/api/users/me/achievements/messages_100", headers=auth_headers).status_code == 200
+    assert [name for name, _ in calls] == ["user_achievements"]
+    # The app's achievements are decided by the core only; nor can a client invent an id.
+    for refused in ("fundamentals_complete", "first_unit", "made_up"):
+        assert client.post(f"/api/users/me/achievements/{refused}", headers=auth_headers).status_code == 422
+    assert len(calls) == 1
 
 
 def test_vocabulary_summary_endpoint(client, auth_headers, mock_transport):

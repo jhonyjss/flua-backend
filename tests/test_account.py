@@ -24,6 +24,9 @@ def _supabase(*, customer="cus_123", files=("avatar_1.png",), storage_fails=Fals
 
     def handler(request: httpx.Request) -> httpx.Response:
         path = request.url.path
+        if "api.revenuecat.com" in str(request.url):
+            log.append(("revenuecat", f"{request.method} {path}"))
+            return httpx.Response(200, json={})
         if path.endswith("/stripe_customers"):
             return httpx.Response(200, json=[] if customer is None else [{"stripe_customer_id": customer}])
         if "/storage/v1/object/list/avatars" in path:
@@ -93,3 +96,15 @@ def test_an_auth_failure_is_reported(client, auth_headers, mock_transport, strip
 
 def test_deleting_needs_a_session(client):
     assert client.delete("/api/users/me").status_code == 401
+
+
+def test_the_purchase_history_in_revenuecat_goes_too(client, auth_headers, mock_transport, stripe_calls, monkeypatch):
+    from app.core.config import get_settings
+
+    monkeypatch.setenv("REVENUECAT_SECRET_KEY", "sk_rc_test")
+    get_settings.cache_clear()
+    calls = []
+    mock_transport(_supabase(calls=calls))
+    assert client.delete("/api/users/me", headers=auth_headers).status_code == 204
+    assert ("revenuecat", f"DELETE /v1/subscribers/{USER}") in calls
+    assert _kinds(calls)[-1] == "auth"  # the login is the last thing removed

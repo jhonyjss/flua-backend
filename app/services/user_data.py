@@ -14,13 +14,14 @@ bypasses RLS, so the filter is the security boundary).
 from app.schemas.users import (
     DashboardStats,
     RecentSession,
+    SkillAverages,
+    SkillWeeklyPoint,
     Streak,
     SubscriptionInfo,
     UpdateProfileRequest,
-    SkillAverages,
-    SkillWeeklyPoint,
     UserProfile,
 )
+from app.services import revenuecat
 from app.services import supabase_admin as db
 
 
@@ -183,10 +184,21 @@ async def get_subscription(user_id: str) -> SubscriptionInfo:
     rows = await db.select_many(
         "stripe_subscriptions", {"user_id": user_id}, order="updated_at.desc", limit=20
     )
-    if not rows:
-        return SubscriptionInfo()
-    chosen = next((r for r in rows if r.get("status") in ACTIVE_STATUSES), rows[0])
-    return map_subscription(chosen)
+    stripe = SubscriptionInfo()
+    if rows:
+        chosen = next((r for r in rows if r.get("status") in ACTIVE_STATUSES), rows[0])
+        stripe = map_subscription(chosen).model_copy(update={"source": "stripe"})
+    # A plan bought in the app (App Store / Google Play, through RevenueCat) counts too; with both
+    # active, the higher plan wins.
+    store = await revenuecat.stored(user_id)
+    if store.isSubscribed and (not stripe.isSubscribed or _rank(store) > _rank(stripe)):
+        return store
+    return stripe
+
+
+def _rank(info: SubscriptionInfo) -> int:
+    level = (info.planLevel or "").lower()
+    return next((rank for name, rank in revenuecat.PLAN_RANK.items() if level.startswith(name)), 1)
 
 
 def _int(value: object) -> int:
