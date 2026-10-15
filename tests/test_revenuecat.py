@@ -232,3 +232,18 @@ def test_store_subscriber_gets_the_free_conversation(client, auth_headers, mock_
     mock_transport(_subscription_backend(store_row=pro_row))
     status = client.get("/api/users/me/conversation/time", headers=auth_headers).json()
     assert status["isUnlimited"] is True
+
+
+def test_an_unreadable_store_table_leaves_the_stripe_plan(client, auth_headers, mock_transport):
+    def handler(request: httpx.Request) -> httpx.Response:
+        path = request.url.path
+        if path.endswith("/stripe_subscriptions"):
+            return httpx.Response(200, json=[{"status": "active", "plan_name": "starter_monthly"}])
+        if path.endswith("/app_store_subscriptions"):
+            return httpx.Response(500, json={"message": "down"})
+        return httpx.Response(200, json=[])
+
+    mock_transport(handler)
+    res = client.get("/api/users/me/subscription", headers=auth_headers)
+    assert res.status_code == 200
+    assert res.json()["planLevel"] == "starter_monthly"

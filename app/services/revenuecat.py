@@ -10,6 +10,7 @@ and vice versa.
 Entitlements configured in RevenueCat: "starter" and "pro" (the site's plans). Product ids carry the
 period, e.g. flueai_pro_monthly / flueai_pro_yearly.
 """
+import logging
 import re
 from datetime import UTC, datetime
 from urllib.parse import quote
@@ -20,6 +21,8 @@ from app.core.config import get_settings
 from app.core.http import http_client
 from app.schemas.users import SubscriptionInfo
 from app.services import supabase_admin as db
+
+logger = logging.getLogger(__name__)
 
 API = "https://api.revenuecat.com/v1"
 TABLE = "app_store_subscriptions"
@@ -123,7 +126,12 @@ async def sync(user_id: str, event_id: str | None = None) -> SubscriptionInfo:
 
 
 async def stored(user_id: str) -> SubscriptionInfo:
-    return subscription_info(await db.select_one(TABLE, {"user_id": user_id}))
+    """The kept state; an unreadable table counts as no store purchase, so Stripe still answers."""
+    try:
+        return subscription_info(await db.select_one(TABLE, {"user_id": user_id}))
+    except HTTPException:
+        logger.warning("app_store_subscriptions unreadable for %s", user_id)
+        return SubscriptionInfo()
 
 
 async def delete_customer(user_id: str) -> None:
