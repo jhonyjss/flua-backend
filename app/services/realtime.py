@@ -111,7 +111,7 @@ GUIDED_LESSON_TOOL = {
         "type": "object",
         "properties": {
             "item_id": {"type": "string", "description": "O id do item atual, como no plano da aula."},
-            "etapa": {"type": "string", "enum": ["repetir", "sozinho"]},
+            "etapa": {"type": "string", "enum": ["repetir", "sozinho", "cena", "memoria"]},
             "resultado": {"type": "string", "enum": ["correto", "parcial", "incorreto", "fora_do_roteiro"]},
             "o_que_ouviu": {"type": "string", "description": "A frase do aluno, como foi transcrita."},
             "forma_correta": {"type": "string", "description": "A frase certa, quando o resultado não for correto."},

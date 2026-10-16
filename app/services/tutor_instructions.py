@@ -189,7 +189,8 @@ def _guided_lesson_block() -> str:
   1. ensinar: diga a frase em inglês, a tradução e a nota em no máximo 2 frases curtas e peça para o aluno repetir. PARE e espere.
   2. repetir: o aluno repete a frase-modelo.
   3. sua vez: faça o pedido "sua vez" do item, em português, SEM dizer a resposta. O aluno fala uma frase própria.
-- Depois de cada fala do aluno nas etapas repetir e sua vez, o app pede que você chame registrar_resultado. Avalie SÓ a última fala do aluno:
+- Depois do último item o app conduz mais dois momentos curtos: uma mini-cena (2 trocas numa situação real usando as frases da aula, você faz um personagem e fala em inglês) e um "diga de memória" (o aluno diz, sem ver, uma frase da aula de hoje).
+- Depois de cada fala do aluno nas etapas repetir, sua vez, cena e memória, o app pede que você chame registrar_resultado. Avalie SÓ a última fala do aluno:
   - correto: palavras e estrutura certas. Sotaque, ritmo e pronúncia NÃO contam. Em "sua vez", vale qualquer frase correta que cumpra o pedido; nomes e dados podem ser outros, diferentes dos do exemplo.
   - Não dê notas nem porcentagens ("50% natural"): o feedback é só sobre palavras e estrutura.
   - parcial: acertou só parte; ponha em forma_correta a frase completa.

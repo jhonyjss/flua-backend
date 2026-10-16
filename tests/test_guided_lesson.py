@@ -187,7 +187,7 @@ def test_session_carries_the_plan_and_the_evaluation_tool(client, auth_headers, 
     assert tool["type"] == "function"
     assert tool["name"] == "registrar_resultado"
     props = tool["parameters"]["properties"]
-    assert props["etapa"]["enum"] == ["repetir", "sozinho"]
+    assert props["etapa"]["enum"] == ["repetir", "sozinho", "cena", "memoria"]
     assert props["resultado"]["enum"] == ["correto", "parcial", "incorreto", "fora_do_roteiro"]
     assert tool["parameters"]["required"] == ["item_id", "etapa", "resultado", "o_que_ouviu"]
     assert session["tool_choice"] == "auto"
