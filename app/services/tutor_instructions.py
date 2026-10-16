@@ -239,12 +239,27 @@ Frases que o aluno já estudou e está na hora de revisar:
 - São no máximo essas frases — o aquecimento é curto (cerca de 1 minuto). Depois siga para a abertura combinada."""
 
 
+def _memory_block(mistakes: list[dict]) -> str:
+    """Mistakes from earlier classes: revisiting one, spaced, is how it stops coming back."""
+    lines = "\n".join(
+        f'- disse "{_one_line(m["said"], 200)}" → "{_one_line(m["natural"], 200)}" ({_one_line(m["tip"], 160)})'
+        for m in mistakes
+    )
+    return f"""
+
+# Memória do aluno (erros de aulas anteriores)
+{lines}
+- Retome no máximo UM deles nesta aula, com naturalidade, quando o assunto permitir — como uma mini-revisão ("Da última vez você trocava he e she, lembra? Vamos ver agora."). Peça para ele dizer a forma certa.
+- Não liste os erros, não cobre todos e não faça o aluno se sentir vigiado. Se ele acertar, comemore o progresso."""
+
+
 def _build_instructions_english(
     level: str, scenario: str, lesson_context: str, student_name: str,
     explanation_language: str = "pt", learning_goals: list[str] | None = None,
     mode: str = "lesson", topic: str = "",
     guided: dict | None = None, resume_from_item: int = 0,
     review_phrases: list[dict] | None = None,
+    recent_mistakes: list[dict] | None = None,
 ) -> str:
     name_ref = student_name.split()[0] if student_name.strip() else ""
     has_name = bool(name_ref)
@@ -273,6 +288,8 @@ Iniciante — a maioria NÃO sabe nada de inglês. Fale 90% em português do Bra
         language_adaptation = _language_adaptation_rules("inglês americano")
         support_language = _support_language_rules(explanation_language, "inglês americano")
     goals_focus = _goals_focus(learning_goals)
+    if recent_mistakes and not is_guided:
+        goals_focus += _memory_block(recent_mistakes)
 
     if level == "advanced":
         proportion_line = '- Você ensina em IMERSÃO TOTAL: fale SOMENTE em inglês americano (en-US). Veja "# Idioma" abaixo.'
@@ -592,6 +609,7 @@ def build_tutor_instructions(
     guided: dict | None = None,
     resume_from_item: int = 0,
     review_phrases: list[dict] | None = None,
+    recent_mistakes: list[dict] | None = None,
 ) -> str:
     if language == "es":
         return _build_instructions_spanish(
@@ -600,5 +618,5 @@ def build_tutor_instructions(
         )
     return _build_instructions_english(
         level, scenario, lesson_context, student_name, explanation_language, learning_goals, mode, topic,
-        guided, resume_from_item, review_phrases,
+        guided, resume_from_item, review_phrases, recent_mistakes,
     )

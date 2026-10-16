@@ -1,10 +1,11 @@
 """User-data endpoints consumed by the Nuxt service layer (TanStack Query)."""
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 
 from app.core.auth import AuthUser, get_current_user
 from app.core.rate_limit import rate_limited
 from app.schemas.users import (
     CompletedLessons,
+    MistakeIn,
     DashboardStats,
     RecentSession,
     SkillAverages,
@@ -14,7 +15,7 @@ from app.schemas.users import (
     UpdateProfileRequest,
     UserProfile,
 )
-from app.services import account, user_data
+from app.services import account, learner_memory, user_data
 
 router = APIRouter(prefix="/api/users/me", tags=["users"])
 
@@ -35,6 +36,16 @@ async def update_profile(
     if not profile:
         raise HTTPException(404, "Perfil não encontrado")
     return profile
+
+
+@router.post("/mistakes", status_code=204)
+async def record_mistake(
+    body: MistakeIn,
+    user: AuthUser = Depends(rate_limited("mistakes", max_requests=30, window_seconds=60)),
+) -> Response:
+    """A correction Flua made; she brings recent ones back in later classes. Never fails loudly."""
+    await learner_memory.record(user.id, body)
+    return Response(status_code=204)
 
 
 @router.get("/dashboard-stats", response_model=DashboardStats)

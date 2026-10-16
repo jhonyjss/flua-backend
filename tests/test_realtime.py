@@ -201,7 +201,9 @@ def test_retries_then_fails_on_5xx(client, auth_headers, mock_transport):
     calls = {"n": 0}
 
     def handler(request):
-        calls["n"] += 1
+        # Only OpenAI's attempts count: the session also reads Flua's memory from Supabase first.
+        if "client_secrets" in request.url.path:
+            calls["n"] += 1
         return httpx.Response(503, text="unavailable")
 
     mock_transport(handler)

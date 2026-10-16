@@ -8,6 +8,7 @@ from app.core.auth import AuthUser
 from app.core.config import get_settings
 from app.core.http import http_client
 from app.schemas.realtime import RealtimeSessionRequest
+from app.services import learner_memory
 from app.services.tutor_instructions import build_tutor_instructions, cap_lesson_context
 
 # GA realtime model (https://developers.openai.com/api/docs/models/gpt-realtime).
@@ -82,7 +83,7 @@ def _resolve_student_name(req: RealtimeSessionRequest, user: AuthUser | None) ->
 
 
 def build_tutor_instructions_from_request(
-    req: RealtimeSessionRequest, user: AuthUser | None = None,
+    req: RealtimeSessionRequest, user: AuthUser | None = None, recent_mistakes: list[dict] | None = None,
 ) -> str:
     return build_tutor_instructions(
         level=req.level,
@@ -97,6 +98,7 @@ def build_tutor_instructions_from_request(
         guided=req.plan.model_dump() if req.plan else None,
         resume_from_item=req.resumeFromItem,
         review_phrases=[phrase.model_dump() for phrase in req.reviewPhrases],
+        recent_mistakes=recent_mistakes,
     )
 
 
@@ -172,7 +174,9 @@ def model_for_level(level: str) -> str:
 async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = None) -> dict:
     """Create the ephemeral client secret; returns {clientSecret, model, instructions}."""
     settings = get_settings()
-    instructions = build_tutor_instructions_from_request(req, user)
+    # Flua's memory of recent mistakes; the guided lesson follows the app's script and skips it.
+    mistakes = await learner_memory.recent(user.id) if user and req.mode != "guided_lesson" else []
+    instructions = build_tutor_instructions_from_request(req, user, mistakes)
 
     if req.pipelineMode:
         return {"clientSecret": None, "model": None, "instructions": instructions}
