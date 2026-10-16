@@ -314,3 +314,40 @@ def test_guided_lesson_stays_client_driven_even_if_asked_for_conversational():
     free = RealtimeSessionRequest(mode="free_practice", turnMode="conversational")
     assert turn_mode_for(guided) == "educational"
     assert turn_mode_for(free) == "conversational"
+
+
+def test_free_practice_opens_with_a_memory_warmup_of_the_due_phrases():
+    req = RealtimeSessionRequest(
+        mode="free_practice",
+        studentName="Ana",
+        reviewPhrases=[{"english": "I'm from Brazil.", "portuguese": "Eu sou do Brasil."}],
+    )
+    text = build_tutor_instructions_from_request(req)
+    assert "# Aquecimento de memória" in text
+    assert '- "Eu sou do Brasil." → I\'m from Brazil.' in text
+    assert "aquecimento rápido de memória" in text.split("# Como começar")[1]
+
+
+def test_no_warmup_without_due_phrases_or_outside_free_practice():
+    assert "Aquecimento" not in build_tutor_instructions_from_request(RealtimeSessionRequest(mode="free_practice"))
+    lesson = RealtimeSessionRequest(
+        mode="lesson", reviewPhrases=[{"english": "Hi.", "portuguese": "Oi."}]
+    )
+    assert "Aquecimento" not in build_tutor_instructions_from_request(lesson)
+
+
+def test_review_phrases_are_capped_at_three():
+    import pydantic
+    import pytest
+
+    four = [{"english": f"Hi {i}.", "portuguese": f"Oi {i}."} for i in range(4)]
+    with pytest.raises(pydantic.ValidationError):
+        RealtimeSessionRequest(mode="free_practice", reviewPhrases=four)
+
+
+def test_beginner_teaching_uses_hints_before_answers_and_the_sandwich():
+    text = build_tutor_instructions_from_request(RealtimeSessionRequest(level="beginner"))
+    assert "Sanduíche" in text
+    assert "NÃO entregue a resposta" in text
+    assert "degraus" in text
+    assert "BLOCOS PRONTOS" in text

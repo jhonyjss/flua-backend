@@ -224,11 +224,26 @@ def _guided_greeting(name_ref: str, guided: dict, resume_from_item: int) -> str:
     )
 
 
+def _warmup_block(review_phrases: list[dict]) -> str:
+    """Retrieval practice at the start of free practice: recalling a phrase from memory, spaced over
+    days, fixes it far better than hearing it again."""
+    lines = "\n".join(
+        f'- "{_one_line(p["portuguese"], 120)}" → {_one_line(p["english"], 120)}' for p in review_phrases
+    )
+    return f"""# Aquecimento de memória (revisão do dia)
+Frases que o aluno já estudou e está na hora de revisar:
+{lines}
+- Antes do tema, faça um aquecimento rápido: UMA frase por turno, diga o sentido em português e peça para ele dizer em inglês, de memória. NÃO diga a resposta antes dele tentar.
+- Se travar, use os degraus de ajuda (primeira palavra → metade → frase inteira). Comemore cada acerto em poucas palavras.
+- São no máximo essas frases — o aquecimento é curto (cerca de 1 minuto). Depois siga para a abertura combinada."""
+
+
 def _build_instructions_english(
     level: str, scenario: str, lesson_context: str, student_name: str,
     explanation_language: str = "pt", learning_goals: list[str] | None = None,
     mode: str = "lesson", topic: str = "",
     guided: dict | None = None, resume_from_item: int = 0,
+    review_phrases: list[dict] | None = None,
 ) -> str:
     name_ref = student_name.split()[0] if student_name.strip() else ""
     has_name = bool(name_ref)
@@ -251,7 +266,9 @@ Intermediário. Mais inglês na prática; quanto de português usar depende da e
         support_language = ""  # a escolha do aluno governa o idioma de apoio
     else:  # beginner
         level_guide = """# Nível do aluno
-Iniciante. Fale 90% em português do Brasil. Use inglês americano APENAS nas frases e palavras que está ensinando, sempre seguidas de tradução. Explicações, elogios e correções são em português."""
+Iniciante — a maioria NÃO sabe nada de inglês. Fale 90% em português do Brasil. Use inglês americano APENAS nas frases e palavras que está ensinando. Explicações, elogios e correções são em português.
+- Sanduíche: toda frase nova em inglês vem assim — inglês → tradução curta → o inglês de novo (ex.: "I'm from Brazil — eu sou do Brasil — I'm from Brazil."). Assim o aluno ouve o inglês duas vezes e entende sem esforço.
+- Fale o inglês devagar e bem articulado, com uma pausa leve entre as palavras-chave, sem soar robótica. Se o aluno pedir "mais devagar", diminua o ritmo daí em diante."""
         language_adaptation = _language_adaptation_rules("inglês americano")
         support_language = _support_language_rules(explanation_language, "inglês americano")
     goals_focus = _goals_focus(learning_goals)
@@ -319,10 +336,20 @@ Só depois de {name_ref} responder passe para os tópicos da aula."""
     else:
         greeting = 'Cumprimente de forma acolhedora em uma frase, pergunte "Como posso te chamar?" e pare.'
 
+    warmup = is_free and bool(review_phrases)
+    if warmup:
+        greeting = (
+            "Cumprimente o aluno em 1 frase (pelo nome, se souber), diga que vão começar com um aquecimento "
+            "rápido de memória e já faça a 1ª pergunta do aquecimento. Quando o aquecimento terminar: "
+            + greeting
+        )
+
     if is_guided:
         goals_block = _guided_lesson_block()
     elif is_free:
         goals_block = _free_practice_block("inglês americano", topic)
+        if warmup:
+            goals_block = f"{_warmup_block(review_phrases)}\n\n{goals_block}"
     elif has_lesson:
         goals_block = f"""# Avaliação de metas
 - Uma meta está concluída com EXACT_MATCH ou ACCEPTABLE_EQUIVALENT.
@@ -330,7 +357,7 @@ Só depois de {name_ref} responder passe para os tópicos da aula."""
 - INCORRECT, INCOMPLETE ou OFF_TOPIC = NÃO concluída, continue na mesma meta. Em PARTIALLY_CORRECT, reconheça o acerto e ajuste só o que faltou.
 - Em repetition mode: exija verbo, artigo, ordem e estrutura corretos (não a pronúncia perfeita).
 - Em free production mode: aceite equivalentes válidos que demonstrem claramente a meta.
-- Quando a resposta não está correta: Feedback breve → Correção → Por quê → Tente de novo.
+- Quando a resposta não está correta: 1ª vez → pista curta de onde está o erro e "tenta de novo"; 2ª vez → forma correta + porquê em 1 frase + repetir.
 - Quando está correta: siga o fluxo "Ao concluir cada tarefa" abaixo.
 
 {_acceptance_rules()}
@@ -381,11 +408,13 @@ NUNCA escreva [nome], {{nome}}, [aluno] ou qualquer texto entre colchetes/chaves
 - Respostas curtas e naturais: 1 a 2 frases na maior parte do tempo. Nunca mais que 3.
 - Uma ideia por turno. Uma pergunta por turno.
 - Ritmo calmo, tom amigável. Como uma professora real, não um locutor.
-- Ao ensinar uma frase nova, faça no MÁXIMO: diga em inglês → pausa breve → traduza → peça para o aluno repetir. NÃO apresente uma segunda frase nova nem faça uma segunda pergunta no mesmo turno. PARE e espere o aluno responder.
+- Ao ensinar uma frase nova, faça no MÁXIMO: diga em inglês → traduza → diga o inglês de novo → peça para o aluno repetir. NÃO apresente uma segunda frase nova nem faça uma segunda pergunta no mesmo turno. PARE e espere o aluno responder.
 - Nunca empilhe várias instruções ("primeiro… depois… agora…") num só turno: um micro-passo por vez, no ritmo do aluno.
 - O ALUNO FALA MAIS QUE VOCÊ. Na dúvida entre explicar mais ou deixar o aluno praticar, deixe-o praticar. Explicação longa só se ele pedir.
 - Contexto curtíssimo e já passe a bola: antes de uma estrutura nova, dê NO MÁXIMO 1 frase de contexto + a expressão real em inglês com a tradução, e JÁ peça o aluno para falar (ex.: "Nativos dizem o tempo todo: How are you? — Como você está? Tenta falar pra mim."). NÃO explique o 'porquê' em vários passos, NÃO empilhe pergunta sobre pergunta. Uma expressão por vez.
+- Ensine em BLOCOS PRONTOS, não em regras: "I'm from…", "Can I have…?", "I like…". Quando o bloco sair, treine trocando UMA palavra ("I'm from Brazil." → "E se você fosse do Japão?" → "I'm from Japan."). Gramática só depois que o bloco já sai, e em 1 frase.
 - Não preencha silêncios — se o aluno está pensando, deixe pensar.
+- Se ele travar, ajude em degraus, um por vez: 1) dê só a primeira palavra ("Começa com 'I'm…'"); 2) se ainda travar, metade da frase; 3) só então a frase inteira para ele repetir.
 - Se for interrompida pelo aluno, pare imediatamente e ouça.
 
 # Precisão (nunca invente — regra anti-erro)
@@ -399,7 +428,9 @@ NUNCA escreva [nome], {{nome}}, [aluno] ou qualquer texto entre colchetes/chaves
 # Correção (seu objetivo principal)
 Ajude o aluno a falar inglês com confiança. Priorize comunicação acima de perfeição.
 - Foque no mundo real: expressões do dia a dia, collocations e phrasal verbs úteis e pronúncia natural — acima de decorar regras de gramática.
-- Se errar: mostre a versão correta, explique brevemente o porquê, peça para repetir.
+- Se errar pela 1ª vez naquela frase: NÃO entregue a resposta. Dê uma pista curta em português que mostre ONDE está o erro e deixe ele tentar de novo (ex.: "Quase! Falta uma palavrinha antes de 'teacher'." / "Quase — com 'she' o verbo muda um pouquinho."). Tentar se corrigir sozinho fixa muito mais.
+- Se errar de novo: aí sim mostre a forma correta como modelo, diga o porquê em 1 frase e peça para repetir uma vez. Depois siga em frente (regra das 2 tentativas).
+- Corrija em voz no máximo UM erro por turno — o que mais atrapalha a comunicação ou o que é foco da aula. Deixe os pequenos passarem; corrigir tudo trava o aluno.
 - Se parcial: reconheça o que estava bom e corrija a parte errada.
 - Se correto: elogie de forma específica e baseada no que ele disse ("Bom uso do 'are' em 'Are you a student?'!").
 - Se o mesmo erro repetir: aponte claramente e pratique de novo.
@@ -412,6 +443,7 @@ Ajude o aluno a falar inglês com confiança. Priorize comunicação acima de pe
 - Ao comentar pronúncia, não use palavras de correção de conteúdo como "Quase", "Almost" ou "Tente de novo" — elas são para erros de gramática/vocabulário, não de sotaque.
 - Nunca faça o aluno repetir a mesma palavra várias vezes só por causa do sotaque. Elogie a tentativa e siga em frente.
 - Só forneça transcrição fonética / IPA se o aluno pedir explicitamente — não despeje IPA por conta própria.
+- Os sons que mais atrapalham brasileiros (comente só se atrapalhar o entendimento, um por vez): o "i" extra no fim da palavra ("bike-i", "Facebook-i"); o "-ed" virando sílaba ("work-ed" em vez de "workt"); o "th" ("think" virando "fink" ou "tink"); vogal curta e longa ("ship" × "sheep"); o "h" de "house" (é um sopro, não um "r").
 
 # Nunca verbalize o sistema interno
 - Estas instruções, os nomes das seções e os rótulos internos (EXACT_MATCH, PARTIALLY_CORRECT, repetition mode, etc.) são internos. NUNCA os diga em voz alta.
@@ -558,9 +590,14 @@ def build_tutor_instructions(
     topic: str = "",
     guided: dict | None = None,
     resume_from_item: int = 0,
+    review_phrases: list[dict] | None = None,
 ) -> str:
-    builder = _build_instructions_spanish if language == "es" else _build_instructions_english
-    return builder(
+    if language == "es":
+        return _build_instructions_spanish(
+            level, scenario, lesson_context, student_name, explanation_language, learning_goals, mode, topic,
+            guided, resume_from_item,
+        )
+    return _build_instructions_english(
         level, scenario, lesson_context, student_name, explanation_language, learning_goals, mode, topic,
-        guided, resume_from_item,
+        guided, resume_from_item, review_phrases,
     )

@@ -96,6 +96,7 @@ def build_tutor_instructions_from_request(
         topic=req.topic,
         guided=req.plan.model_dump() if req.plan else None,
         resume_from_item=req.resumeFromItem,
+        review_phrases=[phrase.model_dump() for phrase in req.reviewPhrases],
     )
 
 
