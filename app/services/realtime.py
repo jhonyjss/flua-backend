@@ -32,7 +32,20 @@ def _turn_detection(turn_mode: str) -> dict:
 
     "responsive": snappy auto-reply (server creates the response on ~520ms of
     silence and can be interrupted) — opt-in / future premium.
+
+    "conversational": the app's free conversation, GPT-voice style. semantic_vad
+    ends the turn when the sentence is complete, not after a fixed silence, so a
+    learner's mid-sentence pause ("I am… from… Brazil") is not cut; eagerness
+    "low" gives them the most room. The server replies by itself and the
+    learner can interrupt Flua (WebRTC truncates her audio server-side).
     """
+    if turn_mode == "conversational":
+        return {
+            "type": "semantic_vad",
+            "eagerness": "low",
+            "create_response": True,
+            "interrupt_response": True,
+        }
     if turn_mode == "responsive":
         return {
             "type": "server_vad",
@@ -142,6 +155,11 @@ def _transcription_config(req: RealtimeSessionRequest, user: AuthUser | None, mo
     return cfg
 
 
+def turn_mode_for(req: RealtimeSessionRequest) -> str:
+    """The guided lesson forces a tool call after each attempt, so it always stays client-driven."""
+    return "educational" if req.mode == "guided_lesson" else req.turnMode
+
+
 def model_for_level(level: str) -> str:
     """Básico (beginner) uses the mini model; intermediate and advanced use the full one."""
     settings = get_settings()
@@ -162,10 +180,11 @@ async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = No
         raise HTTPException(500, "OPENAI_API_KEY not configured")
 
     model = model_for_level(req.level)
-    turn_detection = _turn_detection(req.turnMode)
+    turn_mode = turn_mode_for(req)
+    turn_detection = _turn_detection(turn_mode)
     logger.info(
         "[Realtime] session config model=%s language=%s mode=%s turnMode=%s vad=%s",
-        model, req.language, req.mode, req.turnMode, turn_detection,
+        model, req.language, req.mode, turn_mode, turn_detection,
     )
 
     session_config = {

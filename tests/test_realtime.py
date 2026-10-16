@@ -7,10 +7,11 @@ import jwt
 from app.core.auth import AuthUser
 from app.core.config import get_settings
 from app.schemas.realtime import RealtimeSessionRequest
-from app.services.realtime import _turn_detection, build_tutor_instructions_from_request
+from app.services.realtime import _turn_detection, build_tutor_instructions_from_request, turn_mode_for
 from app.services.tutor_instructions import build_tutor_instructions, cap_lesson_context
 
 from tests.conftest import JWT_SECRET
+from tests.test_guided_lesson import PLAN as GUIDED_PLAN
 
 
 def test_cap_lesson_context():
@@ -299,3 +300,17 @@ def test_model_follows_the_learner_level(client, auth_headers, mock_transport):
         assert res.status_code == 200
         assert res.json()["model"] == sent[-1]
     assert sent == ["gpt-realtime-2.1-mini", "gpt-realtime-2.1", "gpt-realtime-2.1"]
+
+
+def test_conversational_turn_mode_is_semantic_and_interruptible():
+    cv = _turn_detection("conversational")
+    assert cv == {"type": "semantic_vad", "eagerness": "low", "create_response": True, "interrupt_response": True}
+
+
+def test_guided_lesson_stays_client_driven_even_if_asked_for_conversational():
+    guided = RealtimeSessionRequest(
+        mode="guided_lesson", lessonId="fund-u1-l1", plan=GUIDED_PLAN, turnMode="conversational"
+    )
+    free = RealtimeSessionRequest(mode="free_practice", turnMode="conversational")
+    assert turn_mode_for(guided) == "educational"
+    assert turn_mode_for(free) == "conversational"

@@ -55,7 +55,7 @@ class RealtimeSessionRequest(BaseModel):
     # Turn-taking: "educational" (default) tolerates long learner pauses and lets
     # the CLIENT decide when Flua responds (no barge-in); "responsive" keeps the
     # snappy auto-reply VAD (opt-in / future premium).
-    turnMode: Literal["educational", "responsive"] = "educational"
+    turnMode: Literal["educational", "responsive", "conversational"] = "educational"
     pipelineMode: bool = False
 
     @model_validator(mode="after")
