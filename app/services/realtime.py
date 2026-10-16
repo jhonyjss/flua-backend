@@ -120,9 +120,10 @@ def _transcription_prompt(req: RealtimeSessionRequest, user: AuthUser | None) ->
     name = _resolve_student_name(req, user)
     first = name.split()[0] if name else ""
     who = f", de um estudante brasileiro chamado {first}" if first else ", de um estudante brasileiro"
+    # The tutor's name is what learners say most and what STT mishears most ("are you floor").
     return (
-        f"Áudio de prática de {target}{who}. "
-        f"O estudante pode falar português do Brasil ou {target}. "
+        f"Áudio de prática de {target}{who}, conversando com a professora Flua, do app Flue.AI. "
+        f"O estudante pode falar português do Brasil ou {target}, e costuma chamá-la de Flua. "
         "Transcreva fielmente as palavras realmente ditas; não invente, não complete "
         "e não traduza palavras. Se o áudio estiver incerto, prefira transcrever menos a chutar."
     )
@@ -141,6 +142,14 @@ def _transcription_config(req: RealtimeSessionRequest, user: AuthUser | None, mo
     return cfg
 
 
+def model_for_level(level: str) -> str:
+    """Básico (beginner) uses the mini model; intermediate and advanced use the full one."""
+    settings = get_settings()
+    if level in ("intermediate", "advanced"):
+        return settings.openai_realtime_model_advanced or settings.openai_realtime_model or REALTIME_MODEL
+    return settings.openai_realtime_model or REALTIME_MODEL
+
+
 async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = None) -> dict:
     """Create the ephemeral client secret; returns {clientSecret, model, instructions}."""
     settings = get_settings()
@@ -152,7 +161,7 @@ async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = No
     if not settings.openai_api_key:
         raise HTTPException(500, "OPENAI_API_KEY not configured")
 
-    model = settings.openai_realtime_model or REALTIME_MODEL
+    model = model_for_level(req.level)
     turn_detection = _turn_detection(req.turnMode)
     logger.info(
         "[Realtime] session config model=%s language=%s mode=%s turnMode=%s vad=%s",

@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     # session mint 404s (model_not_found) and voice breaks entirely.
     # mini = ~3x cheaper audio ($10/$20 per 1M vs $32/$64) than the full family.
     openai_realtime_model: str = "gpt-realtime-2.1-mini"
+    # Intermediate and advanced learners talk longer and more freely: the full model hears accents and
+    # nuance better. Beginners keep the mini (realtime.model_for_level).
+    openai_realtime_model_advanced: str = "gpt-realtime-2.1"
     # gpt-4o-transcribe keeps the biasing `prompt` (accuracy for PT/EN + names);
     # gpt-realtime-whisper is cheaper but drops the prompt. STT cost is tiny next
     # to the realtime audio, so accuracy wins by default.

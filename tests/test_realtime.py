@@ -1,3 +1,4 @@
+import json
 import time
 
 import httpx
@@ -174,7 +175,8 @@ def test_session_returns_client_secret(client, auth_headers, mock_transport):
     assert res.status_code == 200
     data = res.json()
     assert data["clientSecret"] == "ek_live_abc"
-    assert data["model"] == get_settings().openai_realtime_model  # env-configurable (default gpt-realtime-2.1-mini)
+    # Intermediate and advanced get the full model (default gpt-realtime-2.1); beginner keeps the mini.
+    assert data["model"] == get_settings().openai_realtime_model_advanced
     assert "client_secrets" in captured["url"]
 
 
@@ -264,3 +266,36 @@ def test_guided_lesson_stays_open_to_free_accounts(client, auth_headers, mock_tr
     mock_transport(_plan_and_openai(plan_level=None))
     res = client.post("/api/realtime/session", json={"mode": "lesson"}, headers=auth_headers)
     assert res.status_code == 200
+
+
+def test_transcription_prompt_names_the_tutor(client, auth_headers, mock_transport):
+    # gpt-4o-transcribe heard "Are you Flua?" as "Are you floor?"; the prompt must carry her name.
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["body"] = request.content
+        return httpx.Response(200, json={"value": "ek_live_abc"})
+
+    mock_transport(handler)
+    res = client.post("/api/realtime/session", json={"level": "beginner"}, headers=auth_headers)
+    assert res.status_code == 200
+    transcription = json.loads(captured["body"])["session"]["audio"]["input"]["transcription"]
+    assert transcription["model"] == get_settings().openai_realtime_transcribe_model
+    assert "professora Flua" in transcription["prompt"]
+    assert "chamá-la de Flua" in transcription["prompt"]
+    assert "language" not in transcription
+
+
+def test_model_follows_the_learner_level(client, auth_headers, mock_transport):
+    sent = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        sent.append(json.loads(request.content)["session"]["model"])
+        return httpx.Response(200, json={"value": "ek_live_abc"})
+
+    mock_transport(handler)
+    for level in ("beginner", "intermediate", "advanced"):
+        res = client.post("/api/realtime/session", json={"level": level}, headers=auth_headers)
+        assert res.status_code == 200
+        assert res.json()["model"] == sent[-1]
+    assert sent == ["gpt-realtime-2.1-mini", "gpt-realtime-2.1", "gpt-realtime-2.1"]
