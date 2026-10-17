@@ -8,6 +8,7 @@ from app.core.auth import AuthUser
 from app.core.config import get_settings
 from app.core.http import http_client
 from app.schemas.realtime import RealtimeSessionRequest
+from app.services import learner_memory
 from app.services.tutor_instructions import build_tutor_instructions, cap_lesson_context
 
 # GA realtime model (https://developers.openai.com/api/docs/models/gpt-realtime).
@@ -32,7 +33,20 @@ def _turn_detection(turn_mode: str) -> dict:
 
     "responsive": snappy auto-reply (server creates the response on ~520ms of
     silence and can be interrupted) — opt-in / future premium.
+
+    "conversational": the app's free conversation, GPT-voice style. semantic_vad
+    ends the turn when the sentence is complete, not after a fixed silence, so a
+    learner's mid-sentence pause ("I am… from… Brazil") is not cut; eagerness
+    "low" gives them the most room. The server replies by itself and the
+    learner can interrupt Flua (WebRTC truncates her audio server-side).
     """
+    if turn_mode == "conversational":
+        return {
+            "type": "semantic_vad",
+            "eagerness": "low",
+            "create_response": True,
+            "interrupt_response": True,
+        }
     if turn_mode == "responsive":
         return {
             "type": "server_vad",
@@ -69,7 +83,7 @@ def _resolve_student_name(req: RealtimeSessionRequest, user: AuthUser | None) ->
 
 
 def build_tutor_instructions_from_request(
-    req: RealtimeSessionRequest, user: AuthUser | None = None,
+    req: RealtimeSessionRequest, user: AuthUser | None = None, recent_mistakes: list[dict] | None = None,
 ) -> str:
     return build_tutor_instructions(
         level=req.level,
@@ -83,6 +97,8 @@ def build_tutor_instructions_from_request(
         topic=req.topic,
         guided=req.plan.model_dump() if req.plan else None,
         resume_from_item=req.resumeFromItem,
+        review_phrases=[phrase.model_dump() for phrase in req.reviewPhrases],
+        recent_mistakes=recent_mistakes,
     )
 
 
@@ -97,7 +113,7 @@ GUIDED_LESSON_TOOL = {
         "type": "object",
         "properties": {
             "item_id": {"type": "string", "description": "O id do item atual, como no plano da aula."},
-            "etapa": {"type": "string", "enum": ["repetir", "sozinho"]},
+            "etapa": {"type": "string", "enum": ["repetir", "sozinho", "cena", "memoria"]},
             "resultado": {"type": "string", "enum": ["correto", "parcial", "incorreto", "fora_do_roteiro"]},
             "o_que_ouviu": {"type": "string", "description": "A frase do aluno, como foi transcrita."},
             "forma_correta": {"type": "string", "description": "A frase certa, quando o resultado não for correto."},
@@ -120,9 +136,10 @@ def _transcription_prompt(req: RealtimeSessionRequest, user: AuthUser | None) ->
     name = _resolve_student_name(req, user)
     first = name.split()[0] if name else ""
     who = f", de um estudante brasileiro chamado {first}" if first else ", de um estudante brasileiro"
+    # The tutor's name is what learners say most and what STT mishears most ("are you floor").
     return (
-        f"Áudio de prática de {target}{who}. "
-        f"O estudante pode falar português do Brasil ou {target}. "
+        f"Áudio de prática de {target}{who}, conversando com a professora Flua, do app Flue.AI. "
+        f"O estudante pode falar português do Brasil ou {target}, e costuma chamá-la de Flua. "
         "Transcreva fielmente as palavras realmente ditas; não invente, não complete "
         "e não traduza palavras. Se o áudio estiver incerto, prefira transcrever menos a chutar."
     )
@@ -141,10 +158,25 @@ def _transcription_config(req: RealtimeSessionRequest, user: AuthUser | None, mo
     return cfg
 
 
+def turn_mode_for(req: RealtimeSessionRequest) -> str:
+    """The guided lesson forces a tool call after each attempt, so it always stays client-driven."""
+    return "educational" if req.mode == "guided_lesson" else req.turnMode
+
+
+def model_for_level(level: str) -> str:
+    """Básico (beginner) uses the mini model; intermediate and advanced use the full one."""
+    settings = get_settings()
+    if level in ("intermediate", "advanced"):
+        return settings.openai_realtime_model_advanced or settings.openai_realtime_model or REALTIME_MODEL
+    return settings.openai_realtime_model or REALTIME_MODEL
+
+
 async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = None) -> dict:
     """Create the ephemeral client secret; returns {clientSecret, model, instructions}."""
     settings = get_settings()
-    instructions = build_tutor_instructions_from_request(req, user)
+    # Flua's memory of recent mistakes; the guided lesson follows the app's script and skips it.
+    mistakes = await learner_memory.recent(user.id) if user and req.mode != "guided_lesson" else []
+    instructions = build_tutor_instructions_from_request(req, user, mistakes)
 
     if req.pipelineMode:
         return {"clientSecret": None, "model": None, "instructions": instructions}
@@ -152,11 +184,12 @@ async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = No
     if not settings.openai_api_key:
         raise HTTPException(500, "OPENAI_API_KEY not configured")
 
-    model = settings.openai_realtime_model or REALTIME_MODEL
-    turn_detection = _turn_detection(req.turnMode)
+    model = model_for_level(req.level)
+    turn_mode = turn_mode_for(req)
+    turn_detection = _turn_detection(turn_mode)
     logger.info(
         "[Realtime] session config model=%s language=%s mode=%s turnMode=%s vad=%s",
-        model, req.language, req.mode, req.turnMode, turn_detection,
+        model, req.language, req.mode, turn_mode, turn_detection,
     )
 
     session_config = {

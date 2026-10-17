@@ -29,6 +29,13 @@ class GuidedPlan(BaseModel):
     items: list[GuidedItem] = Field(min_length=1, max_length=8)
 
 
+class ReviewPhrase(BaseModel):
+    """A phrase due for review (the app's spaced reviews), for Flua's warm-up recall."""
+
+    english: str = Field(..., min_length=1, max_length=120)
+    portuguese: str = Field(..., min_length=1, max_length=120)
+
+
 class RealtimeSessionRequest(BaseModel):
     level: Literal["beginner", "intermediate", "advanced"] = "beginner"
     scenario: str = "english-tutor"
@@ -51,11 +58,14 @@ class RealtimeSessionRequest(BaseModel):
     # Guided lesson only. lessonId keys the trial and the per-lesson time budget.
     lessonId: str = Field("", max_length=64, pattern=r"^[a-z0-9-]*$")
     plan: GuidedPlan | None = None
+    # Free practice only: up to 3 phrases due for review. Flua opens with a quick
+    # warm-up asking the learner to say each one from memory (retrieval practice).
+    reviewPhrases: list[ReviewPhrase] = Field(default_factory=list, max_length=3)
     resumeFromItem: int = Field(0, ge=0)
     # Turn-taking: "educational" (default) tolerates long learner pauses and lets
     # the CLIENT decide when Flua responds (no barge-in); "responsive" keeps the
     # snappy auto-reply VAD (opt-in / future premium).
-    turnMode: Literal["educational", "responsive"] = "educational"
+    turnMode: Literal["educational", "responsive", "conversational"] = "educational"
     pipelineMode: bool = False
 
     @model_validator(mode="after")

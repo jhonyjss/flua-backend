@@ -34,6 +34,15 @@ class UpdateProfileRequest(BaseModel):
     motivation: Literal["daily", "travel", "work"] | None = None
 
 
+class MistakeIn(BaseModel):
+    """A correction Flua made, for her to revisit later (learner_memory)."""
+
+    said: str = Field(..., min_length=1, max_length=200)
+    natural: str = Field(..., min_length=1, max_length=200)
+    tip: str = Field(..., min_length=1, max_length=160)
+    source: Literal["conversation", "guided_lesson"]
+
+
 class RecentSession(BaseModel):
     id: str
     lesson_id: str | None = None

@@ -1,3 +1,4 @@
+import json
 import time
 
 import httpx
@@ -6,10 +7,11 @@ import jwt
 from app.core.auth import AuthUser
 from app.core.config import get_settings
 from app.schemas.realtime import RealtimeSessionRequest
-from app.services.realtime import _turn_detection, build_tutor_instructions_from_request
+from app.services.realtime import _turn_detection, build_tutor_instructions_from_request, turn_mode_for
 from app.services.tutor_instructions import build_tutor_instructions, cap_lesson_context
 
 from tests.conftest import JWT_SECRET
+from tests.test_guided_lesson import PLAN as GUIDED_PLAN
 
 
 def test_cap_lesson_context():
@@ -174,7 +176,8 @@ def test_session_returns_client_secret(client, auth_headers, mock_transport):
     assert res.status_code == 200
     data = res.json()
     assert data["clientSecret"] == "ek_live_abc"
-    assert data["model"] == get_settings().openai_realtime_model  # env-configurable (default gpt-realtime-2.1-mini)
+    # Intermediate and advanced get the full model (default gpt-realtime-2.1); beginner keeps the mini.
+    assert data["model"] == get_settings().openai_realtime_model_advanced
     assert "client_secrets" in captured["url"]
 
 
@@ -198,7 +201,9 @@ def test_retries_then_fails_on_5xx(client, auth_headers, mock_transport):
     calls = {"n": 0}
 
     def handler(request):
-        calls["n"] += 1
+        # Only OpenAI's attempts count: the session also reads Flua's memory from Supabase first.
+        if "client_secrets" in request.url.path:
+            calls["n"] += 1
         return httpx.Response(503, text="unavailable")
 
     mock_transport(handler)
@@ -264,3 +269,87 @@ def test_guided_lesson_stays_open_to_free_accounts(client, auth_headers, mock_tr
     mock_transport(_plan_and_openai(plan_level=None))
     res = client.post("/api/realtime/session", json={"mode": "lesson"}, headers=auth_headers)
     assert res.status_code == 200
+
+
+def test_transcription_prompt_names_the_tutor(client, auth_headers, mock_transport):
+    # gpt-4o-transcribe heard "Are you Flua?" as "Are you floor?"; the prompt must carry her name.
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["body"] = request.content
+        return httpx.Response(200, json={"value": "ek_live_abc"})
+
+    mock_transport(handler)
+    res = client.post("/api/realtime/session", json={"level": "beginner"}, headers=auth_headers)
+    assert res.status_code == 200
+    transcription = json.loads(captured["body"])["session"]["audio"]["input"]["transcription"]
+    assert transcription["model"] == get_settings().openai_realtime_transcribe_model
+    assert "professora Flua" in transcription["prompt"]
+    assert "chamá-la de Flua" in transcription["prompt"]
+    assert "language" not in transcription
+
+
+def test_model_follows_the_learner_level(client, auth_headers, mock_transport):
+    sent = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        sent.append(json.loads(request.content)["session"]["model"])
+        return httpx.Response(200, json={"value": "ek_live_abc"})
+
+    mock_transport(handler)
+    for level in ("beginner", "intermediate", "advanced"):
+        res = client.post("/api/realtime/session", json={"level": level}, headers=auth_headers)
+        assert res.status_code == 200
+        assert res.json()["model"] == sent[-1]
+    assert sent == ["gpt-realtime-2.1-mini", "gpt-realtime-2.1", "gpt-realtime-2.1"]
+
+
+def test_conversational_turn_mode_is_semantic_and_interruptible():
+    cv = _turn_detection("conversational")
+    assert cv == {"type": "semantic_vad", "eagerness": "low", "create_response": True, "interrupt_response": True}
+
+
+def test_guided_lesson_stays_client_driven_even_if_asked_for_conversational():
+    guided = RealtimeSessionRequest(
+        mode="guided_lesson", lessonId="fund-u1-l1", plan=GUIDED_PLAN, turnMode="conversational"
+    )
+    free = RealtimeSessionRequest(mode="free_practice", turnMode="conversational")
+    assert turn_mode_for(guided) == "educational"
+    assert turn_mode_for(free) == "conversational"
+
+
+def test_free_practice_opens_with_a_memory_warmup_of_the_due_phrases():
+    req = RealtimeSessionRequest(
+        mode="free_practice",
+        studentName="Ana",
+        reviewPhrases=[{"english": "I'm from Brazil.", "portuguese": "Eu sou do Brasil."}],
+    )
+    text = build_tutor_instructions_from_request(req)
+    assert "# Aquecimento de memória" in text
+    assert '- "Eu sou do Brasil." → I\'m from Brazil.' in text
+    assert "aquecimento rápido de memória" in text.split("# Como começar")[1]
+
+
+def test_no_warmup_without_due_phrases_or_outside_free_practice():
+    assert "Aquecimento" not in build_tutor_instructions_from_request(RealtimeSessionRequest(mode="free_practice"))
+    lesson = RealtimeSessionRequest(
+        mode="lesson", reviewPhrases=[{"english": "Hi.", "portuguese": "Oi."}]
+    )
+    assert "Aquecimento" not in build_tutor_instructions_from_request(lesson)
+
+
+def test_review_phrases_are_capped_at_three():
+    import pydantic
+    import pytest
+
+    four = [{"english": f"Hi {i}.", "portuguese": f"Oi {i}."} for i in range(4)]
+    with pytest.raises(pydantic.ValidationError):
+        RealtimeSessionRequest(mode="free_practice", reviewPhrases=four)
+
+
+def test_beginner_teaching_uses_hints_before_answers_and_the_sandwich():
+    text = build_tutor_instructions_from_request(RealtimeSessionRequest(level="beginner"))
+    assert "Sanduíche" in text
+    assert "NÃO entregue a resposta" in text
+    assert "degraus" in text
+    assert "BLOCOS PRONTOS" in text
