@@ -21,6 +21,7 @@ def test_records_a_correction_for_the_signed_in_account(client, auth_headers, mo
     method, path, body = sent[0]
     assert (method, path) == ("POST", "/rest/v1/learner_mistakes")
     assert body["said"] == "She have a dog."
+    assert body["natural_form"] == "She has a dog."
     assert body["source"] == "conversation"
     assert body["user_id"]
 
@@ -39,9 +40,9 @@ def test_refuses_an_unknown_source_and_needs_an_account(client, auth_headers, mo
 
 def test_a_new_session_brings_back_the_newest_distinct_mistakes(client, auth_headers, mock_transport):
     rows = [
-        {"said": "She have a dog.", "natural": "She has a dog.", "tip": "Com she, usamos has."},
-        {"said": "He have a car.", "natural": "He has a car.", "tip": "com she, usamos HAS."},  # same tip
-        {"said": "I am agree.", "natural": "I agree.", "tip": "Agree já é verbo."},
+        {"said": "She have a dog.", "natural_form": "She has a dog.", "tip": "Com she, usamos has."},
+        {"said": "He have a car.", "natural_form": "He has a car.", "tip": "com she, usamos HAS."},  # same tip
+        {"said": "I am agree.", "natural_form": "I agree.", "tip": "Agree já é verbo."},
     ]
 
     def handler(request: httpx.Request) -> httpx.Response:

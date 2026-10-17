@@ -19,7 +19,17 @@ _TABLE = "learner_mistakes"
 
 async def record(user_id: str, mistake: MistakeIn) -> bool:
     try:
-        await db.insert(_TABLE, {"user_id": user_id, **mistake.model_dump()})
+        await db.insert(
+            _TABLE,
+            {
+                "user_id": user_id,
+                "said": mistake.said,
+                # "natural" is a reserved word in SQL, so the column is natural_form.
+                "natural_form": mistake.natural,
+                "tip": mistake.tip,
+                "source": mistake.source,
+            },
+        )
         return True
     except Exception:
         logger.warning("[LearnerMemory] could not record a mistake for %s", user_id, exc_info=True)
@@ -30,7 +40,7 @@ async def recent(user_id: str, limit: int = 3) -> list[dict]:
     """The newest mistakes with distinct tips: [{said, natural, tip}]."""
     try:
         rows = await db.select_many(
-            _TABLE, {"user_id": user_id}, select="said,natural,tip", order="created_at.desc", limit=12,
+            _TABLE, {"user_id": user_id}, select="said,natural_form,tip", order="created_at.desc", limit=12,
         )
     except Exception:
         logger.warning("[LearnerMemory] could not read mistakes for %s", user_id, exc_info=True)
@@ -38,13 +48,13 @@ async def recent(user_id: str, limit: int = 3) -> list[dict]:
     seen: set[str] = set()
     distinct: list[dict] = []
     for row in rows if isinstance(rows, list) else []:
-        if not isinstance(row, dict) or not row.get("said") or not row.get("natural"):
+        if not isinstance(row, dict) or not row.get("said") or not row.get("natural_form"):
             continue
         key = (row.get("tip") or "").strip().lower()
         if not key or key in seen:
             continue
         seen.add(key)
-        distinct.append({"said": row["said"], "natural": row["natural"], "tip": row["tip"]})
+        distinct.append({"said": row["said"], "natural": row["natural_form"], "tip": row["tip"]})
         if len(distinct) == limit:
             break
     return distinct
