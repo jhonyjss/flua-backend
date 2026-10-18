@@ -23,6 +23,9 @@ from app.services.user_data import get_subscription
 
 FREE_STORIES_PER_WEEK = 3
 SUBSCRIPTION_REQUIRED = "subscription_required"
+# Free for everyone in the app, always the same (owner's decision, 2026-10-17): the 3 oldest published
+# A1 stories, so newer stories never push one out.
+FREE_STORIES = 3
 SUBSCRIPTION_MESSAGE = "As histórias são para assinantes. Assine para ler e ouvir todas."
 STORY_XP_BASE = 10
 STORY_XP_PER_CORRECT = 2
@@ -118,6 +121,23 @@ async def user_context(user_id: str, now: datetime | None = None) -> dict:
 
 # ── Endpoints' logic ──────────────────────────────────────────────────
 
+def free_story_ids(stories: list[dict]) -> set[str]:
+    """The FREE_STORIES oldest A1 stories among `stories` (published), by created_at then id."""
+    a1 = sorted(
+        (story for story in stories if story.get("cefr_level") == "A1"),
+        key=lambda story: (story.get("created_at") or "", story["id"]),
+    )
+    return {story["id"] for story in a1[:FREE_STORIES]}
+
+
+async def _free_ids() -> set[str]:
+    rows = await db.select_many(
+        "stories", {"status": "published", "cefr_level": "A1"}, select="id,cefr_level,created_at",
+        order="created_at.asc,id.asc", limit=FREE_STORIES,
+    )
+    return free_story_ids(rows)
+
+
 async def list_stories(user_id: str) -> dict:
     stories = await db.select_many(
         "stories", {"status": "published"}, select=LIST_COLUMNS, order="cefr_level.asc,created_at.desc",
@@ -127,10 +147,15 @@ async def list_stories(user_id: str) -> dict:
     )
     context = await user_context(user_id)
     by_story = {row["story_id"]: row for row in progress_rows}
+    free = free_story_ids(stories)
     return {
         "success": True,
         "stories": [
-            {**story, "progress": _progress_view(by_story[story["id"]]) if story["id"] in by_story else None}
+            {
+                **story,
+                "free": story["id"] in free,
+                "progress": _progress_view(by_story[story["id"]]) if story["id"] in by_story else None,
+            }
             for story in stories
         ],
         "quota": context["quota"],
@@ -155,9 +180,10 @@ async def open_story(user_id: str, story_id: str) -> dict:
     context = await user_context(user_id)
     quota = context["quota"]
 
-    # In the app, stories are for subscribers only (owner's decision, 2026-10-17); the site's free weekly
-    # quota stays in its own Nitro routes. A subscription that lapsed closes the stories already started too.
-    if not context["isPaid"]:
+    # In the app, stories are for subscribers, except the FREE_STORIES free ones (owner's decision,
+    # 2026-10-17); the site's free weekly quota stays in its own Nitro routes. A subscription that lapsed
+    # closes the stories already started too.
+    if not context["isPaid"] and story_id not in await _free_ids():
         raise HTTPException(
             status_code=403,
             detail={"code": SUBSCRIPTION_REQUIRED, "message": SUBSCRIPTION_MESSAGE},

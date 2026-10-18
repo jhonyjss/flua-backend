@@ -287,9 +287,11 @@ def test_list_returns_published_stories_with_progress(client, auth_headers, fake
     assert [s["id"] for s in body["stories"]] == [S1, S2, S3, S4]  # the draft is not listed
     assert body["stories"][1] == {
         "id": S2, "title": "Two", "cefr_level": "A1", "topic": "travel", "word_count": 120,
-        "created_at": "2026-10-05T10:00:00Z",
+        "created_at": "2026-10-05T10:00:00Z", "free": True,
         "progress": {"step": "done", "quiz_score": 4, "xp_earned": 18, "completed_at": "2026-10-13T10:00:00Z"},
     }
+    # Only S1 and S2 are published A1 (the A1 draft doesn't count), so both are free; B1 and A2 aren't.
+    assert [s["free"] for s in body["stories"]] == [True, True, False, False]
     assert body["stories"][0]["progress"] is None  # another user's progress is not mine
     assert body["quota"] == {"limit": 3, "used": 1, "remaining": 2, "allowed": True}
     assert body["stats"] == {"xp": 100, "streak": 4}
@@ -321,8 +323,8 @@ def test_open_unpublished_or_missing_is_404(client, auth_headers, fake, story_id
     assert fake.tables["user_story_progress"] == []
 
 
-# Stories in the app are for subscribers only (owner's decision, 2026-10-17): the site's 3 free per
-# week no longer apply here, and a free account can't reopen one started on the site either.
+# Stories in the app are for subscribers, except 3 fixed free ones (owner's decisions, 2026-10-17): the
+# site's 3 free per week don't apply here, and a free account can't reopen a paid one started on the site.
 SUBSCRIPTION_REFUSAL = {"detail": {"code": "subscription_required", "message": stories.SUBSCRIPTION_MESSAGE}}
 
 
@@ -352,23 +354,44 @@ def test_a_subscriber_opens_a_new_story_and_starts_it(client, auth_headers, fake
 
 
 
-def test_a_free_account_cannot_open_a_new_story(client, auth_headers, fake):
-    res = client.post(f"/api/stories/{S1}/open", headers=auth_headers)
+def test_a_free_account_cannot_open_a_story_that_is_not_free(client, auth_headers, fake):
+    res = client.post(f"/api/stories/{S3}/open", headers=auth_headers)  # B1: not one of the free ones
 
     assert res.status_code == 403
     assert res.json() == SUBSCRIPTION_REFUSAL
-    assert fake.progress_of(S1) == []
+    assert fake.progress_of(S3) == []
     assert fake.calls("POST", "user_story_progress") == []
 
 
-def test_a_free_account_cannot_reopen_a_story_started_on_the_site(client, auth_headers, fake):
-    fake.tables["user_story_progress"] = [_progress(S1, _this_week(), step="vocab")]
+def test_a_free_account_cannot_reopen_a_paid_story_started_on_the_site(client, auth_headers, fake):
+    fake.tables["user_story_progress"] = [_progress(S3, _this_week(), step="vocab")]
 
-    res = client.post(f"/api/stories/{S1}/open", headers=auth_headers)
+    res = client.post(f"/api/stories/{S3}/open", headers=auth_headers)
 
     assert res.status_code == 403
     assert res.json() == SUBSCRIPTION_REFUSAL
-    assert [row["step"] for row in fake.progress_of(S1)] == ["vocab"]
+    assert [row["step"] for row in fake.progress_of(S3)] == ["vocab"]
+
+
+def test_a_free_account_opens_a_free_story(client, auth_headers, fake):
+    res = client.post(f"/api/stories/{S1}/open", headers=auth_headers)  # the oldest A1
+
+    assert res.status_code == 200
+    assert res.json()["progress"]["step"] == "reading"
+    assert len(fake.progress_of(S1)) == 1
+
+
+def test_free_stories_are_the_three_oldest_a1():
+    rows = [
+        {"id": "a4", "cefr_level": "A1", "created_at": "2026-10-09T00:00:00Z"},
+        {"id": "b1", "cefr_level": "B1", "created_at": "2026-01-01T00:00:00Z"},  # older, but not A1
+        {"id": "a2", "cefr_level": "A1", "created_at": "2026-10-02T00:00:00Z"},
+        {"id": "a1", "cefr_level": "A1", "created_at": "2026-10-01T00:00:00Z"},
+        {"id": "a3b", "cefr_level": "A1", "created_at": "2026-10-03T00:00:00Z"},
+        {"id": "a3a", "cefr_level": "A1", "created_at": "2026-10-03T00:00:00Z"},  # same time: id breaks the tie
+    ]
+    assert stories.free_story_ids(rows) == {"a1", "a2", "a3a"}
+    assert stories.free_story_ids([]) == set()
 
 
 def test_open_a_new_story_with_the_app_trial_past_three(client, auth_headers, fake):
