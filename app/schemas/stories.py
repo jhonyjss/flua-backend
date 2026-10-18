@@ -33,6 +33,8 @@ class StoryListItem(BaseModel):
     topic: str
     word_count: int
     created_at: str | None = None
+    # One of the free stories (open to every account in the app).
+    free: bool = False
     progress: StoryProgress | None = None
 
 
