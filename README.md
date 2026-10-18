@@ -48,6 +48,8 @@ No Nuxt, `NUXT_PUBLIC_API_BASE=http://localhost:8000` (default em `nuxt.config.t
 | `GET /api/avatar/model` | ✅ proxy GLB Ready Player Me |
 | **Realtime** | |
 | `POST /api/realtime/session` | ✅ |
+| **Stories** (leitura graduada) | |
+| `GET /api/stories` · `POST /api/stories/{id}/open` · `/progress` · `/complete` | ✅ (cota semanal, XP e ofensiva pelo núcleo) |
 | **Billing / users / content** | ✅ (inalterados) |
 
 ## Arquitetura

@@ -111,6 +111,28 @@ async def update(table: str, filters: dict[str, str], values: dict) -> None:
         raise HTTPException(502, f"Supabase update error {res.status_code}: {res.text[:200]}")
 
 
+async def update_returning(
+    table: str, filters: dict[str, str], values: dict, *, op_filters: dict[str, str] | None = None,
+) -> list[dict]:
+    """UPDATE ... WHERE ... RETURNING *. `op_filters` takes PostgREST operators as they are
+    (e.g. {"completed_at": "is.null"}), so a conditional update can claim a row exactly once."""
+    settings = get_settings()
+    _require_config(settings)
+    params = {k: f"eq.{v}" for k, v in filters.items()}
+    params.update(op_filters or {})
+    async with http_client(timeout=15.0) as client:
+        res = await client.patch(
+            f"{settings.supabase_url}/rest/v1/{table}",
+            params=params,
+            json=values,
+            headers=_headers(settings),
+        )
+    if res.status_code not in (200, 204):
+        raise HTTPException(502, f"Supabase update error {res.status_code}: {res.text[:200]}")
+    rows = res.json() if res.status_code == 200 and res.content else []
+    return rows if isinstance(rows, list) else []
+
+
 async def upsert(table: str, row: dict, on_conflict: str) -> None:
     settings = get_settings()
     _require_config(settings)
