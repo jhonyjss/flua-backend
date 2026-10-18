@@ -169,6 +169,22 @@ def test_plan_is_bounded(client, auth_headers, mock_transport):
     assert client.post("/api/realtime/session", json=_body(lessonId="fund u1; drop"), headers=auth_headers).status_code == 422
 
 
+def test_plan_grammar_is_optional_and_bounded(client, auth_headers, mock_transport):
+    mock_transport(_backend(plan_level="pro_monthly"))
+    grammar = {"name": "Verbo to be: I am", "rule": "Com I usamos am.",
+               "forms": [{"label": "Afirmativa", "english": "I am Ana."}], "recap": "Com I, am."}
+    ok = client.post("/api/realtime/session", json=_body(plan={**PLAN, "grammar": grammar}), headers=auth_headers)
+    assert ok.status_code == 200
+    long_rule = {**grammar, "rule": "x" * 321}
+    assert client.post(
+        "/api/realtime/session", json=_body(plan={**PLAN, "grammar": long_rule}), headers=auth_headers,
+    ).status_code == 422
+    five_forms = {**grammar, "forms": grammar["forms"] * 5}
+    assert client.post(
+        "/api/realtime/session", json=_body(plan={**PLAN, "grammar": five_forms}), headers=auth_headers,
+    ).status_code == 422
+
+
 def test_resume_must_point_at_an_item_of_the_plan(client, auth_headers, mock_transport):
     mock_transport(_backend(plan_level="pro_monthly"))
     assert client.post("/api/realtime/session", json=_body(resumeFromItem=2), headers=auth_headers).status_code == 422
