@@ -18,6 +18,7 @@ from app.routers import (
     learning_intel,
     realtime,
     revenuecat,
+    stories,
     study,
     users,
     voice,
@@ -124,6 +125,7 @@ def create_app() -> FastAPI:
     app.include_router(learning_intel.router)
     app.include_router(study.user_router)
     app.include_router(study.content_router)
+    app.include_router(stories.router)
     return app
 
 
