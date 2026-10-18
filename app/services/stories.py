@@ -22,6 +22,8 @@ from app.services import supabase_admin as db
 from app.services.user_data import get_subscription
 
 FREE_STORIES_PER_WEEK = 3
+SUBSCRIPTION_REQUIRED = "subscription_required"
+SUBSCRIPTION_MESSAGE = "As histórias são para assinantes. Assine para ler e ouvir todas."
 STORY_XP_BASE = 10
 STORY_XP_PER_CORRECT = 2
 PAID_STATUSES = {"active", "trialing"}
@@ -152,6 +154,14 @@ async def open_story(user_id: str, story_id: str) -> dict:
     progress = await _find_progress(user_id, story_id, ",".join(PROGRESS_COLUMNS))
     context = await user_context(user_id)
     quota = context["quota"]
+
+    # In the app, stories are for subscribers only (owner's decision, 2026-10-17); the site's free weekly
+    # quota stays in its own Nitro routes. A subscription that lapsed closes the stories already started too.
+    if not context["isPaid"]:
+        raise HTTPException(
+            status_code=403,
+            detail={"code": SUBSCRIPTION_REQUIRED, "message": SUBSCRIPTION_MESSAGE},
+        )
 
     if progress is None:
         if not quota["allowed"]:

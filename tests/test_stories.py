@@ -321,7 +321,13 @@ def test_open_unpublished_or_missing_is_404(client, auth_headers, fake, story_id
     assert fake.tables["user_story_progress"] == []
 
 
-def test_open_a_new_story_starts_it_and_spends_one_of_the_week(client, auth_headers, fake):
+# Stories in the app are for subscribers only (owner's decision, 2026-10-17): the site's 3 free per
+# week no longer apply here, and a free account can't reopen one started on the site either.
+SUBSCRIPTION_REFUSAL = {"detail": {"code": "subscription_required", "message": stories.SUBSCRIPTION_MESSAGE}}
+
+
+def test_a_subscriber_opens_a_new_story_and_starts_it(client, auth_headers, fake):
+    fake.tables["stripe_subscriptions"] = [{"user_id": USER, "status": "active", "plan_name": "pro_monthly"}]
     fake.tables["user_story_progress"] = [_progress(S2, _this_week())]
 
     res = client.post(f"/api/stories/{S1}/open", headers=auth_headers)
@@ -333,8 +339,8 @@ def test_open_a_new_story_starts_it_and_spends_one_of_the_week(client, auth_head
         "word_count": 120, "audio_url": None, "audio_voice": None, "audio_alignment": None,
     }
     assert body["progress"] == {"step": "reading", "quiz_score": None, "xp_earned": 0, "completed_at": None}
-    # 1 started before + this one = 2 used, 1 left (adjusted after the insert, as the site does)
-    assert body["quota"] == {"limit": 3, "used": 2, "remaining": 1, "allowed": True}
+    # Unlimited for a subscriber; `used` still counts this week's starts: 1 before + this one.
+    assert body["quota"] == {"limit": None, "used": 2, "remaining": None, "allowed": True}
     assert body["expressions"] == [{
         "id": "e1", "expression": "check in", "occurrence_index": 0, "part_of_speech": "phrasal verb",
         "phonetic": "/tʃek ɪn/", "definition_en": "register", "definition_pt": "fazer check-in", "sort_order": 0,
@@ -345,29 +351,24 @@ def test_open_a_new_story_starts_it_and_spends_one_of_the_week(client, auth_head
     assert len(fake.progress_of(S1)) == 1
 
 
-def test_open_a_new_story_past_the_free_limit_is_refused(client, auth_headers, fake):
-    fake.tables["user_story_progress"] = [_progress(s, _this_week()) for s in (S2, S3, S4)]
 
+def test_a_free_account_cannot_open_a_new_story(client, auth_headers, fake):
     res = client.post(f"/api/stories/{S1}/open", headers=auth_headers)
 
     assert res.status_code == 403
-    assert res.json() == {"detail": {"code": "QUOTA_EXCEEDED", "reason": "QUOTA_EXCEEDED", "message": QUOTA_MESSAGE}}
+    assert res.json() == SUBSCRIPTION_REFUSAL
     assert fake.progress_of(S1) == []
     assert fake.calls("POST", "user_story_progress") == []
 
 
-def test_reopening_a_started_story_at_the_limit_is_allowed_and_spends_nothing(client, auth_headers, fake):
-    fake.tables["user_story_progress"] = [
-        _progress(S1, _this_week(), step="vocab"), _progress(S2, _this_week()), _progress(S3, _this_week()),
-    ]
+def test_a_free_account_cannot_reopen_a_story_started_on_the_site(client, auth_headers, fake):
+    fake.tables["user_story_progress"] = [_progress(S1, _this_week(), step="vocab")]
 
     res = client.post(f"/api/stories/{S1}/open", headers=auth_headers)
 
-    assert res.status_code == 200
-    body = res.json()
-    assert body["progress"] == {"step": "vocab", "quiz_score": None, "xp_earned": 0, "completed_at": None}
-    assert body["quota"] == {"limit": 3, "used": 3, "remaining": 0, "allowed": False}
-    assert fake.calls("POST", "user_story_progress") == []
+    assert res.status_code == 403
+    assert res.json() == SUBSCRIPTION_REFUSAL
+    assert [row["step"] for row in fake.progress_of(S1)] == ["vocab"]
 
 
 def test_open_a_new_story_with_the_app_trial_past_three(client, auth_headers, fake):
