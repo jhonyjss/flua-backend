@@ -228,3 +228,54 @@ def test_beginner_still_mostly_portuguese():
 def test_advanced_spanish_is_spanish_only():
     out = build_tutor_instructions("advanced", "spanish-tutor", "", "Jhony", "es")
     assert "EXCLUSIVAMENTE em espanhol" in out
+
+
+# ── Grammar class in the guided lesson (app docs/gramatica-spec.md) ──
+
+GRAMMAR = {
+    "name": "Verbo to be: I am",
+    "rule": "Em inglês, ser e estar são um verbo só: to be.\nCom I usamos am.",
+    "forms": [
+        {"label": "Afirmativa", "english": "I am Ana.", "portuguese": "Eu sou a Ana."},
+        {"label": "Contração", "english": "I'm Ana."},
+    ],
+    "contrast": "Em português dizemos só “Sou Ana”; em inglês o I é obrigatório.",
+    "mistake": {"wrong": "Am Ana.", "right": "I am Ana.", "why": "O sujeito I não pode faltar."},
+    "recap": "Com I, o verbo to be é am.",
+}
+
+
+def _guided_with_grammar(resume=0):
+    return build_tutor_instructions(
+        "beginner", "english-tutor", "", "Jhony", "en", mode="guided_lesson",
+        guided={**GUIDED, "grammar": GRAMMAR}, resume_from_item=resume,
+    )
+
+
+def test_guided_plan_carries_the_grammar_point_one_line_per_field():
+    out = _guided_with_grammar()
+    assert "# Gramática da aula: Verbo to be: I am" in out
+    assert "Regra: Em inglês, ser e estar são um verbo só: to be. Com I usamos am." in out  # newline collapsed
+    assert 'Formas: Afirmativa: "I am Ana." (Eu sou a Ana.) | Contração: "I\'m Ana."' in out
+    assert "Português × inglês: Em português dizemos só “Sou Ana”; em inglês o I é obrigatório." in out
+    assert 'Erro comum: "Am Ana." → "I am Ana." (O sujeito I não pode faltar.)' in out
+    assert "Resumo para o fim: Com I, o verbo to be é am." in out
+
+
+def test_guided_lesson_gives_the_grammar_class_before_teaching_item_one():
+    opening = _guided_with_grammar().split("# Como começar")[-1]
+    grammar_class = opening.index("dê a aula de gramática")
+    assert grammar_class < opening.index("ensine o item 1 (c-i-am)")
+    assert opening.index("hoje ele vai aprender a se apresentar") < grammar_class
+
+
+def test_resuming_a_lesson_skips_the_grammar_class():
+    opening = _guided_with_grammar(resume=1).split("# Como começar")[-1]
+    assert "aula de gramática" not in opening
+    assert "ensine o item 2 (c-my-name-is)" in opening
+
+
+def test_a_plan_without_grammar_has_no_grammar_class():
+    out = _guided()
+    assert "Gramática da aula" not in out
+    assert "aula de gramática" not in out

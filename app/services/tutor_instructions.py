@@ -180,7 +180,35 @@ def _guided_plan_block(guided: dict) -> str:
         if accepts:
             parts.append(f"aceitas: {' / '.join(accepts)}")
         lines.append(" | ".join(parts))
+    if grammar := guided.get("grammar"):
+        lines += ["", *_guided_grammar_lines(grammar)]
     return "\n".join(lines)
+
+
+def _guided_grammar_lines(grammar: dict) -> list[str]:
+    """The grammar point of the lesson, each field on one capped line (docs/gramatica-spec.md in the app)."""
+    lines = [
+        f"# Gramática da aula: {_one_line(grammar['name'], 80)}",
+        f"Regra: {_one_line(grammar['rule'], 320)}",
+    ]
+    forms = [
+        f'{_one_line(form["label"], 30)}: "{_one_line(form["english"], 160)}"'
+        + (f' ({_one_line(form.get("portuguese", ""), 160)})' if form.get("portuguese") else "")
+        for form in grammar.get("forms") or []
+    ]
+    if forms:
+        lines.append("Formas: " + " | ".join(forms))
+    if contrast := _one_line(grammar.get("contrast", ""), 240):
+        lines.append(f"Português × inglês: {contrast}")
+    if mistake := grammar.get("mistake"):
+        why = _one_line(mistake.get("why", ""), 180)
+        lines.append(
+            f'Erro comum: "{_one_line(mistake["wrong"], 160)}" → "{_one_line(mistake["right"], 160)}"'
+            + (f" ({why})" if why else "")
+        )
+    if recap := _one_line(grammar.get("recap", ""), 160):
+        lines.append(f"Resumo para o fim: {recap}")
+    return lines
 
 
 def _guided_lesson_block() -> str:
@@ -213,9 +241,16 @@ def _guided_greeting(name_ref: str, guided: dict, resume_from_item: int) -> str:
         who = f"chame {name_ref} pelo nome, " if name_ref else ""
         return f'Retome a aula: {who}diga "Vamos continuar de onde paramos" e {teach}'
     count = "é 1 item" if len(items) == 1 else f"são {len(items)} itens"
+    # A classroom, not a phrasebook: the grammar point is explained before practising it.
+    grammar_class = (
+        "Antes do primeiro item, dê a aula de gramática (veja # Gramática da aula) em até 4 frases curtas, "
+        "em português: diga o nome do ponto, explique a regra com um exemplo das formas e avise do erro comum. "
+        "Não espere resposta nem faça pergunta nessa parte. Depois, "
+        if guided.get("grammar") else "Em seguida, "
+    )
     proposal = (
         f"apresente a aula em até 2 frases: hoje ele vai aprender a {_one_line(guided['skill'], 120)}; "
-        f"{count}; funciona assim: você fala, ele repete e depois tenta sozinho. Em seguida, {teach}"
+        f"{count}; funciona assim: você fala, ele repete e depois tenta sozinho. {grammar_class}{teach}"
     )
     if name_ref:
         return f"Cumprimente {name_ref} pelo nome e {proposal}"

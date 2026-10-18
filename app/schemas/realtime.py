@@ -22,11 +22,35 @@ class GuidedItem(BaseModel):
     accepts: list[Phrase] = Field(default_factory=list, max_length=4)
 
 
+class GrammarForm(BaseModel):
+    label: str = Field(min_length=1, max_length=30)
+    english: Phrase = Field(min_length=1)
+    portuguese: Phrase = ""
+
+
+class GrammarMistake(BaseModel):
+    wrong: Phrase = Field(min_length=1)
+    right: Phrase = Field(min_length=1)
+    why: str = Field("", max_length=180)
+
+
+class GuidedGrammar(BaseModel):
+    """The lesson's grammar point (the app's Lesson.grammar): Flua teaches it before the first item."""
+    name: str = Field(min_length=1, max_length=80)
+    rule: str = Field(min_length=1, max_length=320)
+    forms: list[GrammarForm] = Field(default_factory=list, max_length=4)
+    contrast: str = Field("", max_length=240)
+    mistake: GrammarMistake | None = None
+    recap: str = Field("", max_length=160)
+
+
 class GuidedPlan(BaseModel):
     title: str = Field(min_length=1, max_length=80)
     # Completes "hoje ele vai aprender a …" (the app's Lesson.skill).
     skill: str = Field(min_length=1, max_length=120)
     items: list[GuidedItem] = Field(min_length=1, max_length=8)
+    # Optional so plans from older app builds stay valid.
+    grammar: GuidedGrammar | None = None
 
 
 class ReviewPhrase(BaseModel):
