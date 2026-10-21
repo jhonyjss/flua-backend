@@ -112,7 +112,8 @@ async def fetch_subscriber(user_id: str) -> dict:
             f"{API}/subscribers/{quote(user_id, safe='')}",
             headers={"Authorization": f"Bearer {settings.revenuecat_secret_key}"},
         )
-    if res.status_code != 200:
+    # 201: the lookup created the customer (an account that never opened the app); same body.
+    if res.status_code not in (200, 201):
         raise HTTPException(502, f"RevenueCat error {res.status_code}")
     return res.json().get("subscriber") or {}
 
