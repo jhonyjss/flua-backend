@@ -181,6 +181,17 @@ def test_app_sync_returns_the_new_plan(client, auth_headers, mock_transport):
     assert any(c[0] == "upsert" for c in calls)
 
 
+def test_sync_of_a_customer_revenuecat_has_just_created(client, auth_headers, mock_transport):
+    # RevenueCat answers 201 when the lookup creates the customer (an account that never opened the app).
+    calls = []
+    mock_transport(_rc_backend(answer=subscriber({}, {}), status=201, calls=calls))
+    res = client.post("/api/revenuecat/sync", headers=auth_headers)
+    assert res.status_code == 200
+    assert res.json()["isSubscribed"] is False
+    saved = next(c[2] for c in calls if c[0] == "upsert")
+    assert saved["entitlement"] is None
+
+
 def test_sync_needs_a_session(client):
     assert client.post("/api/revenuecat/sync").status_code == 401
 
