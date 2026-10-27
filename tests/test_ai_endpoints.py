@@ -176,3 +176,14 @@ def test_transcribe_multipart_endpoint(client, auth_headers, mock_transport):
     data = res.json()
     assert data["transcript"] == "hello world"
     assert data["confidence"] == 0.98
+
+
+def test_beginner_trim_never_prefixes_good_try():
+    from app.services.ai.conversation import _sanitize_beginner
+
+    long_reply = (
+        'Excellent, you said it perfectly and with great confidence, so now we will keep going together. '
+        'Say "I am from Brazil" one more time slowly and clearly for me, and then we will move on to the next '
+        'part of the lesson. Where are you from?'
+    )
+    assert _sanitize_beginner(long_reply) == "I am from Brazil. Where are you from?"

@@ -279,3 +279,78 @@ def test_a_plan_without_grammar_has_no_grammar_class():
     out = _guided()
     assert "Gramática da aula" not in out
     assert "aula de gramática" not in out
+
+
+# ── Teaching methodology (pedagogy review) ───────────────────────────────
+
+
+def _lesson(language="en"):
+    return build_tutor_instructions("beginner", "english-tutor", "Aula: To Be", "Jhony", language, mode="lesson")
+
+
+def test_lesson_moves_on_after_the_second_miss_and_revisits_the_goal_once():
+    out = _lesson()
+    # the 2-attempt rule no longer deadlocks against "only Correct! completes a goal"
+    assert "continue na mesma meta (até a 2ª tentativa)" in out
+    assert "siga para a próxima meta SEM o marcador" in out
+    assert "volte a ela UMA vez com um pedido diferente" in out
+    assert "considere a meta encerrada, sem o marcador" in out
+    assert "Antes de TODAS as metas terminadas, nunca se despeça" in out
+
+
+def test_lesson_asks_for_doubts_only_after_a_miss_or_every_three_goals():
+    out = _lesson()
+    assert "Pergunte se há dúvida só depois de uma meta que teve erro, ou a cada 3 metas." in out
+    assert "se ele tem alguma dúvida sobre o que acabaram de praticar" not in out
+
+
+def test_conversation_corrects_by_recast_instead_of_stopping_the_talk():
+    free = build_tutor_instructions("beginner", "english-tutor", "", "Jhony", "en", mode="free_practice")
+    casual = build_tutor_instructions("beginner", "english-tutor", "", "Jhony", "en", mode="lesson")
+    es = build_tutor_instructions("beginner", "spanish-tutor", "", "Jhony", "es", mode="free_practice")
+    for out in (free, casual, es):
+        assert "Corrija por RECAST" in out
+    # the elicitation rule (hint → try again) is scoped to the structured lesson
+    assert "Em aula estruturada, se errar pela 1ª vez naquela frase" in free
+
+
+def test_english_prompt_anticipates_brazilian_l1_errors():
+    out = _lesson()
+    assert "# Erros típicos de brasileiro" in out
+    assert '"I have 30 years" → "I\'m 30"' in out
+    assert "actually = na verdade" in out
+    assert "# Portunhol" not in out
+
+
+def test_guided_tool_result_overrides_the_generic_correction_rules():
+    out = _guided()
+    assert "registrar_resultado tem PRECEDÊNCIA sobre" in out
+    assert 'sua vez (etapa "sozinho" em registrar_resultado)' in out
+
+
+def test_guided_acceptance_counts_contractions_and_flags_missing_words():
+    out = _guided()
+    assert "Contração e forma plena valem igual (I'm = I am" in out
+    assert "Sujeito, artigo ou preposição faltando NÃO é detalhe: é parcial" in out
+    assert "Se a transcrição mostra OUTRA palavra" in out
+
+
+def test_spanish_guided_lesson_runs_the_scene_in_spanish():
+    out = build_tutor_instructions(
+        "beginner", "spanish-tutor", "", "Jhony", "es", mode="guided_lesson", guided=GUIDED,
+    )
+    block = out.split("# Aula guiada")[1]
+    assert "você faz um personagem e fala em espanhol" in block
+    assert "diga a frase em espanhol" in block
+    assert "em inglês" not in block
+    assert '"la viaje" → "el viaje"' in block
+
+
+def test_spanish_prompt_has_turn_rules_correction_and_portunhol():
+    out = _lesson("es")
+    assert "# Como conversar" in out
+    assert "no máximo UM erro por turno" in out
+    assert "# Portunhol" in out
+    assert "embarazada = grávida" in out
+    assert "Sanduíche: toda frase nova em espanhol" in out
+    assert "# Erros típicos de brasileiro" not in out

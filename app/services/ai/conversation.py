@@ -248,7 +248,7 @@ def _sanitize_beginner(text: str) -> str:
     q = re.search(r"([^.!?]*\?)\s*$", text)
     quote = re.search(r'"([^"]+)"', text)
     if quote and q:
-        return f"Good try! {quote.group(1)}. {q.group(1)}"
+        return f"{quote.group(1)}. {q.group(1).strip()}"
     if q:
         return q.group(1)
     return " ".join(text.split()[:15])
