@@ -288,14 +288,24 @@ def _lesson(language="en"):
     return build_tutor_instructions("beginner", "english-tutor", "Aula: To Be", "Jhony", language, mode="lesson")
 
 
-def test_lesson_moves_on_after_the_second_miss_and_revisits_the_goal_once():
+def test_lesson_second_miss_ends_in_a_repetition_that_completes_the_goal_in_order():
     out = _lesson()
-    # the 2-attempt rule no longer deadlocks against "only Correct! completes a goal"
-    assert "continue na mesma meta (até a 2ª tentativa)" in out
-    assert "siga para a próxima meta SEM o marcador" in out
-    assert "volte a ela UMA vez com um pedido diferente" in out
-    assert "considere a meta encerrada, sem o marcador" in out
-    assert "Antes de TODAS as metas terminadas, nunca se despeça" in out
+    # the client completes the next pending goal on each marker, so goals finish in order — never skipped
+    assert "peça para ele só repeti-la UMA vez" in out
+    assert "Se a repetição sair com as palavras certas, a meta está concluída" in out
+    assert "nunca pule para a próxima meta sem concluir a atual" in out
+    assert "SIGA para a próxima meta" not in out
+    assert "SEM o marcador" not in out
+
+
+def test_lesson_marker_fires_once_per_goal_never_on_variations():
+    en = _lesson()
+    es = _lesson("es")
+    assert 'Use "Correct!" ou "Correto!" UMA ÚNICA VEZ por meta' in en
+    assert 'Use "¡Correcto!" ou "Correto!" UMA ÚNICA VEZ por meta' in es
+    for out in (en, es):
+        assert "NUNCA comece com o marcador ao responder a uma variação" in out
+    assert "(a resposta à variação NÃO leva o marcador)" in en
 
 
 def test_lesson_asks_for_doubts_only_after_a_miss_or_every_three_goals():
@@ -310,8 +320,13 @@ def test_conversation_corrects_by_recast_instead_of_stopping_the_talk():
     es = build_tutor_instructions("beginner", "spanish-tutor", "", "Jhony", "es", mode="free_practice")
     for out in (free, casual, es):
         assert "Corrija por RECAST" in out
+    # each language recasts with its own example
+    assert "I'm 30 — a gente diz I'm" in free and "I'm 30 — a gente diz I'm" in casual
+    assert "Me gusta mucho — a gente diz mucho, não muy" in es
+    assert "I'm 30" not in es
     # the elicitation rule (hint → try again) is scoped to the structured lesson
     assert "Em aula estruturada, se errar pela 1ª vez naquela frase" in free
+    assert "Em aula estruturada, se o mesmo erro repetir" in free
 
 
 def test_english_prompt_anticipates_brazilian_l1_errors():
@@ -324,7 +339,8 @@ def test_english_prompt_anticipates_brazilian_l1_errors():
 
 def test_guided_tool_result_overrides_the_generic_correction_rules():
     out = _guided()
-    assert "registrar_resultado tem PRECEDÊNCIA sobre" in out
+    assert 'registrar_resultado tem PRECEDÊNCIA sobre "# Correção" e os degraus de ajuda.' in out
+    assert "# Reconhecimento de acerto" not in out  # no reference to a section the guided prompt lacks
     assert 'sua vez (etapa "sozinho" em registrar_resultado)' in out
 
 
@@ -332,7 +348,9 @@ def test_guided_acceptance_counts_contractions_and_flags_missing_words():
     out = _guided()
     assert "Contração e forma plena valem igual (I'm = I am" in out
     assert "Sujeito, artigo ou preposição faltando NÃO é detalhe: é parcial" in out
-    assert "Se a transcrição mostra OUTRA palavra" in out
+    assert "Se a transcrição mostra OUTRA palavra (tree/three, sheep/ship)" in out
+    assert "Sotaque, ritmo e pronúncia NÃO contam enquanto a transcrição mostrar as palavras certas." in out
+    assert "work-ed" not in out.split("# Aula guiada")[1]
 
 
 def test_spanish_guided_lesson_runs_the_scene_in_spanish():
