@@ -176,3 +176,36 @@ def test_transcribe_multipart_endpoint(client, auth_headers, mock_transport):
     data = res.json()
     assert data["transcript"] == "hello world"
     assert data["confidence"] == 0.98
+
+
+def test_beginner_trim_never_prefixes_good_try():
+    from app.services.ai.conversation import _sanitize_beginner
+
+    long_reply = (
+        'Excellent, you said it perfectly and with great confidence, so now we will keep going together. '
+        'Say "I am from Brazil" one more time slowly and clearly for me, and then we will move on to the next '
+        'part of the lesson. Where are you from?'
+    )
+    assert _sanitize_beginner(long_reply) == "I am from Brazil. Where are you from?"
+
+
+def test_beginner_trim_models_the_correction_not_the_quoted_mistake():
+    from app.services.ai.conversation import _sanitize_beginner
+
+    long_reply = (
+        'Nice effort! You said "I have 30 years", but in English we say "I\'m 30" because we use the verb be '
+        'for age, not have, so it sounds natural and every native speaker will understand you right away. '
+        'How old is your sister?'
+    )
+    assert _sanitize_beginner(long_reply) == "I'm 30. How old is your sister?"
+
+
+def test_beginner_trim_keeps_the_quoted_punctuation_without_doubling_it():
+    from app.services.ai.conversation import _sanitize_beginner
+
+    long_reply = (
+        'Great job, that was really clear and you used the right words in the right order this time, so '
+        'well done. Now say "Nice to meet you!" to me like you are meeting a new friend at a party today. '
+        'Can you try?'
+    )
+    assert _sanitize_beginner(long_reply) == "Nice to meet you! Can you try?"

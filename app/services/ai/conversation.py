@@ -246,9 +246,14 @@ def _sanitize_beginner(text: str) -> str:
     if len(text.split()) <= 35:
         return text
     q = re.search(r"([^.!?]*\?)\s*$", text)
-    quote = re.search(r'"([^"]+)"', text)
-    if quote and q:
-        return f"Good try! {quote.group(1)}. {q.group(1)}"
+    # The last quote before the question is the form Flua lands on; earlier ones are often the
+    # student's own mistake quoted back ('You said "X", but we say "Y"').
+    quotes = re.findall(r'"([^"]+)"', text[: q.start()]) if q else []
+    if quotes and q:
+        model = quotes[-1].strip()
+        if not model.endswith((".", "!", "?")):
+            model += "."
+        return f"{model} {q.group(1).strip()}"
     if q:
         return q.group(1)
     return " ".join(text.split()[:15])
