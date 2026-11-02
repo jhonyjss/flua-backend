@@ -348,9 +348,48 @@ def test_guided_acceptance_counts_contractions_and_flags_missing_words():
     out = _guided()
     assert "Contração e forma plena valem igual (I'm = I am" in out
     assert "Sujeito, artigo ou preposição faltando NÃO é detalhe: é parcial" in out
-    assert "Se a transcrição mostra OUTRA palavra (tree/three, sheep/ship)" in out
-    assert "Sotaque, ritmo e pronúncia NÃO contam enquanto a transcrição mostrar as palavras certas." in out
     assert "work-ed" not in out.split("# Aula guiada")[1]
+
+
+def test_guided_acceptance_judges_what_she_heard_and_forgives_the_accent():
+    # "Hello Ana" said with a Brazilian accent was judged wrong: she hears audio, not a transcript,
+    # and tree/three, sheep/ship (pronunciation pairs) taught her to mark accent as a different word.
+    block = _guided().split("# Aula guiada")[1]
+    assert "pelo que você OUVIU (você recebe o áudio, não uma transcrição)" in block
+    assert "transcrição mostra" not in block
+    assert "tree/three" not in block and "sheep/ship" not in block
+    assert 'Sotaque é a mesma palavra: "rélou" é hello, "Ána" é Ana.' in block
+    assert '"hello Ana" vale "Hello, Ana!"' in block
+    assert "Se o aluno disse OUTRA palavra, com outro sentido" in block
+    assert "Na etapa repetir, se ficar em dúvida entre correto e parcial, marque correto" in block
+    assert "com a grafia normal, sem imitar o sotaque" in block
+
+
+def test_guided_teaching_gives_real_context_and_ends_on_the_phrase_to_repeat():
+    # The learner starts repeating as soon as the phrase is heard; anything after it talks over them.
+    block = _guided().split("# Aula guiada")[1]
+    assert "1 frase de contexto real" in block
+    assert '"De manhã, os americanos costumam cumprimentar com Good morning."' in block
+    assert '"Vamos praticar juntos? Repete comigo: Good morning!"' in block
+    assert "a frase-modelo é a ÚLTIMA coisa da sua fala" in block
+    assert "em no máximo 2 frases curtas e peça para o aluno repetir" not in block
+
+
+def test_guided_feedback_sounds_like_a_teacher_not_a_grader():
+    block = _guided().split("# Aula guiada")[1]
+    assert 'NUNCA diga "errado", "incorreto", "não é assim"' in block
+    assert "Vamos juntos de novo?" in block
+    assert "emende o próximo pedido com uma ponte natural" in block
+    assert '"tentativa 1 de 2") são internos: nunca os diga em voz alta' in block
+    assert "feedback curto e o próximo pedido" not in block
+
+
+def test_spanish_guided_lesson_teaches_with_spanish_examples():
+    block = build_tutor_instructions(
+        "beginner", "spanish-tutor", "", "Jhony", "es", mode="guided_lesson", guided=GUIDED,
+    ).split("# Aula guiada")[1]
+    assert "Repete comigo: ¡Buenos días!" in block
+    assert "Good morning" not in block and "Hello, Ana" not in block and "rélou" not in block
 
 
 def test_spanish_guided_lesson_runs_the_scene_in_spanish():
