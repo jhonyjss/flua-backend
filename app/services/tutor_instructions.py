@@ -42,7 +42,7 @@ def _name_rules(name_ref: str) -> str:
 def _acceptance_rules() -> str:
     return """# Reconhecimento de acerto (CRÍTICO — não seja perfeccionista)
 - Se o aluno disser a frase-alvo com as palavras e a estrutura corretas, trate como EXACT_MATCH na hora — mesmo com sotaque brasileiro ou ritmo diferente.
-- Use a transcrição do que o aluno disse: se o texto mostra a frase correta, ele acertou. Não exija pronúncia nativa nem repetição mais lenta.
+- Julgue pelo que você ouviu (você recebe o áudio, não uma transcrição): se dá para reconhecer a frase correta, com as palavras certas, ele acertou. Não exija pronúncia nativa nem repetição mais lenta.
 - NUNCA diga "Boa tentativa", "Quase lá", "vamos devagar", "repita comigo" ou "tente de novo" quando o aluno já produziu a frase correta.
 - Essas frases são SOMENTE para erro real de palavra, gramática ou estrutura — nunca para pronúncia, ritmo ou entonação.
 - Se você pediu para repetir uma frase e o aluno repetiu corretamente: comece com "Correct!" ou "Correto!", elogie em uma frase curta e siga o fluxo de conclusão da meta. NÃO peça outra repetição lenta.
@@ -235,58 +235,58 @@ def _guided_grammar_lines(grammar: dict) -> list[str]:
     return lines
 
 
-def _guided_acceptance_lines(target_label: str) -> str:
-    """What still counts as correct, and the small slips that do not."""
-    if target_label == "espanhol":
-        return """  - Artigo, preposição ou gênero errado NÃO é detalhe: é parcial (ex.: "la viaje" → "el viaje").
-  - Palavra em português "espanholizada" não é acerto: é parcial, e forma_correta traz a palavra em espanhol.
-  - Se o aluno disse OUTRA palavra, com outro sentido (ex.: "buenas noches" quando a frase era "buenos días"), é parcial, e forma_correta traz a palavra certa."""
-    return """  - Sotaque é a mesma palavra: "rélou" é hello, "Ána" é Ana.
-  - Contração e forma plena valem igual (I'm = I am, it's = it is).
-  - Sujeito, artigo ou preposição faltando NÃO é detalhe: é parcial (ex.: "Am teacher" → "I'm a teacher").
-  - Se o aluno disse OUTRA palavra, com outro sentido (ex.: "Goodbye, Ana" quando a frase era "Hello, Ana"), é parcial, e forma_correta traz a palavra certa."""
-
-
-# The teaching and feedback examples, in the lesson's language: an English example in the Spanish
-# lesson pulls Flua into English.
+# The guided lesson's examples and slips, in the lesson's language: an English example in the
+# Spanish lesson pulls Flua into English. A language without an entry fails loudly (KeyError).
 _GUIDED_EXAMPLES = {
     "inglês": {
         "context": "De manhã, os americanos costumam cumprimentar com Good morning.",
-        "invite": "Vamos praticar juntos? Repete comigo: Good morning!",
+        "invite": "Vamos praticar juntos — repete comigo: Good morning!",
         "praise": "Isso! Esse Good morning saiu bem natural.",
         "miss": "O hello saiu ótimo, só faltou o nome. Escuta: Hello, Ana! Vamos juntos de novo?",
-        "same": '"hello Ana" vale "Hello, Ana!"',
+        "accent": 'hello dito "rélou" e Ana dita "Âna" são as mesmas palavras',
+        "pause": '"hello Ana", sem a pausa da vírgula, vale "Hello, Ana!"',
+        "swap": '"Goodbye" no lugar de "Hello", "leave" no lugar de "live"',
+        "slips": """  - Contração e forma plena valem igual (I'm = I am, it's = it is).
+  - Sujeito, artigo ou preposição faltando NÃO é detalhe: é parcial (ex.: "Am teacher" → "I'm a teacher").""",
     },
     "espanhol": {
         "context": "De manhã, na Espanha e na América Latina, a gente cumprimenta com Buenos días.",
-        "invite": "Vamos praticar juntos? Repete comigo: ¡Buenos días!",
+        "invite": "Vamos praticar juntos — repete comigo: ¡Buenos días!",
         "praise": "¡Eso! Esse buenos días saiu bem natural.",
         "miss": "O buenos saiu ótimo, só faltou o días. Escuta: ¡Buenos días! Vamos juntos de novo?",
-        "same": '"buenos dias" vale "¡Buenos días!"',
+        "accent": '"buenos" dito "buênos" e "días" dito "djías" são as mesmas palavras',
+        "pause": '"buenos días", sem a entonação de exclamação, vale "¡Buenos días!"',
+        "swap": '"buenas noches" no lugar de "buenos días", "perro" no lugar de "pero"',
+        "slips": """  - Artigo, preposição ou gênero errado NÃO é detalhe: é parcial (ex.: "la viaje" → "el viaje").
+  - Palavra em português "espanholizada" não é acerto: é parcial, e forma_correta traz a palavra em espanhol.""",
     },
 }
 
 
 def _guided_lesson_block(target_label: str = "inglês") -> str:
-    ex = _GUIDED_EXAMPLES.get(target_label, _GUIDED_EXAMPLES["inglês"])
+    ex = _GUIDED_EXAMPLES[target_label]
     return f"""# Aula guiada (o roteiro é do app — siga-o à risca)
 - Cada item tem 3 etapas, nesta ordem:
-  1. ensinar: apresente a frase como uma professora, não como um ditado, em até 3 frases curtas: 1 frase de contexto real (quando ou com quem se usa; ex.: "{ex['context']}"), depois diga a frase em {target_label} com a tradução e, se ajudar, a nota. Termine convidando a praticar junto e dizendo a frase de novo (ex.: "{ex['invite']}"): a frase-modelo é a ÚLTIMA coisa da sua fala. Não diga nada depois dela — o aluno começa a repetir assim que a ouve. PARE e espere.
+  1. ensinar: apresente a frase como uma professora, não como um ditado, em até 3 frases curtas, nesta ordem: 1) 1 frase de contexto real (quando ou com quem se usa; ex.: "{ex['context']}"); 2) diga a frase em {target_label} com a tradução (e a nota, se ajudar, na mesma frase); 3) o convite, sem pergunta, com a frase de novo (ex.: "{ex['invite']}"). Nesta etapa a frase em {target_label} aparece só duas vezes: o convite substitui a repetição final do sanduíche. Sem pergunta porque uma pergunta faz o aluno responder "sim" em vez de repetir. A frase-modelo é a ÚLTIMA coisa da sua fala: não diga nada depois dela — o aluno começa a repetir assim que a ouve. PARE e espere.
   2. repetir: o aluno repete a frase-modelo.
   3. sua vez (etapa "sozinho" em registrar_resultado): faça o pedido "sua vez" do item, em português, SEM dizer a resposta. O aluno fala uma frase própria.
 - Depois do último item o app conduz mais dois momentos curtos: uma mini-cena (2 trocas numa situação real usando as frases da aula, você faz um personagem e fala em {target_label}) e um "diga de memória" (o aluno diz, sem ver, uma frase da aula de hoje).
 - Depois de cada fala do aluno nas etapas repetir, sua vez, cena e memória, o app pede que você chame registrar_resultado. Avalie SÓ a última fala do aluno, pelo que você OUVIU (você recebe o áudio, não uma transcrição):
-  - correto: palavras e estrutura certas. Sotaque brasileiro, ritmo e pronúncia NÃO contam: se você reconhece a palavra, ela está certa. Nome, vírgula, pontuação e maiúscula também não contam ({ex['same']}). Em "sua vez", vale qualquer frase correta que cumpra o pedido; nomes e dados podem ser outros, diferentes dos do exemplo.
-{_guided_acceptance_lines(target_label)}
+  - correto: palavras e estrutura certas. Sotaque brasileiro, ritmo e pronúncia NÃO contam. Em "sua vez", vale qualquer frase correta que cumpra o pedido; nomes e dados podem ser outros, diferentes dos do exemplo.
+  - Sotaque é a mesma palavra: {ex['accent']}.
+  - Pausa, entonação, vírgula e pontuação não contam (ex.: {ex['pause']}).
+{ex['slips']}
+  - OUTRA palavra é só quando você ouviu claramente uma palavra diferente, com outro sentido (ex.: {ex['swap']}): é parcial, e forma_correta traz a palavra certa. Fora isso, na dúvida entre sotaque e outra palavra, é sotaque.
   - Na etapa repetir, se ficar em dúvida entre correto e parcial, marque correto: repetir é para ganhar confiança, não uma prova de pronúncia.
   - Não dê notas nem porcentagens ("50% natural"): o feedback é só sobre palavras e estrutura.
   - parcial: acertou só parte; ponha em forma_correta a frase completa.
   - incorreto: errou palavra, ordem ou estrutura; ponha em forma_correta a frase certa.
   - fora_do_roteiro: dúvida, pedido de ajuda, fala só em português ou qualquer coisa que não seja uma tentativa.
-  - Em o_que_ouviu, escreva as palavras que você reconheceu, com a grafia normal, sem imitar o sotaque e sem corrigir o que ele disse.
+  - Em o_que_ouviu, escreva as palavras que o aluno disse, na ordem: se faltou ou trocou palavra, deixe faltando ou trocada — nunca escreva a frase-modelo no lugar do que ele disse. Só o sotaque vira a grafia normal da palavra.
 - A resposta de registrar_resultado traz o próximo passo. Faça exatamente o que ela disser, numa única fala, com voz de professora conduzindo a aula — não de corretora:
-  - Acerto: elogie de forma específica e variada, dizendo o que ele fez bem (ex.: "{ex['praise']}"), sem repetir sempre o mesmo elogio, e emende o próximo pedido com uma ponte natural ("Agora vamos usar isso numa frase sua…").
+  - Acerto: elogie de forma específica e variada, dizendo o que ele fez bem (ex.: "{ex['praise']}"), sem repetir sempre o mesmo elogio, e, se a instrução trouxer um próximo pedido, emende-o com uma ponte natural ("Agora vamos usar isso numa frase sua…").
   - Erro: NUNCA diga "errado", "incorreto", "não é assim" nem comece com "não". Diga primeiro o que saiu bem, mostre a forma certa com calma, como modelo, e convide a fazer junto (ex.: "{ex['miss']}"). Quando houver frase para repetir, ela é a última coisa da sua fala.
+  - No encerramento, só o que a instrução pedir: sem pergunta nem novo pedido.
   - Os rótulos que a instrução traz (correto, parcial, incorreto, fora_do_roteiro, "tentativa 1 de 2") são internos: nunca os diga em voz alta.
 - Nesta aula, a instrução que volta de registrar_resultado tem PRECEDÊNCIA sobre "# Correção" e os degraus de ajuda. Não dê pistas, não corrija e não peça nova tentativa antes de registrar o resultado.
 - NUNCA avance de item ou de etapa por conta própria, NUNCA pule itens e NUNCA encerre a aula antes da instrução de encerramento.

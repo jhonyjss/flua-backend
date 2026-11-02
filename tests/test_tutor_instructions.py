@@ -358,20 +358,37 @@ def test_guided_acceptance_judges_what_she_heard_and_forgives_the_accent():
     assert "pelo que você OUVIU (você recebe o áudio, não uma transcrição)" in block
     assert "transcrição mostra" not in block
     assert "tree/three" not in block and "sheep/ship" not in block
-    assert 'Sotaque é a mesma palavra: "rélou" é hello, "Ána" é Ana.' in block
-    assert '"hello Ana" vale "Hello, Ana!"' in block
-    assert "Se o aluno disse OUTRA palavra, com outro sentido" in block
+    assert 'Sotaque é a mesma palavra: hello dito "rélou" e Ana dita "Âna" são as mesmas palavras.' in block
+    assert 'Pausa, entonação, vírgula e pontuação não contam (ex.: "hello Ana", sem a pausa da vírgula, vale "Hello, Ana!").' in block
     assert "Na etapa repetir, se ficar em dúvida entre correto e parcial, marque correto" in block
-    assert "com a grafia normal, sem imitar o sotaque" in block
+
+
+def test_guided_acceptance_still_catches_a_real_word_swap():
+    # accent tolerance must not let a word with another meaning pass (live/leave is a classic L1 trap)
+    block = _guided().split("# Aula guiada")[1]
+    assert "OUTRA palavra é só quando você ouviu claramente uma palavra diferente, com outro sentido" in block
+    assert '"leave" no lugar de "live"' in block
+    assert "na dúvida entre sotaque e outra palavra, é sotaque" in block
+    assert "se você reconhece a palavra, ela está certa" not in block
+
+
+def test_guided_heard_keeps_the_learners_actual_words():
+    # o_que_ouviu feeds the mistakes Flua remembers; the model phrase written there erases the miss
+    block = _guided().split("# Aula guiada")[1]
+    assert "se faltou ou trocou palavra, deixe faltando ou trocada" in block
+    assert "nunca escreva a frase-modelo no lugar do que ele disse" in block
+    assert "com a grafia normal, sem imitar o sotaque" not in block
 
 
 def test_guided_teaching_gives_real_context_and_ends_on_the_phrase_to_repeat():
     # The learner starts repeating as soon as the phrase is heard; anything after it talks over them.
     block = _guided().split("# Aula guiada")[1]
-    assert "1 frase de contexto real" in block
-    assert '"De manhã, os americanos costumam cumprimentar com Good morning."' in block
-    assert '"Vamos praticar juntos? Repete comigo: Good morning!"' in block
-    assert "a frase-modelo é a ÚLTIMA coisa da sua fala" in block
+    assert '1) 1 frase de contexto real (quando ou com quem se usa; ex.: "De manhã, os americanos costumam cumprimentar com Good morning.")' in block
+    assert "2) diga a frase em inglês com a tradução (e a nota, se ajudar, na mesma frase)" in block
+    assert '3) o convite, sem pergunta, com a frase de novo (ex.: "Vamos praticar juntos — repete comigo: Good morning!")' in block
+    assert "o convite substitui a repetição final do sanduíche" in block
+    assert "A frase-modelo é a ÚLTIMA coisa da sua fala" in block
+    assert "Vamos praticar juntos?" not in block
     assert "em no máximo 2 frases curtas e peça para o aluno repetir" not in block
 
 
@@ -379,7 +396,8 @@ def test_guided_feedback_sounds_like_a_teacher_not_a_grader():
     block = _guided().split("# Aula guiada")[1]
     assert 'NUNCA diga "errado", "incorreto", "não é assim"' in block
     assert "Vamos juntos de novo?" in block
-    assert "emende o próximo pedido com uma ponte natural" in block
+    assert "se a instrução trouxer um próximo pedido, emende-o com uma ponte natural" in block
+    assert "No encerramento, só o que a instrução pedir: sem pergunta nem novo pedido." in block
     assert '"tentativa 1 de 2") são internos: nunca os diga em voz alta' in block
     assert "feedback curto e o próximo pedido" not in block
 
@@ -388,8 +406,26 @@ def test_spanish_guided_lesson_teaches_with_spanish_examples():
     block = build_tutor_instructions(
         "beginner", "spanish-tutor", "", "Jhony", "es", mode="guided_lesson", guided=GUIDED,
     ).split("# Aula guiada")[1]
-    assert "Repete comigo: ¡Buenos días!" in block
+    assert "repete comigo: ¡Buenos días!" in block
+    assert 'Sotaque é a mesma palavra: "buenos" dito "buênos" e "días" dito "djías" são as mesmas palavras.' in block
+    assert '"perro" no lugar de "pero"' in block
     assert "Good morning" not in block and "Hello, Ana" not in block and "rélou" not in block
+
+
+def test_guided_lesson_block_refuses_a_language_without_examples():
+    # a silent fallback would teach a French lesson with English examples
+    import pytest
+    from app.services.tutor_instructions import _guided_lesson_block
+
+    with pytest.raises(KeyError):
+        _guided_lesson_block("francês")
+
+
+def test_lesson_mode_judges_by_what_she_heard_not_a_transcript():
+    for language in ("en", "es"):
+        out = _lesson(language)
+        assert "Use a transcrição" not in out
+        assert "Julgue pelo que você ouviu (você recebe o áudio, não uma transcrição)" in out
 
 
 def test_spanish_guided_lesson_runs_the_scene_in_spanish():
