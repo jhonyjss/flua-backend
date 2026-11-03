@@ -99,8 +99,17 @@ def build_tutor_instructions_from_request(
         resume_from_item=req.resumeFromItem,
         review_phrases=[phrase.model_dump() for phrase in req.reviewPhrases],
         recent_mistakes=recent_mistakes,
+        goal_tool=uses_goal_tool(req),
     )
 
+
+def uses_goal_tool(req: RealtimeSessionRequest) -> bool:
+    """The site's lesson with client-owned goals. Any other mode ignores the flag, and so does a lesson
+    without context: with no goals the prompt is a plain conversation, which has nothing to judge."""
+    return req.mode == "lesson" and req.goalTool and bool(req.lessonContext.strip())
+
+
+_HEARD = "As palavras que você ouviu o aluno dizer, na ordem (o sotaque vira a grafia normal)."
 
 # Guided lesson: Flua reports every evaluation here instead of the app reading her
 # captions. The app forces it per response (tool_choice on response.create) after
@@ -115,10 +124,28 @@ GUIDED_LESSON_TOOL = {
             "item_id": {"type": "string", "description": "O id do item atual, como no plano da aula."},
             "etapa": {"type": "string", "enum": ["repetir", "sozinho", "cena", "memoria"]},
             "resultado": {"type": "string", "enum": ["correto", "parcial", "incorreto", "fora_do_roteiro"]},
-            "o_que_ouviu": {"type": "string", "description": "A frase do aluno, como foi transcrita."},
+            "o_que_ouviu": {"type": "string", "description": _HEARD},
             "forma_correta": {"type": "string", "description": "A frase certa, quando o resultado não for correto."},
         },
         "required": ["item_id", "etapa", "resultado", "o_que_ouviu"],
+    },
+}
+
+# The site's lesson (goalTool): same contract against the lesson's goals. The site forces it after each
+# learner turn and answers with the next step, so goal progress never depends on Flua saying "Correct!".
+LESSON_GOAL_TOOL = {
+    "type": "function",
+    "name": "registrar_meta",
+    "description": "Registra a avaliação da última fala do aluno contra a meta atual da aula.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "meta": {"type": "string", "description": "O número da meta atual, como o app informou."},
+            "resultado": {"type": "string", "enum": ["correto", "parcial", "incorreto", "fora_do_roteiro"]},
+            "o_que_ouviu": {"type": "string", "description": _HEARD},
+            "forma_correta": {"type": "string", "description": "A frase certa, quando o resultado não for correto."},
+        },
+        "required": ["meta", "resultado", "o_que_ouviu"],
     },
 }
 
@@ -159,8 +186,8 @@ def _transcription_config(req: RealtimeSessionRequest, user: AuthUser | None, mo
 
 
 def turn_mode_for(req: RealtimeSessionRequest) -> str:
-    """The guided lesson forces a tool call after each attempt, so it always stays client-driven."""
-    return "educational" if req.mode == "guided_lesson" else req.turnMode
+    """Lessons that force a tool call after each attempt always stay client-driven."""
+    return "educational" if req.mode == "guided_lesson" or uses_goal_tool(req) else req.turnMode
 
 
 def model_for_level(level: str) -> str:
@@ -178,8 +205,9 @@ async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = No
     mistakes = await learner_memory.recent(user.id) if user and req.mode != "guided_lesson" else []
     instructions = build_tutor_instructions_from_request(req, user, mistakes)
 
+    goal_tool = uses_goal_tool(req)
     if req.pipelineMode:
-        return {"clientSecret": None, "model": None, "instructions": instructions}
+        return {"clientSecret": None, "model": None, "instructions": instructions, "goalTool": goal_tool}
 
     if not settings.openai_api_key:
         raise HTTPException(500, "OPENAI_API_KEY not configured")
@@ -214,6 +242,9 @@ async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = No
     if req.mode == "guided_lesson":
         session_config["tools"] = [GUIDED_LESSON_TOOL]
         session_config["tool_choice"] = "auto"
+    elif goal_tool:
+        session_config["tools"] = [LESSON_GOAL_TOOL]
+        session_config["tool_choice"] = "auto"
 
     last_error = "unknown"
     for attempt in range(MAX_RETRIES + 1):
@@ -244,7 +275,7 @@ async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = No
         secret = data.get("value") or (data.get("client_secret") or {}).get("value")
         if not secret:
             raise HTTPException(502, "OpenAI did not return a client secret")
-        return {"clientSecret": secret, "model": model, "instructions": instructions}
+        return {"clientSecret": secret, "model": model, "instructions": instructions, "goalTool": goal_tool}
 
     logger.warning("realtime session failed after retries: %s", last_error)
     raise HTTPException(502, "O serviço de voz falhou após várias tentativas. Tente novamente.")

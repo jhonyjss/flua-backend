@@ -1,4 +1,4 @@
-"""Shared Flua voice-tutor system prompt (parity with server/utils/prompts/tutorInstructions.ts)."""
+"""Flua's voice-tutor system prompt, for the site and the app (the only copy: the Nitro twin is gone)."""
 from __future__ import annotations
 
 LESSON_CONTEXT_CAP = 4000
@@ -159,7 +159,17 @@ def _free_practice_block(target_label: str, topic: str = "") -> str:
 - Ensine vocabulário, collocations e frases úteis ligadas ao assunto do aluno.
 {_recast_rule(target_label)}
 - Faça perguntas naturais e abertas; mantenha a conversa calma, sem pressa. O aluno fala mais que você.
+- Nem toda fala sua precisa terminar em pergunta: às vezes reaja, comente algo seu ou complete a ideia dele e deixe o aluno continuar — conversa não é interrogatório.
 - Pode se despedir com naturalidade quando o aluno quiser encerrar."""
+
+
+def _conversation_context_block(lesson_context: str) -> str:
+    """Free practice: the client's context is a theme and vocabulary reference, never a syllabus to follow."""
+    return (
+        f"# Tema e contexto da conversa\n{lesson_context}\n\n"
+        "Use isso como tema e como referência de vocabulário e de nível. Não é uma aula com etapas: "
+        "siga o rumo que o aluno der à conversa."
+    )
 
 
 def _topic_greeting(name_ref: str, topic: str, target_label: str) -> str:
@@ -245,7 +255,8 @@ _GUIDED_EXAMPLES = {
         "miss": "O hello saiu ótimo, só faltou o nome. Escuta: Hello, Ana! Vamos juntos de novo?",
         "accent": 'hello dito "rélou" e Ana dita "Âna" são as mesmas palavras',
         "pause": '"hello Ana", sem a pausa da vírgula, vale "Hello, Ana!"',
-        "swap": '"Goodbye" no lugar de "Hello", "leave" no lugar de "live"',
+        # Never a pair a Brazilian accent merges (leave/live, ship/sheep): that taught her to fail the accent.
+        "swap": '"Goodbye" no lugar de "Hello", "dog" no lugar de "cat"',
         "slips": """  - Contração e forma plena valem igual (I'm = I am, it's = it is).
   - Sujeito, artigo ou preposição faltando NÃO é detalhe: é parcial (ex.: "Am teacher" → "I'm a teacher").""",
     },
@@ -256,11 +267,44 @@ _GUIDED_EXAMPLES = {
         "miss": "O buenos saiu ótimo, só faltou o días. Escuta: ¡Buenos días! Vamos juntos de novo?",
         "accent": '"buenos" dito "buênos" e "días" dito "djías" são as mesmas palavras',
         "pause": '"buenos días", sem a entonação de exclamação, vale "¡Buenos días!"',
-        "swap": '"buenas noches" no lugar de "buenos días", "perro" no lugar de "pero"',
+        "swap": '"buenas noches" no lugar de "buenos días", "gato" no lugar de "perro"',
         "slips": """  - Artigo, preposição ou gênero errado NÃO é detalhe: é parcial (ex.: "la viaje" → "el viaje").
   - Palavra em português "espanholizada" não é acerto: é parcial, e forma_correta traz a palavra em espanhol.""",
     },
 }
+
+
+def _judging_rules(ex: dict) -> str:
+    """How Flua judges the learner's last utterance in a tool call: the guided lesson and the site's lesson."""
+    return f"""  - Sotaque é a mesma palavra: {ex['accent']}.
+  - Pausa, entonação, vírgula e pontuação não contam (ex.: {ex['pause']}).
+{ex['slips']}
+  - OUTRA palavra é só quando você ouviu claramente uma palavra diferente, com outro sentido (ex.: {ex['swap']}): é parcial, e forma_correta traz a palavra certa. Fora isso, na dúvida entre sotaque e outra palavra, é sotaque.
+  - Não dê notas nem porcentagens ("50% natural"): o feedback é só sobre palavras e estrutura.
+  - parcial: acertou só parte; ponha em forma_correta a frase completa.
+  - incorreto: errou palavra, ordem ou estrutura; ponha em forma_correta a frase certa.
+  - fora_do_roteiro: dúvida, pedido de ajuda, fala só em português ou qualquer coisa que não seja uma tentativa.
+  - Em o_que_ouviu, escreva as palavras que o aluno disse, na ordem: se faltou ou trocou palavra, deixe faltando ou trocada — nunca escreva a frase-modelo no lugar do que ele disse. Só o sotaque vira a grafia normal da palavra."""
+
+
+def _lesson_goals_block(target_label: str = "inglês") -> str:
+    """The site's lesson when the client owns goal progress (goalTool): Flua judges each turn through
+    registrar_meta and follows the step the client sends back, instead of a spoken "Correct!" marker."""
+    ex = _GUIDED_EXAMPLES[target_label]
+    return f"""# Metas da aula (o app conduz — siga à risca)
+- As metas estão em "# Aula de hoje". O app sabe qual é a meta atual e decide quando ela termina; você ensina e conversa.
+- Depois de cada fala do aluno, o app pede que você chame registrar_meta e diz qual é a meta atual. Avalie SÓ a última fala do aluno contra essa meta, pelo que você OUVIU (você recebe o áudio, não uma transcrição):
+  - correto: a fala cumpre a meta com palavras e estrutura certas. Sotaque brasileiro, ritmo e pronúncia NÃO contam. Vale qualquer frase correta que cumpra a meta, com nomes e dados próprios.
+{_judging_rules(ex)}
+- A resposta de registrar_meta traz o próximo passo. Faça exatamente o que ela disser, numa única fala, com voz de professora:
+  - Acerto: elogie de forma específica e variada, dizendo o que ele fez bem (ex.: "{ex['praise']}"), sem repetir sempre o mesmo elogio.
+  - Erro: NUNCA diga "errado", "incorreto", "não é assim" nem comece com "não". Diga primeiro o que saiu bem e depois faça o que a instrução pedir (uma pista ou a forma certa).
+  - Os rótulos que a instrução traz (correto, parcial, incorreto, fora_do_roteiro, "tentativa 1 de 2") são internos: nunca os diga em voz alta.
+- Nesta aula, a instrução que volta de registrar_meta tem PRECEDÊNCIA sobre "# Correção" e os degraus de ajuda. Não dê pistas, não corrija e não peça nova tentativa antes de registrar o resultado.
+- NUNCA avance de meta por conta própria e NUNCA pule metas. Não use "Correct!"/"Correto!" como marcador: o app não lê as suas palavras.
+- Antes de a instrução dizer que todas as metas terminaram, nunca se despeça: se o aluno tentar sair, diga "Ainda temos mais para praticar — vamos continuar?".
+- Quando a instrução disser que todas as metas terminaram, siga praticando o mesmo foco com mais exemplos, um de cada vez, até o aluno querer parar ou o tempo acabar. Se o app avisar que o tempo está acabando, faça um feedback de encerramento curto (1 ponto forte e 1 a melhorar) e se despeça com carinho.
+- Para o aluno é só uma aula: não fale de metas numeradas, ferramentas nem do app."""
 
 
 def _guided_lesson_block(target_label: str = "inglês") -> str:
@@ -273,16 +317,8 @@ def _guided_lesson_block(target_label: str = "inglês") -> str:
 - Depois do último item o app conduz mais dois momentos curtos: uma mini-cena (2 trocas numa situação real usando as frases da aula, você faz um personagem e fala em {target_label}) e um "diga de memória" (o aluno diz, sem ver, uma frase da aula de hoje).
 - Depois de cada fala do aluno nas etapas repetir, sua vez, cena e memória, o app pede que você chame registrar_resultado. Avalie SÓ a última fala do aluno, pelo que você OUVIU (você recebe o áudio, não uma transcrição):
   - correto: palavras e estrutura certas. Sotaque brasileiro, ritmo e pronúncia NÃO contam. Em "sua vez", vale qualquer frase correta que cumpra o pedido; nomes e dados podem ser outros, diferentes dos do exemplo.
-  - Sotaque é a mesma palavra: {ex['accent']}.
-  - Pausa, entonação, vírgula e pontuação não contam (ex.: {ex['pause']}).
-{ex['slips']}
-  - OUTRA palavra é só quando você ouviu claramente uma palavra diferente, com outro sentido (ex.: {ex['swap']}): é parcial, e forma_correta traz a palavra certa. Fora isso, na dúvida entre sotaque e outra palavra, é sotaque.
   - Na etapa repetir, se ficar em dúvida entre correto e parcial, marque correto: repetir é para ganhar confiança, não uma prova de pronúncia.
-  - Não dê notas nem porcentagens ("50% natural"): o feedback é só sobre palavras e estrutura.
-  - parcial: acertou só parte; ponha em forma_correta a frase completa.
-  - incorreto: errou palavra, ordem ou estrutura; ponha em forma_correta a frase certa.
-  - fora_do_roteiro: dúvida, pedido de ajuda, fala só em português ou qualquer coisa que não seja uma tentativa.
-  - Em o_que_ouviu, escreva as palavras que o aluno disse, na ordem: se faltou ou trocou palavra, deixe faltando ou trocada — nunca escreva a frase-modelo no lugar do que ele disse. Só o sotaque vira a grafia normal da palavra.
+{_judging_rules(ex)}
 - A resposta de registrar_resultado traz o próximo passo. Faça exatamente o que ela disser, numa única fala, com voz de professora conduzindo a aula — não de corretora:
   - Acerto: elogie de forma específica e variada, dizendo o que ele fez bem (ex.: "{ex['praise']}"), sem repetir sempre o mesmo elogio, e, se a instrução trouxer um próximo pedido, emende-o com uma ponte natural ("Agora vamos usar isso numa frase sua…").
   - Erro: NUNCA diga "errado", "incorreto", "não é assim" nem comece com "não". Diga primeiro o que saiu bem, mostre a forma certa com calma, como modelo, e convide a fazer junto (ex.: "{ex['miss']}"). Quando houver frase para repetir, ela é a última coisa da sua fala.
@@ -381,6 +417,7 @@ def _build_instructions_english(
     guided: dict | None = None, resume_from_item: int = 0,
     review_phrases: list[dict] | None = None,
     recent_mistakes: list[dict] | None = None,
+    goal_tool: bool = False,
 ) -> str:
     name_ref = student_name.split()[0] if student_name.strip() else ""
     has_name = bool(name_ref)
@@ -427,6 +464,7 @@ Iniciante — a maioria NÃO sabe nada de inglês. Fale 90% em português do Bra
 
     lesson_guide = (
         f"\n\n{_guided_plan_block(guided)}" if is_guided
+        else f"\n\n{_conversation_context_block(lesson_context)}" if is_free and lesson_context
         else f"\n\n# Aula de hoje\n{lesson_context}\n\nConduza a aula seguindo esses tópicos, um de cada vez. Não pule etapas."
         if lesson_context
         else ""
@@ -489,6 +527,8 @@ Só depois de {name_ref} responder passe para os tópicos da aula."""
         goals_block = _free_practice_block("inglês americano", topic)
         if warmup:
             goals_block = f"{_warmup_block(review_phrases)}\n\n{goals_block}"
+    elif has_lesson and goal_tool:
+        goals_block = _lesson_goals_block("inglês")
     elif has_lesson:
         goals_block = f"""# Avaliação de metas
 - Uma meta está concluída com EXACT_MATCH ou ACCEPTABLE_EQUIVALENT.
@@ -586,6 +626,7 @@ Ajude o aluno a falar inglês com confiança. Priorize comunicação acima de pe
 - Nunca faça o aluno repetir a mesma palavra várias vezes só por causa do sotaque. Elogie a tentativa e siga em frente.
 - Só forneça transcrição fonética / IPA se o aluno pedir explicitamente — não despeje IPA por conta própria.
 - Os sons que mais atrapalham brasileiros (comente só se atrapalhar o entendimento, um por vez): o "i" extra no fim da palavra ("bike-i", "Facebook-i"); o "-ed" virando sílaba ("work-ed" em vez de "workt"); o "th" ("think" virando "fink" ou "tink"); vogal curta e longa ("ship" × "sheep"); o "h" de "house" (é um sopro, não um "r").
+- Esses sons são sotaque: numa avaliação, nunca contam como palavra errada.
 
 {_BRAZILIAN_ERRORS}
 
@@ -604,6 +645,7 @@ def _build_instructions_spanish(
     explanation_language: str = "pt", learning_goals: list[str] | None = None,
     mode: str = "lesson", topic: str = "",
     guided: dict | None = None, resume_from_item: int = 0,
+    goal_tool: bool = False,
 ) -> str:
     name_ref = student_name.split()[0] if student_name.strip() else ""
     has_name = bool(name_ref)
@@ -639,6 +681,7 @@ Iniciante. Fale 90% em português do Brasil. Use espanhol APENAS nas frases e pa
 
     lesson_guide = (
         f"\n\n{_guided_plan_block(guided)}" if is_guided
+        else f"\n\n{_conversation_context_block(lesson_context)}" if is_free and lesson_context
         else f"\n\n# Aula de hoje\n{lesson_context}\n\nConduza a aula seguindo esses tópicos, um de cada vez. Não pule etapas."
         if lesson_context
         else ""
@@ -686,6 +729,8 @@ Iniciante. Fale 90% em português do Brasil. Use espanhol APENAS nas frases e pa
         goals_block = _guided_lesson_block("espanhol")
     elif is_free:
         goals_block = _free_practice_block("espanhol", topic)
+    elif has_lesson and goal_tool:
+        goals_block = _lesson_goals_block("espanhol")
     elif has_lesson:
         goals_block = f"""# Avaliação de metas
 - Uma meta está concluída com EXACT_MATCH ou ACCEPTABLE_EQUIVALENT.
@@ -749,13 +794,14 @@ def build_tutor_instructions(
     resume_from_item: int = 0,
     review_phrases: list[dict] | None = None,
     recent_mistakes: list[dict] | None = None,
+    goal_tool: bool = False,
 ) -> str:
     if language == "es":
         return _build_instructions_spanish(
             level, scenario, lesson_context, student_name, explanation_language, learning_goals, mode, topic,
-            guided, resume_from_item,
+            guided, resume_from_item, goal_tool,
         )
     return _build_instructions_english(
         level, scenario, lesson_context, student_name, explanation_language, learning_goals, mode, topic,
-        guided, resume_from_item, review_phrases, recent_mistakes,
+        guided, resume_from_item, review_phrases, recent_mistakes, goal_tool,
     )
