@@ -104,8 +104,9 @@ def build_tutor_instructions_from_request(
 
 
 def uses_goal_tool(req: RealtimeSessionRequest) -> bool:
-    """The site's lesson with client-owned goals; any other mode ignores the flag."""
-    return req.mode == "lesson" and req.goalTool
+    """The site's lesson with client-owned goals. Any other mode ignores the flag, and so does a lesson
+    without context: with no goals the prompt is a plain conversation, which has nothing to judge."""
+    return req.mode == "lesson" and req.goalTool and bool(req.lessonContext.strip())
 
 
 _HEARD = "As palavras que você ouviu o aluno dizer, na ordem (o sotaque vira a grafia normal)."

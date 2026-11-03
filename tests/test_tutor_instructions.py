@@ -420,6 +420,9 @@ def test_goal_tool_lesson_judges_by_what_she_heard_with_the_shared_rules():
 def test_goal_tool_keeps_the_lesson_and_closing_guidance():
     out = _goal_lesson()
     assert "# Aula de hoje" in out
+    # the marker flow's guard against a goodbye with goals still pending survives the switch to the tool
+    assert "Antes de a instrução dizer que todas as metas terminaram, nunca se despeça" in out
+    assert '"Ainda temos mais para praticar — vamos continuar?"' in out
     assert "todas as metas terminaram, siga praticando o mesmo foco" in out
     assert "feedback de encerramento curto (1 ponto forte e 1 a melhorar)" in out
 

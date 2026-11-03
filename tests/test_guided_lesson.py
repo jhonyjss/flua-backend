@@ -268,9 +268,14 @@ def test_goal_tool_is_ignored_outside_the_lesson(client, auth_headers, mock_tran
                        headers=auth_headers)
     lesson = client.post("/api/realtime/session", json={"mode": "lesson", "lessonContext": "Metas"},
                          headers=auth_headers)
+    # a lesson without context has no goals: the tool would be forced with nothing to judge against
+    empty = client.post("/api/realtime/session", json={"mode": "lesson", "lessonContext": "  ", "goalTool": True},
+                        headers=auth_headers)
     assert free.json()["goalTool"] is False
     assert lesson.json()["goalTool"] is False
+    assert empty.json()["goalTool"] is False
     sessions = [body["session"] for kind, body in calls if kind == "openai"]
+    assert len(sessions) == 3
     assert all("tools" not in s for s in sessions)
     assert all("# Metas da aula" not in s["instructions"] for s in sessions)
 

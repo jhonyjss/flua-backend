@@ -302,6 +302,7 @@ def _lesson_goals_block(target_label: str = "inglês") -> str:
   - Os rótulos que a instrução traz (correto, parcial, incorreto, fora_do_roteiro, "tentativa 1 de 2") são internos: nunca os diga em voz alta.
 - Nesta aula, a instrução que volta de registrar_meta tem PRECEDÊNCIA sobre "# Correção" e os degraus de ajuda. Não dê pistas, não corrija e não peça nova tentativa antes de registrar o resultado.
 - NUNCA avance de meta por conta própria e NUNCA pule metas. Não use "Correct!"/"Correto!" como marcador: o app não lê as suas palavras.
+- Antes de a instrução dizer que todas as metas terminaram, nunca se despeça: se o aluno tentar sair, diga "Ainda temos mais para praticar — vamos continuar?".
 - Quando a instrução disser que todas as metas terminaram, siga praticando o mesmo foco com mais exemplos, um de cada vez, até o aluno querer parar ou o tempo acabar. Se o app avisar que o tempo está acabando, faça um feedback de encerramento curto (1 ponto forte e 1 a melhorar) e se despeça com carinho.
 - Para o aluno é só uma aula: não fale de metas numeradas, ferramentas nem do app."""
 
