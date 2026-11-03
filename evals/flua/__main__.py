@@ -10,9 +10,10 @@ from pathlib import Path
 from app.core.config import get_settings
 from evals.flua import audit as audit_mod
 from evals.flua.cases import CASES
-from evals.flua.judge import JudgeError, judge
+from evals.flua.judge import JUDGE_MODEL, JudgeError, judge
 from evals.flua.runner import regressions, report, run_all, summary
 from evals.flua.session import connect
+from evals.flua.usage import USAGE
 
 HERE = Path(__file__).parent
 BASELINE = HERE / "baseline.json"
@@ -21,8 +22,10 @@ RESULTS = HERE / "results"
 
 def _keys() -> str:
     settings = get_settings()
-    missing = [name for name, value in (("OPENAI_API_KEY", settings.openai_api_key),
-                                        ("ANTHROPIC_API_KEY", settings.anthropic_api_key)) if not value]
+    needed = [("OPENAI_API_KEY", settings.openai_api_key)]
+    if JUDGE_MODEL.startswith("claude"):
+        needed.append(("ANTHROPIC_API_KEY", settings.anthropic_api_key))
+    missing = [name for name, value in needed if not value]
     if missing:
         sys.exit(f"Defina {' e '.join(missing)} (no ambiente ou no .env do backend).")
     return settings.openai_api_key
@@ -53,6 +56,7 @@ async def _run(args: argparse.Namespace) -> int:
     out.write_text(json.dumps(current, ensure_ascii=False, indent=2))
     print(summary(current))
     print(f"resultado: {out}")
+    print(f"tokens (juiz {JUDGE_MODEL}):", *USAGE.lines(), sep="\n")
 
     if args.save_baseline:
         BASELINE.write_text(json.dumps(current, ensure_ascii=False, indent=2) + "\n")
@@ -71,7 +75,11 @@ async def _audit(args: argparse.Namespace) -> int:
     _keys()
     for mode in [args.mode] if args.mode else list(audit_mod.MODES):
         print(f"\n## {mode}\n")
-        print(await audit_mod.audit(mode))
+        try:
+            print(await audit_mod.audit(mode))
+        except JudgeError as err:
+            sys.exit(f"A auditoria falhou: {err}")
+    print("tokens:", *USAGE.lines(), sep="\n")
     return 0
 
 

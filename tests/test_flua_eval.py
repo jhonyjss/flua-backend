@@ -13,6 +13,7 @@ from evals.flua.checks import check_reply, check_tool, sentences
 from evals.flua.judge import JudgeError, failures_from_verdict, judge
 from evals.flua.runner import build_session, regressions, run_case
 from evals.flua.session import Reply, TextSession, ToolCall, text_session
+from evals.flua.usage import Tokens, Usage
 
 CASE = {case["id"]: case for case in C.CASES}
 
@@ -65,13 +66,26 @@ def fake_connect(script: list):
     return connect, fakes
 
 
-def all_passed_judge(mock_transport):
-    """Claude, at the HTTP boundary, passing every criterion it is given."""
+def judge_answers(text: str, status: int = 200) -> httpx.Response:
+    """The OpenAI Responses API's answer carrying the judge's text."""
+    if status != 200:
+        return httpx.Response(status, json={"error": {"message": text}})
+    return httpx.Response(200, json={
+        "output": [{"type": "message", "content": [{"type": "output_text", "text": text}]}],
+        "usage": {"input_tokens": 900, "output_tokens": 120},
+    })
+
+
+def all_passed_judge(mock_transport, seen: list | None = None):
+    """The judge model, at the HTTP boundary, passing every criterion it is given."""
     def handler(request: httpx.Request) -> httpx.Response:
-        message = json.loads(request.read())["messages"][0]["content"]
+        body = json.loads(request.read())
+        if seen is not None:
+            seen.append(body)
+        message = body["input"][1]["content"]
         criteria = len(re.findall(r"(?m)^\d+\. ", message.split("Critérios:")[1]))
         verdict = {"criterios": [{"n": n, "passou": True, "trecho": "ok"} for n in range(1, criteria + 1)]}
-        return httpx.Response(200, json={"content": [{"type": "text", "text": json.dumps(verdict)}]})
+        return judge_answers(json.dumps(verdict))
 
     mock_transport(handler)
 
@@ -240,15 +254,25 @@ def test_judge_failures_quote_the_reply_and_count_a_criterion_it_skipped():
     ]
 
 
+def test_the_judge_asks_for_a_schema_bound_verdict_with_the_rubric(mock_transport):
+    seen: list = []
+    all_passed_judge(mock_transport, seen)
+    assert asyncio.run(judge("Oi, Ana!", ["Cumprimenta a Ana.", "Pergunta algo."], "(início da aula)")) == []
+    body = seen[0]
+    assert body["model"] == "gpt-5.5"
+    assert body["text"]["format"]["type"] == "json_schema"
+    assert body["input"][1]["content"].endswith("Critérios:\n1. Cumprimenta a Ana.\n2. Pergunta algo.")
+
+
 def test_a_failing_judge_stops_the_run_instead_of_failing_the_case(mock_transport):
-    mock_transport(lambda request: httpx.Response(400, json={"error": {"message": "credit balance is too low"}}))
+    mock_transport(lambda request: judge_answers("insufficient_quota", status=429))
     connect, _ = fake_connect([say("Quase! Falta uma palavrinha antes do am. Tenta de novo?")])
-    with pytest.raises(JudgeError, match="credit balance is too low"):
+    with pytest.raises(JudgeError, match="insufficient_quota"):
         asyncio.run(run_case(CASE["aula-primeiro-erro-pista"], runs=1, connect=connect, judge=judge))
 
 
 def test_judge_without_json_is_a_failure(mock_transport):
-    mock_transport(lambda request: httpx.Response(200, json={"content": [{"type": "text", "text": "Tudo certo."}]}))
+    mock_transport(lambda request: judge_answers("Tudo certo."))
     assert asyncio.run(judge("Oi!", ["Cumprimenta."], "")) == ['juiz respondeu sem JSON: "Tudo certo."']
 
 
@@ -272,3 +296,11 @@ def test_regressions_accept_two_of_three_and_compare_a_partial_run_on_what_it_ra
     assert regressions(_report(("a", "julgamento", 3), runs=1), baseline) == [
         "rodadas diferentes: 1 contra 3 no baseline",
     ]
+
+
+def test_usage_sums_realtime_and_responses_token_counts_per_model():
+    usage = Usage()
+    usage.add("gpt-realtime-2.1-mini", {"input_tokens": 10, "input_token_details": {"cached_tokens": 4}, "output_tokens": 2})
+    usage.add("gpt-realtime-2.1-mini", {"input_tokens": 5, "input_tokens_details": {"cached_tokens": 1}, "output_tokens": 3})
+    usage.add("gpt-realtime-2.1-mini", None)
+    assert usage.by_model["gpt-realtime-2.1-mini"] == Tokens(input=15, cached=5, output=5)

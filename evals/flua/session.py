@@ -8,6 +8,8 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
+from evals.flua.usage import USAGE
+
 REALTIME_URL = "wss://api.openai.com/v1/realtime?model={model}"
 EVENT_TIMEOUT_S = 60.0
 
@@ -67,8 +69,9 @@ def parse_response(event: dict) -> Reply:
 
 
 class TextSession:
-    def __init__(self, conn: Connection):
+    def __init__(self, conn: Connection, model: str = ""):
         self._conn = conn
+        self._model = model
         self._calls = 0
         self.last_call_id = ""
 
@@ -111,7 +114,9 @@ class TextSession:
 
     async def respond(self, **response: Any) -> Reply:
         await self._send({"type": "response.create", **({"response": response} if response else {})})
-        reply = parse_response(await self._until("response.done"))
+        done = await self._until("response.done")
+        USAGE.add(self._model, (done.get("response") or {}).get("usage"))
+        reply = parse_response(done)
         if reply.calls:
             self.last_call_id = reply.calls[0].call_id
         return reply
@@ -133,4 +138,4 @@ async def connect(model: str, api_key: str) -> AsyncIterator[TextSession]:
         additional_headers={"Authorization": f"Bearer {api_key}"},
         max_size=None,
     ) as ws:
-        yield TextSession(ws)
+        yield TextSession(ws, model)

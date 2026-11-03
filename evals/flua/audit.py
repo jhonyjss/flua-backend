@@ -1,8 +1,7 @@
 """Asks an LLM to list contradictions, repetitions and rules without input in each mode's assembled prompt
 (the OpenAI Realtime prompting guide's advice). A reading aid for the rewrite, not a pass/fail check."""
-from app.services import anthropic_client
 from evals.flua.cases import TOPIC, free, guided, lesson
-from evals.flua.judge import JUDGE_MODEL
+from evals.flua.judge import ask
 from evals.flua.runner import build_session
 
 MODES = {
@@ -40,4 +39,4 @@ async def audit(mode: str) -> str:
     _, config = build_session(MODES[mode])
     message = f"Como este modo roda: {RUNTIME[mode]}\n\nPrompt ({len(config['instructions'])} caracteres):\n\n" \
               f"{config['instructions']}"
-    return await anthropic_client.complete(SYSTEM, message, max_tokens=4000, temperature=0.0, model=JUDGE_MODEL)
+    return await ask(SYSTEM, message, max_tokens=8000)
