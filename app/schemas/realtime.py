@@ -90,6 +90,9 @@ class RealtimeSessionRequest(BaseModel):
     # the CLIENT decide when Flua responds (no barge-in); "responsive" keeps the
     # snappy auto-reply VAD (opt-in / future premium).
     turnMode: Literal["educational", "responsive", "conversational"] = "educational"
+    # Lesson only: the client owns goal progress and asks Flua for a registrar_meta call after each
+    # learner turn, like the guided lesson. False keeps the spoken "Correct!" marker (older clients).
+    goalTool: bool = False
     pipelineMode: bool = False
 
     @model_validator(mode="after")
@@ -115,4 +118,6 @@ class RealtimeSessionResponse(BaseModel):
     clientSecret: str | None = None
     model: str | None = None
     instructions: str | None = None
+    # True when the session carries registrar_meta: the client may drive the lesson's goals with it.
+    goalTool: bool = False
     error: str | None = None

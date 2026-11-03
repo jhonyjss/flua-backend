@@ -221,6 +221,60 @@ def test_other_modes_carry_no_tools(client, auth_headers, mock_transport):
     assert all("tools" not in s and "tool_choice" not in s for s in sessions)
 
 
+def test_tools_describe_what_flua_heard_not_a_transcript(client, auth_headers, mock_transport):
+    # she gets audio, never the input transcription: "como foi transcrita" made her judge text she never saw
+    calls = []
+    mock_transport(_backend(plan_level="pro_monthly", calls=calls))
+    client.post("/api/realtime/session", json=_body(), headers=auth_headers)
+    client.post("/api/realtime/session", json={"mode": "lesson", "lessonContext": "Metas", "goalTool": True},
+                headers=auth_headers)
+    for session in [body["session"] for kind, body in calls if kind == "openai"]:
+        heard = session["tools"][0]["parameters"]["properties"]["o_que_ouviu"]["description"]
+        assert "ouviu" in heard
+        assert "transcri" not in heard
+
+
+# ── The site's lesson with client-owned goals (goalTool) ─────────────────────
+
+
+def test_lesson_with_goal_tool_carries_registrar_meta_and_stays_client_driven(client, auth_headers, mock_transport):
+    calls = []
+    mock_transport(_backend(plan_level="pro_monthly", calls=calls))
+    res = client.post(
+        "/api/realtime/session",
+        # a responsive turnMode can't sneak in: the forced tool call needs the client to own each reply
+        json={"mode": "lesson", "lessonContext": "Metas desta aula:\n1. Cumprimentar", "goalTool": True,
+              "turnMode": "responsive"},
+        headers=auth_headers,
+    )
+    assert res.status_code == 200
+    assert res.json()["goalTool"] is True
+    session = _openai_session(calls)
+    tool = session["tools"][0]
+    assert tool["name"] == "registrar_meta"
+    props = tool["parameters"]["properties"]
+    assert props["resultado"]["enum"] == ["correto", "parcial", "incorreto", "fora_do_roteiro"]
+    assert tool["parameters"]["required"] == ["meta", "resultado", "o_que_ouviu"]
+    assert session["tool_choice"] == "auto"
+    vad = session["audio"]["input"]["turn_detection"]
+    assert vad["create_response"] is False and vad["interrupt_response"] is False
+    assert "# Metas da aula (o app conduz" in session["instructions"]
+
+
+def test_goal_tool_is_ignored_outside_the_lesson(client, auth_headers, mock_transport):
+    calls = []
+    mock_transport(_backend(plan_level="pro_monthly", calls=calls))
+    free = client.post("/api/realtime/session", json={"mode": "free_practice", "goalTool": True},
+                       headers=auth_headers)
+    lesson = client.post("/api/realtime/session", json={"mode": "lesson", "lessonContext": "Metas"},
+                         headers=auth_headers)
+    assert free.json()["goalTool"] is False
+    assert lesson.json()["goalTool"] is False
+    sessions = [body["session"] for kind, body in calls if kind == "openai"]
+    assert all("tools" not in s for s in sessions)
+    assert all("# Metas da aula" not in s["instructions"] for s in sessions)
+
+
 # ── What the app shows (read-only; never claims) ──────────────────────────────
 
 

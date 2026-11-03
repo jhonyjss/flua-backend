@@ -364,12 +364,92 @@ def test_guided_acceptance_judges_what_she_heard_and_forgives_the_accent():
 
 
 def test_guided_acceptance_still_catches_a_real_word_swap():
-    # accent tolerance must not let a word with another meaning pass (live/leave is a classic L1 trap)
+    # accent tolerance must not let a word with another meaning pass. Spec changed (flueai
+    # docs/flua-tutor/01-fiacao.md §3): the example was leave/live, the vowel pair a Brazilian accent
+    # merges, so it taught Flua to fail the accent; the swap examples are now words no accent confuses.
     block = _guided().split("# Aula guiada")[1]
     assert "OUTRA palavra é só quando você ouviu claramente uma palavra diferente, com outro sentido" in block
-    assert '"leave" no lugar de "live"' in block
+    assert '"dog" no lugar de "cat"' in block
+    assert '"leave"' not in block and '"live"' not in block
     assert "na dúvida entre sotaque e outra palavra, é sotaque" in block
     assert "se você reconhece a palavra, ela está certa" not in block
+
+
+def test_hard_sounds_for_brazilians_are_accent_never_a_wrong_word():
+    out = _lesson()
+    assert 'vogal curta e longa ("ship" × "sheep")' in out
+    assert "Esses sons são sotaque: numa avaliação, nunca contam como palavra errada." in out
+
+
+# ── Site lesson with client-owned goals (goalTool) ───────────────────────
+
+
+def _goal_lesson(language="en"):
+    return build_tutor_instructions(
+        "beginner", "english-tutor", "Metas desta aula:\n1. Cumprimentar\n2. Dizer o nome", "Jhony", language,
+        mode="lesson", goal_tool=True,
+    )
+
+
+def test_goal_tool_lesson_is_driven_by_registrar_meta_not_a_spoken_marker():
+    for language in ("en", "es"):
+        out = _goal_lesson(language)
+        assert "# Metas da aula (o app conduz — siga à risca)" in out
+        assert "o app pede que você chame registrar_meta" in out
+        assert "a instrução que volta de registrar_meta tem PRECEDÊNCIA" in out
+        assert "NUNCA avance de meta por conta própria" in out
+        # the marker flow it replaces is gone
+        assert "# Marcador de avaliação" not in out
+        assert "# Ao concluir cada tarefa" not in out
+        assert "Podemos continuar?" not in out
+        assert "UMA ÚNICA VEZ por meta" not in out
+
+
+def test_goal_tool_lesson_judges_by_what_she_heard_with_the_shared_rules():
+    out = _goal_lesson()
+    block = out.split("# Metas da aula")[1]
+    assert "pelo que você OUVIU (você recebe o áudio, não uma transcrição)" in block
+    assert 'Sotaque é a mesma palavra: hello dito "rélou"' in block
+    assert '"dog" no lugar de "cat"' in block
+    assert "fora_do_roteiro: dúvida, pedido de ajuda, fala só em português" in block
+    assert "nunca escreva a frase-modelo no lugar do que ele disse" in block
+    # the guided lesson's own steps don't leak into the site lesson
+    assert "etapa repetir" not in block and "registrar_resultado" not in block
+
+
+def test_goal_tool_keeps_the_lesson_and_closing_guidance():
+    out = _goal_lesson()
+    assert "# Aula de hoje" in out
+    assert "todas as metas terminaram, siga praticando o mesmo foco" in out
+    assert "feedback de encerramento curto (1 ponto forte e 1 a melhorar)" in out
+
+
+def test_goal_tool_needs_a_lesson():
+    # a lesson without context has no goals to drive: the casual conversation stays as it was
+    out = build_tutor_instructions("beginner", "english-tutor", "", "Jhony", "en", mode="lesson", goal_tool=True)
+    assert "# Metas da aula" not in out
+    assert "# Conversa livre" in out
+
+
+# ── Free practice: the client's context is a theme, not a syllabus ───────
+
+
+def test_free_practice_context_is_a_theme_not_steps():
+    for language, scenario in (("en", "english-tutor"), ("es", "spanish-tutor")):
+        out = build_tutor_instructions(
+            "beginner", scenario, "Tema: Primeiros contatos. Frases que ele conhece: Hi! | I'm Ana.", "Jhony",
+            language, mode="free_practice",
+        )
+        assert "# Tema e contexto da conversa\nTema: Primeiros contatos." in out
+        assert "Não é uma aula com etapas: siga o rumo que o aluno der à conversa." in out
+        assert "# Aula de hoje" not in out
+        assert "Não pule etapas" not in out
+
+
+def test_free_practice_does_not_end_every_turn_on_a_question():
+    out = build_tutor_instructions("beginner", "english-tutor", "", "Jhony", "en", mode="free_practice")
+    assert "Nem toda fala sua precisa terminar em pergunta" in out
+    assert "conversa não é interrogatório" in out
 
 
 def test_guided_heard_keeps_the_learners_actual_words():
@@ -408,7 +488,10 @@ def test_spanish_guided_lesson_teaches_with_spanish_examples():
     ).split("# Aula guiada")[1]
     assert "repete comigo: ¡Buenos días!" in block
     assert 'Sotaque é a mesma palavra: "buenos" dito "buênos" e "días" dito "djías" são as mesmas palavras.' in block
-    assert '"perro" no lugar de "pero"' in block
+    # spec changed (flueai docs/flua-tutor/01-fiacao.md §3): perro/pero is the r/rr pair a Brazilian
+    # accent merges, so the swap example is now one no accent confuses
+    assert '"gato" no lugar de "perro"' in block
+    assert '"pero"' not in block
     assert "Good morning" not in block and "Hello, Ana" not in block and "rélou" not in block
 
 
