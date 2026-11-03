@@ -5,10 +5,10 @@ repo `flueai`). Nenhuma mudança de prompt entra sem rodar aqui contra o baselin
 
 ## Como rodar
 
-Precisa de `OPENAI_API_KEY` e `ANTHROPIC_API_KEY` no ambiente ou no `.env` do backend, e dos
-mesmos modelos de voz da produção (`OPENAI_REALTIME_MODEL`, `OPENAI_REALTIME_MODEL_ADVANCED`; sem
-eles valem os padrões de `app/core/config.py`). Roda à mão, fora do CI: custa e varia entre
-rodadas.
+Precisa de `OPENAI_API_KEY` no ambiente ou no `.env` do backend (e de `ANTHROPIC_API_KEY` se o
+juiz for Claude), e dos mesmos modelos de voz da produção (`OPENAI_REALTIME_MODEL`,
+`OPENAI_REALTIME_MODEL_ADVANCED`; sem eles valem os padrões de `app/core/config.py`). Roda à
+mão, fora do CI: custa e varia entre rodadas.
 
 ```bash
 python -m evals.flua run                      # todos os casos, 3 rodadas, compara com o baseline
@@ -31,7 +31,10 @@ se houver regressão.
 - Checagens objetivas em código (`checks.py`): ferramenta e `resultado`, frases, palavras,
   rótulos internos, placeholder, espanhol na aula de inglês. Uma interjeição de uma palavra
   ("Isso!") não conta como frase.
-- O resto é julgado por Claude (`judge.py`, `FLUA_EVAL_JUDGE_MODEL`), que cita o trecho da fala.
+- O resto é julgado por `gpt-5.5` (`judge.py`; `FLUA_EVAL_JUDGE_MODEL` troca, inclusive por um
+  Claude, que seria melhor por ser de outra família). O juiz cita o trecho da fala. Se o juiz
+  falhar (crédito, chave), a rodada para sem gravar nada.
+- Cada rodada termina com os tokens gastos por modelo.
 - Cada caso roda 3 vezes. Regra para aceitar um prompt novo: nenhuma categoria passa menos
   rodadas que o baseline e nenhum caso que passava 3 de 3 cai para menos de 2 de 3.
 - Os casos de abertura descrevem o alvo da etapa 2d (D1 = B). O baseline falha em parte deles de
