@@ -10,7 +10,7 @@ from pathlib import Path
 from app.core.config import get_settings
 from evals.flua import audit as audit_mod
 from evals.flua.cases import CASES
-from evals.flua.judge import judge
+from evals.flua.judge import JudgeError, judge
 from evals.flua.runner import regressions, report, run_all, summary
 from evals.flua.session import connect
 
@@ -42,7 +42,11 @@ async def _run(args: argparse.Namespace) -> int:
             yield session
 
     print(f"{len(cases)} casos × {args.runs} rodadas")
-    results = await run_all(cases, runs=args.runs, connect=open_session, judge=judge, concurrency=args.concurrency)
+    try:
+        results = await run_all(cases, runs=args.runs, connect=open_session, judge=judge,
+                                concurrency=args.concurrency)
+    except JudgeError as err:
+        sys.exit(f"O juiz falhou, nada foi gravado: {err}")
     current = report(results, runs=args.runs)
     RESULTS.mkdir(exist_ok=True)
     out = RESULTS / f"{datetime.now(UTC):%Y%m%d-%H%M%S}.json"

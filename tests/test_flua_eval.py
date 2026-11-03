@@ -10,7 +10,7 @@ import pytest
 
 from evals.flua import cases as C
 from evals.flua.checks import check_reply, check_tool, sentences
-from evals.flua.judge import failures_from_verdict, judge
+from evals.flua.judge import JudgeError, failures_from_verdict, judge
 from evals.flua.runner import build_session, regressions, run_case
 from evals.flua.session import Reply, TextSession, ToolCall, text_session
 
@@ -119,6 +119,9 @@ def test_text_session_keeps_instructions_and_tools_without_audio_or_model():
 def test_sentences_skip_one_word_interjections_and_keep_the_sandwich_whole():
     assert sentences("Isso! Esse I am Ana saiu ótimo. I'm from Brazil — eu sou do Brasil — I'm from Brazil.") == [
         "Esse I am Ana saiu ótimo.", "I'm from Brazil — eu sou do Brasil — I'm from Brazil.",
+    ]
+    assert sentences('Vamos começar: "Hi, Ana! — Oi, Ana! — Hi, Ana!"  \nAgora, repete comigo.') == [
+        'Vamos começar: "Hi, Ana! — Oi, Ana! — Hi, Ana!"', "Agora, repete comigo.",
     ]
 
 
@@ -235,6 +238,13 @@ def test_judge_failures_quote_the_reply_and_count_a_criterion_it_skipped():
     assert failures_from_verdict(verdict, ["Pede para tentar de novo.", "Não diz a resposta."]) == [
         "Pede para tentar de novo. — não pediu nada", "juiz não avaliou: Não diz a resposta.",
     ]
+
+
+def test_a_failing_judge_stops_the_run_instead_of_failing_the_case(mock_transport):
+    mock_transport(lambda request: httpx.Response(400, json={"error": {"message": "credit balance is too low"}}))
+    connect, _ = fake_connect([say("Quase! Falta uma palavrinha antes do am. Tenta de novo?")])
+    with pytest.raises(JudgeError, match="credit balance is too low"):
+        asyncio.run(run_case(CASE["aula-primeiro-erro-pista"], runs=1, connect=connect, judge=judge))
 
 
 def test_judge_without_json_is_a_failure(mock_transport):

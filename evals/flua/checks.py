@@ -11,13 +11,19 @@ INTERNAL = ["fora_do_roteiro", "parcial", "incorreto", "errado", "tentativa 1 de
 SPANISH = ["¿", "¡", "cuéntame", "puedes", "vamos a ver", "muy bien", "hola"]
 PLACEHOLDER = re.compile(r"\[[^\]]*\]|\{[^}]*\}|<nome>")
 
-_SENTENCE_END = re.compile(r"(?<=[.!?…])\s+")
+# End of a sentence: punctuation, maybe a closing quote, then a space not followed by a dash (the EN — PT — EN
+# sandwich goes on after "Hi, Ana! — Oi, Ana!") or the end of the text.
+_SENTENCE_END = re.compile(r"[.!?…]+[\"”’']?(?=\s+(?![—–])|\s*$)")
 
 
 def sentences(text: str) -> list[str]:
     """Sentences as the prompt's "1 a 3 frases" means them. A one-word interjection ("Isso!", "Ótimo!")
     is not counted, and the EN — PT — EN sandwich joined by dashes is one sentence."""
-    parts = [part.strip() for part in _SENTENCE_END.split(text.strip()) if part.strip()]
+    parts, start = [], 0
+    for end in _SENTENCE_END.finditer(text):
+        parts.append(text[start:end.end()].strip())
+        start = end.end()
+    parts.append(text[start:].strip())
     return [part for part in parts if len(part.split()) > 1]
 
 

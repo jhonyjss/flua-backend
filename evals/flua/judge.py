@@ -3,6 +3,8 @@ A model from another family than the one under test, so it doesn't favour its ow
 import json
 import os
 
+from fastapi import HTTPException
+
 from app.services import anthropic_client
 
 JUDGE_MODEL = os.environ.get("FLUA_EVAL_JUDGE_MODEL", "claude-opus-5-5")
@@ -33,10 +35,18 @@ def failures_from_verdict(verdict: dict, criteria: list[str]) -> list[str]:
     return failures
 
 
+class JudgeError(RuntimeError):
+    """The judge itself failed (no credit, bad key, outage): such a run says nothing about the prompt, so it
+    stops the eval instead of counting as a failed case."""
+
+
 async def judge(reply: str, criteria: list[str], context: str) -> list[str]:
-    text = await anthropic_client.complete(
-        SYSTEM, judge_message(reply, criteria, context), max_tokens=800, temperature=0.0, model=JUDGE_MODEL,
-    )
+    try:
+        text = await anthropic_client.complete(
+            SYSTEM, judge_message(reply, criteria, context), max_tokens=800, temperature=0.0, model=JUDGE_MODEL,
+        )
+    except HTTPException as err:
+        raise JudgeError(str(err.detail)) from err
     try:
         verdict = anthropic_client.extract_json(text)
     except ValueError:
