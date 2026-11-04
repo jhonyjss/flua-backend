@@ -205,8 +205,10 @@ def test_pipeline_mode_skips_openai_call(client, auth_headers, mock_transport):
         ("registry.fly.io/flua-backend-gru:deployment-01ABC", "deployment-01ABC"),
         (None, "dev"),
         ("", "dev"),
+        ("registry.fly.io/flua-backend-gru@sha256:0123456789abcdef0123", "sha256-0123456789ab"),
+        ("localhost:5000/flua-backend", "dev"),
     ],
-    ids=["fly", "unset", "empty"],
+    ids=["fly", "unset", "empty", "digest", "registry-port-no-tag"],
 )
 def test_session_reports_the_prompt_version(
     client, auth_headers, mock_transport, monkeypatch, pipeline_mode, image_ref, expected,

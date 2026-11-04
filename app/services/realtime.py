@@ -192,8 +192,12 @@ def turn_mode_for(req: RealtimeSessionRequest) -> str:
 
 def prompt_version() -> str:
     """The deploy that built Flua's prompt: the tag of FLY_IMAGE_REF (Fly sets it at runtime, e.g.
-    registry.fly.io/flua-backend-gru:deployment-01ABC → deployment-01ABC), or "dev" outside Fly."""
-    return get_settings().fly_image_ref.strip().rsplit(":", 1)[-1] or "dev"
+    registry.fly.io/flua-backend-gru:deployment-01ABC → deployment-01ABC), "sha256-<12 hex>" for an image
+    pinned by digest, or "dev" outside Fly or without a tag."""
+    image = get_settings().fly_image_ref.strip().rsplit("/", 1)[-1]  # name[:tag][@sha256:digest]
+    if "@" in image:
+        return "sha256-" + image.rsplit(":", 1)[-1][:12]
+    return image.split(":", 1)[1] if ":" in image else "dev"
 
 
 def model_for_level(level: str) -> str:

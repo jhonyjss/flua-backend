@@ -3,8 +3,14 @@
 The table (voice_session_metrics) lives in the flueai repo's migrations: RLS on and no policy, so only
 this service-role client reads and writes it. Rows cascade from profiles on account deletion.
 """
+import logging
+
+from fastapi import HTTPException
+
 from app.schemas.realtime import SessionMetricsRequest
 from app.services import supabase_admin as db
+
+logger = logging.getLogger(__name__)
 
 TABLE = "voice_session_metrics"
 
@@ -13,6 +19,7 @@ def metrics_row(user_id: str, body: SessionMetricsRequest) -> dict:
     """The request as a table row: snake_case columns, one column per outcome."""
     return {
         "user_id": user_id,
+        "session_id": str(body.sessionId),
         "client": body.client,
         "mode": body.mode,
         "language": body.language,
@@ -42,4 +49,10 @@ def metrics_row(user_id: str, body: SessionMetricsRequest) -> dict:
 
 
 async def save(user_id: str, body: SessionMetricsRequest) -> None:
-    await db.insert(TABLE, metrics_row(user_id, body))
+    """A session sent twice keeps its first row. A failed write is logged here (the clients ignore the answer,
+    so this is the only trace of lost metrics) and answered without the database's error text."""
+    try:
+        await db.upsert(TABLE, metrics_row(user_id, body), on_conflict="session_id", ignore_duplicates=True)
+    except HTTPException as err:
+        logger.warning("voice session metrics not saved (user %s): %s", user_id, err.detail)
+        raise HTTPException(502, "Não foi possível gravar as métricas da sessão.") from err

@@ -1,5 +1,6 @@
 """Schemas for the OpenAI Realtime ephemeral session endpoint."""
 from typing import Annotated, Literal
+from uuid import UUID
 
 from pydantic import BaseModel, Field, StringConstraints, model_validator
 
@@ -139,6 +140,8 @@ class SessionOutcomes(BaseModel):
 class SessionMetricsRequest(BaseModel):
     """One voice session's counters, sent once by the client (flueai docs/flua-tutor/02-medir-e-enxugar.md,
     2b). A reconnect stays on the same row. No transcript text."""
+    # Made by the client when the session starts: a resend of the same session never adds a second row.
+    sessionId: UUID
     client: Literal["web", "app"]
     mode: Literal["lesson", "free_practice", "guided_lesson"]
     language: Literal["en", "es"]

@@ -9,7 +9,7 @@ from app.core.config import get_settings
 from app.core.http import http_client
 
 
-def _headers(settings, *, upsert: bool = False) -> dict:
+def _headers(settings, *, upsert: bool = False, ignore_duplicates: bool = False) -> dict:
     headers = {
         "apikey": settings.supabase_service_key,
         "Authorization": f"Bearer {settings.supabase_service_key}",
@@ -17,7 +17,8 @@ def _headers(settings, *, upsert: bool = False) -> dict:
         "Prefer": "return=representation",
     }
     if upsert:
-        headers["Prefer"] = "resolution=merge-duplicates,return=representation"
+        resolution = "ignore-duplicates" if ignore_duplicates else "merge-duplicates"
+        headers["Prefer"] = f"resolution={resolution},return=representation"
     return headers
 
 
@@ -133,14 +134,15 @@ async def update_returning(
     return rows if isinstance(rows, list) else []
 
 
-async def upsert(table: str, row: dict, on_conflict: str) -> None:
+async def upsert(table: str, row: dict, on_conflict: str, *, ignore_duplicates: bool = False) -> None:
+    """INSERT, or on conflict update the existing row (ignore_duplicates: keep it as it is)."""
     settings = get_settings()
     _require_config(settings)
     async with http_client(timeout=15.0) as client:
         res = await client.post(
             f"{settings.supabase_url}/rest/v1/{table}?on_conflict={on_conflict}",
             json=row,
-            headers=_headers(settings, upsert=True),
+            headers=_headers(settings, upsert=True, ignore_duplicates=ignore_duplicates),
         )
     if res.status_code not in (200, 201):
         raise HTTPException(502, f"Supabase upsert error {res.status_code}: {res.text[:200]}")

@@ -5,9 +5,11 @@ import httpx
 import pytest
 
 USER_ID = "00000000-0000-0000-0000-000000000001"  # make_token's default subject
+SESSION_ID = "3f2b8c1e-9a4d-4e7b-8c2a-1d5e6f7a8b9c"
 
 # A finished web lesson, every field filled.
 LESSON_BODY = {
+    "sessionId": SESSION_ID,
     "client": "web",
     "mode": "lesson",
     "language": "en",
@@ -37,7 +39,12 @@ def recording_supabase(captured: list):
     """PostgREST stand-in: records each write and answers like a successful insert."""
     def handler(request: httpx.Request) -> httpx.Response:
         if request.method == "POST":
-            captured.append({"path": request.url.path, "row": json.loads(request.content)})
+            captured.append({
+                "path": request.url.path,
+                "on_conflict": request.url.params.get("on_conflict"),
+                "prefer": request.headers.get("prefer"),
+                "row": json.loads(request.content),
+            })
             return httpx.Response(201, json=[{"id": 1}])
         return httpx.Response(200, json=[])
 
@@ -54,8 +61,12 @@ def test_metrics_insert_one_snake_case_row_for_the_user(client, auth_headers, mo
     assert res.json() == {"success": True}
     assert captured == [{
         "path": "/rest/v1/voice_session_metrics",
+        # The same session sent again keeps its first row.
+        "on_conflict": "session_id",
+        "prefer": "resolution=ignore-duplicates,return=representation",
         "row": {
             "user_id": USER_ID,
+            "session_id": SESSION_ID,
             "client": "web",
             "mode": "lesson",
             "language": "en",
@@ -215,3 +226,40 @@ def test_metrics_reject_a_body_missing_how_the_session_ended(client, auth_header
 
     assert res.status_code == 422
     assert captured == []
+
+
+def test_metrics_reject_a_session_id_that_is_not_a_uuid(client, auth_headers, mock_transport):
+    captured: list = []
+    mock_transport(recording_supabase(captured))
+
+    res = client.post("/api/realtime/session-metrics", json={**LESSON_BODY, "sessionId": "lesson-1"}, headers=auth_headers)
+
+    assert res.status_code == 422
+    assert captured == []
+
+
+def test_a_failed_write_is_logged_and_answered_without_the_database_error(client, auth_headers, mock_transport, caplog):
+    mock_transport(lambda request: httpx.Response(
+        404, json={"message": 'relation "public.voice_session_metrics" does not exist'},
+    ))
+
+    with caplog.at_level("WARNING", logger="app.services.voice_metrics"):
+        res = client.post("/api/realtime/session-metrics", json=LESSON_BODY, headers=auth_headers)
+
+    assert res.status_code == 502
+    assert res.json()["detail"] == "Não foi possível gravar as métricas da sessão."
+    assert [record.getMessage() for record in caplog.records] == [
+        (f"voice session metrics not saved (user {USER_ID}): Supabase upsert error 404: "
+        '{"message":"relation \\"public.voice_session_metrics\\" does not exist"}'),
+    ]
+
+
+def test_metrics_allow_a_few_sessions_a_minute_not_a_loop(client, auth_headers, mock_transport):
+    mock_transport(recording_supabase([]))
+
+    statuses = [
+        client.post("/api/realtime/session-metrics", json=LESSON_BODY, headers=auth_headers).status_code
+        for _ in range(7)
+    ]
+
+    assert statuses == [201] * 6 + [429]

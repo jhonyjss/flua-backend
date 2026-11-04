@@ -78,7 +78,8 @@ async def create_session(
 @router.post("/session-metrics", response_model=OkResponse, status_code=201)
 async def save_session_metrics(
     body: SessionMetricsRequest,
-    user: AuthUser = Depends(rate_limited("realtime_metrics", max_requests=30, window_seconds=60)),
+    # One row per session: a few a minute leave room for quick restarts, not for a loop.
+    user: AuthUser = Depends(rate_limited("realtime_metrics", max_requests=6, window_seconds=60)),
 ) -> OkResponse:
     """One row of counters per voice session, sent once by the client when it ends."""
     await voice_metrics.save(user.id, body)
