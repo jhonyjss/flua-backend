@@ -9,6 +9,8 @@ class Settings(BaseSettings):
 
     # App
     app_env: str = "development"
+    # Set by Fly at runtime (registry.fly.io/<app>:deployment-<id>); its tag versions Flua's prompt.
+    fly_image_ref: str = ""
     cors_origins: str = "http://localhost:5555"
     frontend_url: str = "http://localhost:5555"
 

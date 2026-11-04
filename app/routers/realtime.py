@@ -1,10 +1,21 @@
-"""POST /api/realtime/session — OpenAI Realtime ephemeral client secret."""
+"""POST /api/realtime/session — OpenAI Realtime ephemeral client secret; /session-metrics — its counters."""
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.auth import AuthUser
 from app.core.rate_limit import rate_limited
-from app.schemas.realtime import RealtimeSessionRequest, RealtimeSessionResponse
-from app.services import conversation_credits, guided_access, lesson_timer, realtime
+from app.schemas.learning import OkResponse
+from app.schemas.realtime import (
+    RealtimeSessionRequest,
+    RealtimeSessionResponse,
+    SessionMetricsRequest,
+)
+from app.services import (
+    conversation_credits,
+    guided_access,
+    lesson_timer,
+    realtime,
+    voice_metrics,
+)
 
 router = APIRouter(prefix="/api/realtime", tags=["realtime"])
 
@@ -62,3 +73,14 @@ async def create_session(
         await _guard_guided_lesson(body, user)
     result = await realtime.create_session(body, user=user)
     return RealtimeSessionResponse(success=True, **result)
+
+
+@router.post("/session-metrics", response_model=OkResponse, status_code=201)
+async def save_session_metrics(
+    body: SessionMetricsRequest,
+    # One row per session: a few a minute leave room for quick restarts, not for a loop.
+    user: AuthUser = Depends(rate_limited("realtime_metrics", max_requests=6, window_seconds=60)),
+) -> OkResponse:
+    """One row of counters per voice session, sent once by the client when it ends."""
+    await voice_metrics.save(user.id, body)
+    return OkResponse()

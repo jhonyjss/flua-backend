@@ -47,7 +47,8 @@ No Nuxt, `NUXT_PUBLIC_API_BASE=http://localhost:8000` (default em `nuxt.config.t
 | `POST /api/avatar/tts-whisper` | ✅ TTS + Whisper timestamps |
 | `GET /api/avatar/model` | ✅ proxy GLB Ready Player Me |
 | **Realtime** | |
-| `POST /api/realtime/session` | ✅ |
+| `POST /api/realtime/session` | ✅ (devolve `promptVersion`: etiqueta de `FLY_IMAGE_REF` ou `dev`) |
+| `POST /api/realtime/session-metrics` | ✅ contadores de uma sessão de voz → `voice_session_metrics` |
 | **Stories** (leitura graduada) | |
 | `GET /api/stories` · `POST /api/stories/{id}/open` · `/progress` · `/complete` | ✅ (cota semanal, XP e ofensiva pelo núcleo) |
 | **Billing / users / content** | ✅ (inalterados) |
