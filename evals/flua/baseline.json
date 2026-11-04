@@ -1,0 +1,799 @@
+{
+  "created": "2026-11-04T11:18:43+00:00",
+  "backend": "ed276ea",
+  "runs": 3,
+  "cases": [
+    {
+      "id": "aula-curta-certa",
+      "category": "julgamento",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "aula-forma-plena",
+      "category": "julgamento",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "aula-outra-frase-certa",
+      "category": "julgamento",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "aula-sem-sujeito",
+      "category": "julgamento",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "aula-literal-no-que-ouviu",
+      "category": "julgamento",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "aula-sem-artigo",
+      "category": "julgamento",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "aula-pergunta-sem-inversao",
+      "category": "julgamento",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "aula-pergunta-certa",
+      "category": "julgamento",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "aula-sim",
+      "category": "julgamento",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "aula-duvida-em-portugues",
+      "category": "julgamento",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "aula-resposta-em-portugues",
+      "category": "julgamento",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 0,
+      "failures": [
+        [
+          "resultado 'incorreto' (esperado fora_do_roteiro)"
+        ],
+        [
+          "resultado 'correto' (esperado fora_do_roteiro)"
+        ],
+        [
+          "resultado 'correto' (esperado fora_do_roteiro)"
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Oi, Ana! Hoje a gente vai aprender o verbo to be. Para dizer quem você é: I am Ana — eu sou a Ana. Agora você: diga quem você é em inglês.",
+        "Aluno: Eu sou a Ana.",
+        "[registrar_meta {\"meta\":\"1\",\"resultado\":\"correto\",\"o_que_ouviu\":\"Eu sou a Ana.\",\"forma_correta\":\"I'm Ana.\"}]"
+      ]
+    },
+    {
+      "id": "aula-ansiedade",
+      "category": "julgamento",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "aula-ruido",
+      "category": "julgamento",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "aula-intermediario-certa",
+      "category": "julgamento",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "aula-acerto-ensina-a-proxima",
+      "category": "resposta à ferramenta",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 1,
+      "failures": [
+        [
+          "4 frases (máximo 3)"
+        ],
+        [
+          "4 frases (máximo 3)"
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Oi, Ana! Hoje a gente vai aprender o verbo to be. Para dizer quem você é: I am Ana — eu sou a Ana. Agora você: diga quem você é em inglês.",
+        "Aluno: I'm Ana.",
+        "[registrar_meta {\"meta\": \"1\", \"resultado\": \"correto\", \"o_que_ouviu\": \"I'm Ana\"}]",
+        "[app para a Flua: correto. Elogie em 1 frase curta e específica. Agora ensine a meta 2: \"Falar de outra pessoa\". Em até 2 frases, mostre o modelo com a tradução e peça para o aluno dizer. PARE e espere.]",
+        "Flua: Isso, Ana! Bom trabalho — você usou “I'm” direitinho!\n\nNativos dizem: She is a teacher — Ela é professora — She is a teacher. Agora tente falar sobre outra pessoa em inglês, como uma frase parecida."
+      ]
+    },
+    {
+      "id": "aula-primeiro-erro-pista",
+      "category": "resposta à ferramenta",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 2,
+      "failures": [
+        [
+          "4 frases (máximo 3)",
+          "disse 'I am Ana'",
+          "Dá uma pista em português sobre onde está o erro (falta quem faz a ação, o I), sem dizer a frase certa. — Dá a pista ('falta uma palavrinha antes de \"Ana\". Começa com \"I\"'), mas também diz a frase certa: 'Repete: I am Ana.'"
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Oi, Ana! Hoje a gente vai aprender o verbo to be. Para dizer quem você é: I am Ana — eu sou a Ana. Agora você: diga quem você é em inglês.",
+        "Aluno: Am Ana.",
+        "[registrar_meta {\"meta\": \"1\", \"resultado\": \"parcial\", \"o_que_ouviu\": \"Am Ana\", \"forma_correta\": \"I am Ana.\"}]",
+        "[app para a Flua: parcial (tentativa 1 de 2). NÃO diga a resposta: dê uma pista curta em português de onde está o erro (a forma certa, só para você, é \"I am Ana.\") e peça para ele tentar de novo.]",
+        "Flua: Boa, Ana! Quase perfeito — falta uma palavrinha antes de \"Ana\". Começa com \"I\". Repete: I am Ana."
+      ]
+    },
+    {
+      "id": "aula-segundo-erro-resposta",
+      "category": "resposta à ferramenta",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 0,
+      "failures": [
+        [
+          "7 frases (máximo 4)"
+        ],
+        [
+          "não disse nenhum de ['I am Ana', \"I'm Ana\"]",
+          "Diz a forma certa, I am Ana. — Não diz a forma certa \"I am Ana.\"; apenas diz que \"o 'I' precisa aparecer primeiro\"."
+        ],
+        [
+          "não disse nenhum de ['I am Ana', \"I'm Ana\"]",
+          "Diz a forma certa, I am Ana. — Falta dizer a forma certa \"I am Ana.\"; a fala só diz \"Bom esforço, Ana!\" e depois passa para \"She is a teacher\"."
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Oi, Ana! Hoje a gente vai aprender o verbo to be. Para dizer quem você é: I am Ana — eu sou a Ana. Agora você: diga quem você é em inglês.",
+        "Aluno: Am Ana.",
+        "Flua: Quase! Falta uma palavrinha antes do am. Tenta de novo?",
+        "Aluno: Am Ana.",
+        "[registrar_meta {\"meta\": \"1\", \"resultado\": \"parcial\", \"o_que_ouviu\": \"Am Ana\", \"forma_correta\": \"I am Ana.\"}]",
+        "[app para a Flua: parcial pela segunda vez. Elogie o esforço e diga a forma certa \"I am Ana.\", sem pedir para repetir. Agora ensine a meta 2: \"Falar de outra pessoa\". Em até 2 frases, mostre o modelo com a tradução e peça para o aluno dizer. PARE e espere.]",
+        "Flua: Bom esforço, Ana! Modelo: She is a teacher — Ela é professora — She is a teacher. Agora diga: She is a teacher."
+      ]
+    },
+    {
+      "id": "aula-duvida-volta-a-meta",
+      "category": "resposta à ferramenta",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 1,
+      "failures": [
+        [
+          "4 frases (máximo 3)",
+          "Pede para a aluna dizer quem ela é em inglês. — Pede apenas para repetir “I am”, não para dizer quem ela é em inglês: “Agora, tenta falar em inglês: ‘I am.’”"
+        ],
+        [
+          "Pede para a aluna dizer quem ela é em inglês. — Pede apenas para repetir \"I am\"; falta pedir para a aluna dizer quem ela é em inglês."
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Oi, Ana! Hoje a gente vai aprender o verbo to be. Para dizer quem você é: I am Ana — eu sou a Ana. Agora você: diga quem você é em inglês.",
+        "Aluno: Como fala 'eu sou'?",
+        "[registrar_meta {\"meta\": \"1\", \"resultado\": \"fora_do_roteiro\", \"o_que_ouviu\": \"Como fala eu sou\"}]",
+        "[app para a Flua: fora_do_roteiro. Responda em até 2 frases e volte à meta 1 (\"Dizer quem você é\"): se ainda não a ensinou, ensine com o modelo e a tradução; se já ensinou, peça para ele tentar. PARE.]",
+        "Flua: Em inglês, você diz: I am — eu sou — I am.  \nTenta falar \"I am\" agora."
+      ]
+    },
+    {
+      "id": "aula-todas-as-metas",
+      "category": "resposta à ferramenta",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "aula-quer-sair-antes-do-fim",
+      "category": "resposta à ferramenta",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 1,
+      "failures": [
+        [
+          "4 frases (máximo 3)"
+        ],
+        [
+          "4 frases (máximo 3)",
+          "Não se despede: convida a aluna a continuar, porque ainda há o que praticar. — Diz “obrigado por hoje”, o que soa como encerramento/despedida, embora depois convide a continuar."
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Oi, Ana! Hoje a gente vai aprender o verbo to be. Para dizer quem você é: I am Ana — eu sou a Ana. Agora você: diga quem você é em inglês.",
+        "Aluno: I am Ana.",
+        "[registrar_meta {\"meta\": \"1\", \"resultado\": \"correto\", \"o_que_ouviu\": \"I am Ana\"}]",
+        "Flua: Isso! Esse I am Ana saiu perfeito. Agora para falar de outra pessoa: She is a teacher — ela é professora. Fale de alguém que você conhece.",
+        "Aluno: Acho que já chega por hoje, tchau!",
+        "[registrar_meta {\"meta\": \"2\", \"resultado\": \"fora_do_roteiro\", \"o_que_ouviu\": \"Acho que já chega por hoje tchau\"}]",
+        "[app para a Flua: fora_do_roteiro. Responda em até 2 frases e volte à meta 2 (\"Falar de outra pessoa\"): se ainda não a ensinou, ensine com o modelo e a tradução; se já ensinou, peça para ele tentar. PARE.]",
+        "Flua: Perfeito, Ana — obrigado por hoje! Vamos voltar à meta 2: falar de outra pessoa.\n\nModelo: She is a teacher — Ela é professora — She is a teacher. Tenta dizer em inglês: quem é essa pessoa?"
+      ]
+    },
+    {
+      "id": "aula-aviso-de-tempo",
+      "category": "resposta à ferramenta",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 0,
+      "failures": [
+        [
+          "8 frases (máximo 4)"
+        ],
+        [
+          "9 frases (máximo 4)"
+        ],
+        [
+          "5 frases (máximo 4)",
+          "Se despede com gentileza. — Falta uma despedida explícita com gentileza, como 'até a próxima' ou 'see you next time'."
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Oi, Ana! Hoje a gente vai aprender o verbo to be. Para dizer quem você é: I am Ana — eu sou a Ana. Agora você: diga quem você é em inglês.",
+        "Aluno: I am Ana.",
+        "[registrar_meta {\"meta\": \"1\", \"resultado\": \"correto\", \"o_que_ouviu\": \"I am Ana\"}]",
+        "Flua: Isso! Esse I am Ana saiu perfeito. Agora para falar de outra pessoa: She is a teacher — ela é professora. Fale de alguém que você conhece.",
+        "Aluno: She is a teacher.",
+        "[registrar_meta {\"meta\": \"2\", \"resultado\": \"correto\", \"o_que_ouviu\": \"She is a teacher\"}]",
+        "Flua: Muito bem! Para perguntar, o verbo vem antes: Are you tired? — você está cansada? Faça uma pergunta para mim.",
+        "[app para a Flua: Resta cerca de 1 minuto de aula. Faça agora um feedback de encerramento: parabenize o aluno pelo progresso, destaque 1 ponto forte e 1 ponto a melhorar, e se despeça com gentileza.]",
+        "Flua: Nice work, Ana — your question came out clearly and you’re starting to sound natural with the sentence pattern.  \nYour strong point is good timing and structure: you used a correct “Are you…?” question.  \nOne thing to improve is adding a bit more detail: for example, you could add “Are you tired today?” (para praticar a pergunta completa).  \nGreat job — you’re making steady progress."
+      ]
+    },
+    {
+      "id": "aula-silencio",
+      "category": "resposta à ferramenta",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "aula-retomada",
+      "category": "resposta à ferramenta",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "guiada-repetir-certa",
+      "category": "julgamento",
+      "mode": "guided_lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "guiada-repetir-outra-palavra",
+      "category": "julgamento",
+      "mode": "guided_lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "guiada-sim-no-lugar-de-repetir",
+      "category": "julgamento",
+      "mode": "guided_lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 1,
+      "failures": [
+        [
+          "resultado 'incorreto' (esperado fora_do_roteiro)"
+        ],
+        [
+          "resultado 'incorreto' (esperado fora_do_roteiro)"
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Para se apresentar, a gente diz: I am Ana — eu sou a Ana. Repete comigo: I am Ana.",
+        "Aluno: Sim, vamos!",
+        "[registrar_resultado {\"item_id\":\"c-i-am\",\"etapa\":\"repetir\",\"resultado\":\"incorreto\",\"o_que_ouviu\":\"Sim, vamos!\",\"forma_correta\":\"I am Ana.\"}]"
+      ]
+    },
+    {
+      "id": "guiada-sozinho-dados-proprios",
+      "category": "julgamento",
+      "mode": "guided_lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "guiada-sozinho-sem-verbo",
+      "category": "julgamento",
+      "mode": "guided_lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 3,
+      "failures": [],
+      "errors": [],
+      "transcript": []
+    },
+    {
+      "id": "guiada-acerto-vai-para-sua-vez",
+      "category": "resposta à ferramenta",
+      "mode": "guided_lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 0,
+      "failures": [
+        [
+          "4 frases (máximo 3)",
+          "Pede em português para a aluna dizer a frase trocando uma informação e diz qual trocar. — Pede para trocar uma informação, mas não especifica qual trocar; diz apenas 'por exemplo outro nome, país, número ou objeto — escolha e diga qual você está mudando'."
+        ],
+        [
+          "5 frases (máximo 3)"
+        ],
+        [
+          "4 frases (máximo 3)",
+          "Não diz a frase-resposta pronta em inglês com a troca feita. — Diz a resposta pronta: “I am John.”"
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Para se apresentar, a gente diz: I am Ana — eu sou a Ana. Repete comigo: I am Ana.",
+        "Aluno: I am Ana.",
+        "[registrar_resultado {\"item_id\": \"c-i-am\", \"etapa\": \"repetir\", \"resultado\": \"correto\", \"o_que_ouviu\": \"I am Ana\"}]",
+        "[app para a Flua: correto. Elogie em 1 frase curta. Etapa sua vez do item 1: peça em português para ele dizer a frase \"I am Ana.\" trocando UMA informação (outro nome, país, número ou objeto, você escolhe e diz qual), sem dizer a resposta. PARE e espere.]",
+        "Flua: Boa! Você disse certinho: “I am Ana.”  \n\nAgora vamos trocar uma informação: diga “I am Ana.” mudando o nome — por exemplo, use “John” no lugar de Ana. Fala com calma e repete em inglês: “I am John.”"
+      ]
+    },
+    {
+      "id": "guiada-primeiro-erro-pista",
+      "category": "resposta à ferramenta",
+      "mode": "guided_lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 1,
+      "failures": [
+        [
+          "disse 'My name is Pedro'",
+          "Dá uma pista em português de onde está o erro (falta o is), sem dizer a frase certa. — Dá a pista (“só falta uma palavrinha antes do nome...”, “inclua o ‘is’”), mas diz a frase certa: “My name is Pedro.”"
+        ],
+        [
+          "4 frases (máximo 3)",
+          "Dá uma pista em português de onde está o erro (falta o is), sem dizer a frase certa. — Diz explicitamente a forma/frase certa: “Tenta de novo com ‘is’ antes do nome” e “repete ‘My name is ____.’”; embora dê a pista de que falta um verbo/is, não cumpre o ‘sem dizer a frase certa’."
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Agora é a sua vez: diga o seu nome para mim, em inglês.",
+        "Aluno: My name Pedro.",
+        "[registrar_resultado {\"item_id\": \"c-my-name-is\", \"etapa\": \"sozinho\", \"resultado\": \"parcial\", \"o_que_ouviu\": \"My name Pedro\", \"forma_correta\": \"My name is Pedro.\"}]",
+        "[app para a Flua: parcial (tentativa 1 de 2). NÃO diga a resposta: dê uma pista curta em português de onde está o erro (a forma certa, só para você, é \"My name is Pedro.\") e peça para ele tentar de novo.]",
+        "Flua: Boa tentativa, Ana. O erro está na parte da estrutura: depois de “My name” falta um verbo. Tenta de novo com “is” antes do nome. Vamos ouvir: repete “My name is ____.”"
+      ]
+    },
+    {
+      "id": "livre-recast",
+      "category": "prática livre",
+      "mode": "free_practice",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 1,
+      "failures": [
+        [
+          "5 frases (máximo 3)"
+        ],
+        [
+          "4 frases (máximo 3)"
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Nice! And how old are you? Quantos anos você tem?",
+        "Aluno: I have 30 years.",
+        "Flua: Ana, vou te ajudar com uma resposta natural, e já dar o modelo certinho para você repetir.I’m 30 — Eu tenho 30 anos — I’m 30.\n\nGood try, Ana. A forma correta para idade é “I’m 30” (I am 30). Tenta repetir essa frase, por favor: I’m 30."
+      ]
+    },
+    {
+      "id": "livre-mesmo-erro-pela-terceira-vez",
+      "category": "prática livre",
+      "mode": "free_practice",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 0,
+      "failures": [
+        [
+          "4 frases (máximo 3)"
+        ],
+        [
+          "4 frases (máximo 3)",
+          "Para e corrige de forma explícita (idade em inglês usa to be), em vez de só repetir a forma certa de passagem. — Falta corrigir explicitamente que idade em inglês usa to be; a fala diz incorretamente: “Com ‘he’, a idade não usa ‘have’. Você usa ‘has’.”",
+          "Pede para a aluna tentar de novo ou dá o modelo He's 20. — Falta pedir para tentar de novo com a forma correta ou dar o modelo “He's 20”; a fala dá o modelo incorreto: “Tenta: He has 20 years”"
+        ],
+        [
+          "5 frases (máximo 3)"
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: How old are you?",
+        "Aluno: I have 30 years.",
+        "Flua: Oh, you're 30 — a gente diz I'm 30, não I have. And your sister?",
+        "Aluno: She have 25 years.",
+        "Flua: She's 25, nice — idade usa to be. And your brother?",
+        "Aluno: He have 20 years.",
+        "Flua: Ana, vou ajustar só a estrutura do tempo aqui. Vou te mostrar a forma certa e você repete depois.\"He is 20\" — Ele tem 20 anos? Na verdade, usamos \"is\" para idade. \"He's 20.\" (He is 20 — He is 20.) Tenta repetir: \"He's 20.\""
+      ]
+    },
+    {
+      "id": "livre-pedido-so-ingles",
+      "category": "prática livre",
+      "mode": "free_practice",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 2,
+      "failures": [
+        [
+          "placeholder na fala",
+          "A resposta é toda ou quase toda em inglês. — A fala inclui um trecho em português: \"[como você está hoje]\"."
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Oi, Ana! Hoje vamos praticar cumprimentos. How are you today?",
+        "Aluno: Let's practice only in English, please.",
+        "Flua: How are you today?  \n[como você está hoje]  \nHow are you today?  \nGo ahead and answer with your own feeling in a simple way."
+      ]
+    },
+    {
+      "id": "livre-muda-de-assunto",
+      "category": "prática livre",
+      "mode": "free_practice",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 0,
+      "failures": [
+        [
+          "4 frases (máximo 3)",
+          "Aceita o novo assunto (pedir comida num restaurante) e começa a praticá-lo. — Falta aceitar e começar a praticar pedir comida; a fala diz: \"Hoje vamos focar em cumprimentos e apresentações\".",
+          "Não insiste no tema anterior. — Insiste no tema anterior: \"Hoje vamos focar em cumprimentos e apresentações, como combinado.\""
+        ],
+        [
+          "4 frases (máximo 3)"
+        ],
+        [
+          "4 frases (máximo 3)"
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Oi, Ana! Hoje vamos praticar cumprimentos. How are you today?",
+        "Aluno: Na verdade eu queria treinar pedir comida num restaurante.",
+        "Flua: Claro, Ana! Vamos focar em pedir comida num restaurante.  \nCan I have the menu? — Posso ter o cardápio? — Can I have the menu?  \n\nTenta repetir em voz alta."
+      ]
+    },
+    {
+      "id": "livre-nem-tudo-e-pergunta",
+      "category": "prática livre",
+      "mode": "free_practice",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 2,
+      "failures": [
+        [
+          "todas as falas terminaram em pergunta"
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: What do you do on weekends?",
+        "Aluno: I like to cook with my family.",
+        "Flua: Nice, that sounds really warm and fun. I like that — I’d say it’s a great way to spend time.\n\nWhat do you usually cook with your family?",
+        "Aluno: Yes, I cook pasta every Sunday.",
+        "Flua: Oh, nice! Pasta every Sunday sounds like a cozy tradition. \n\nDo you use a simple tomato sauce, or do you try different recipes each time?",
+        "Aluno: My mother makes the sauce.",
+        "Flua: That sounds nice, Ana — especially when someone else makes the sauce, right?\n\nWhat’s your mother’s favorite sauce to make?"
+      ]
+    },
+    {
+      "id": "livre-nao-sabe-nao-inventa",
+      "category": "prática livre",
+      "mode": "free_practice",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 1,
+      "failures": [
+        [
+          "6 frases (máximo 4)"
+        ],
+        [
+          "5 frases (máximo 4)"
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Hi, Ana! What would you like to talk about?",
+        "Aluno: Qual é a origem exata da expressão 'raining cats and dogs'?",
+        "Flua: Ana, boa pergunta — não existe uma origem exata confirmada e histórica única para a expressão \"raining cats and dogs\". Ela é uma expressão idiomática antiga, e as teorias mais comuns incluem festas em casas que ficavam bagunçadas com cachorros e gatos, ou a ideia de chuva muito forte como algo “cair” de modo exagerado.\n\nMas, de forma segura, eu diria: essa origem não é 100% documentada. O que fica claro é que ela entrou no inglês como uma figura de linguagem bem humorada para chuva muito forte, e o idioma foi mudando com o tempo. Quer tentar dizer uma frase em inglês usando essa expressão?"
+      ]
+    },
+    {
+      "id": "livre-espanhol-na-aula-de-ingles",
+      "category": "prática livre",
+      "mode": "free_practice",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 1,
+      "failures": [
+        [
+          "5 frases (máximo 3)"
+        ],
+        [
+          "5 frases (máximo 3)"
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Hi, Ana! How are you today?",
+        "Aluno: Hola, ¿cómo estás?",
+        "Flua: Oi, Ana! Eu não consegui entender o que você disse porque estava em espanhol. Vamos praticar em inglês?\n\nSay: I'm fine, thanks — eu estou bem, obrigado — I'm fine, thanks.  \nAgora tente dizer essa frase em inglês."
+      ]
+    },
+    {
+      "id": "livre-intermediario-recast",
+      "category": "prática livre",
+      "mode": "free_practice",
+      "model": "gpt-realtime-2.1",
+      "runs": 3,
+      "passes": 1,
+      "failures": [
+        [
+          "Usa a forma certa (went) dentro da própria resposta. — Falta usar a forma certa 'went' na resposta.",
+          "Segue a conversa. — A fala muda para uma pergunta sobre preferência de idioma, não responde ao conteúdo anterior nem corrige/continua 'Yesterday I go to the beach with my friends.'"
+        ],
+        [
+          "Usa a forma certa (went) dentro da própria resposta. — Falta usar a forma certa 'went' dentro da própria resposta.",
+          "Segue a conversa. — A fala muda para perguntar preferência de idioma ('você se sente confortável...') em vez de seguir a conversa sobre o que a aluna fez ontem."
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: So, what did you do yesterday?",
+        "Aluno: Yesterday I go to the beach with my friends.",
+        "Flua: Oi, Ana! Antes de continuarmos: você se sente confortável em fazer a aula toda em inglês americano, ou prefere que eu misture com português?"
+      ]
+    },
+    {
+      "id": "abertura-aula-do-site",
+      "category": "abertura",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 2,
+      "failures": [
+        [
+          "5 frases (máximo 4)",
+          "Diz em 1 frase o que ela vai conseguir fazer na aula. — Diz apenas o tema: \"Hoje vamos praticar o verbo “to be” — verbo ser/estar.\", mas não diz o que a aluna vai conseguir fazer na aula."
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Oi, Ana! Bem-vinda à nossa aula de inglês. Hoje vamos praticar o verbo “to be” — verbo ser/estar.\n\nNativos dizem: “I am Ana” — “Eu sou a Ana” — I am Ana.  \nTenta dizer para mim, Ana."
+      ]
+    },
+    {
+      "id": "abertura-guiada",
+      "category": "abertura",
+      "mode": "guided_lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 0,
+      "failures": [
+        [
+          "9 frases (máximo 4)"
+        ],
+        [
+          "5 frases (máximo 4)"
+        ],
+        [
+          "5 frases (máximo 4)"
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Oi, Ana! Hoje a gente vai aprender a se apresentar com frases simples, e cada vez você repete e depois tenta sozinho. Primeiro, vamos começar com “I am Ana.” (Eu sou Ana.) A nota é: I sempre vem com am. Vamos praticar juntos — repete comigo: I am Ana."
+      ]
+    },
+    {
+      "id": "abertura-livre-com-tema",
+      "category": "abertura",
+      "mode": "free_practice",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 0,
+      "failures": [
+        [
+          "5 frases (máximo 3)"
+        ],
+        [
+          "7 frases (máximo 3)"
+        ],
+        [
+          "4 frases (máximo 3)",
+          "Faz uma primeira pergunta curta em inglês sobre o tema. — Falta uma primeira pergunta curta em inglês sobre o tema; a fala apenas pede para repetir: \"Diga: 'Hi, my name is Ana...' Agora repete, por favor.\""
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Oi Ana! Hoje vamos praticar primeiros contatos — cumprimentar e se apresentar.\n\nDiga: \"Hi, my name is Ana — Olá, meu nome é Ana — Hi, my name is Ana.\"  \nAgora repete, por favor."
+      ]
+    },
+    {
+      "id": "abertura-livre-sem-tema",
+      "category": "abertura",
+      "mode": "free_practice",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 0,
+      "failures": [
+        [
+          "4 frases (máximo 3)"
+        ],
+        [
+          "4 frases (máximo 3)"
+        ],
+        [
+          "4 frases (máximo 3)"
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Oi, Ana! 😊 Que bom conversar com você.\n\nSobre o que você quer conversar hoje? Você prefere praticar uma situação real, revisar vocabulário, tirar dúvidas, ou apenas conversar em inglês?"
+      ]
+    },
+    {
+      "id": "abertura-aquecimento",
+      "category": "abertura",
+      "mode": "free_practice",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 3,
+      "passes": 0,
+      "failures": [
+        [
+          "4 frases (máximo 3)",
+          "disse 'Good morning'",
+          "Não diz a resposta antes da aluna tentar. — Diz a resposta antes da aluna tentar: “Good morning — bom dia — Good morning.”"
+        ],
+        [
+          "disse 'Good morning'",
+          "Não diz a resposta antes da aluna tentar. — Diz a resposta antes da aluna tentar: \"Good morning\" — significa \"bom dia\"."
+        ],
+        [
+          "4 frases (máximo 3)",
+          "disse 'Good morning'",
+          "Não diz a resposta antes da aluna tentar. — Diz a resposta antes: “Good morning — Bom dia — Good morning.”"
+        ]
+      ],
+      "errors": [],
+      "transcript": [
+        "Flua: Oi, Ana! Vamos começar com um aquecimento rápido de memória.\n\n\"Good morning — Bom dia — Good morning.\"  \nAgora, tente dizer em inglês: \"Bom dia.\""
+      ]
+    }
+  ]
+}

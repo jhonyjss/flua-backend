@@ -198,29 +198,13 @@ def model_for_level(level: str) -> str:
     return settings.openai_realtime_model or REALTIME_MODEL
 
 
-async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = None) -> dict:
-    """Create the ephemeral client secret; returns {clientSecret, model, instructions}."""
+def session_config(req: RealtimeSessionRequest, user: AuthUser | None, instructions: str) -> dict:
+    """The realtime session as minted for the client. The eval (evals/flua) builds its sessions from this
+    same function, so what it measures is what learners get."""
     settings = get_settings()
-    # Flua's memory of recent mistakes; the guided lesson follows the app's script and skips it.
-    mistakes = await learner_memory.recent(user.id) if user and req.mode != "guided_lesson" else []
-    instructions = build_tutor_instructions_from_request(req, user, mistakes)
-
-    goal_tool = uses_goal_tool(req)
-    if req.pipelineMode:
-        return {"clientSecret": None, "model": None, "instructions": instructions, "goalTool": goal_tool}
-
-    if not settings.openai_api_key:
-        raise HTTPException(500, "OPENAI_API_KEY not configured")
-
     model = model_for_level(req.level)
-    turn_mode = turn_mode_for(req)
-    turn_detection = _turn_detection(turn_mode)
-    logger.info(
-        "[Realtime] session config model=%s language=%s mode=%s turnMode=%s vad=%s",
-        model, req.language, req.mode, turn_mode, turn_detection,
-    )
-
-    session_config = {
+    turn_detection = _turn_detection(turn_mode_for(req))
+    config = {
         "type": "realtime",
         "model": model,
         "instructions": instructions,
@@ -240,11 +224,34 @@ async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = No
         },
     }
     if req.mode == "guided_lesson":
-        session_config["tools"] = [GUIDED_LESSON_TOOL]
-        session_config["tool_choice"] = "auto"
-    elif goal_tool:
-        session_config["tools"] = [LESSON_GOAL_TOOL]
-        session_config["tool_choice"] = "auto"
+        config["tools"] = [GUIDED_LESSON_TOOL]
+        config["tool_choice"] = "auto"
+    elif uses_goal_tool(req):
+        config["tools"] = [LESSON_GOAL_TOOL]
+        config["tool_choice"] = "auto"
+    return config
+
+
+async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = None) -> dict:
+    """Create the ephemeral client secret; returns {clientSecret, model, instructions}."""
+    settings = get_settings()
+    # Flua's memory of recent mistakes; the guided lesson follows the app's script and skips it.
+    mistakes = await learner_memory.recent(user.id) if user and req.mode != "guided_lesson" else []
+    instructions = build_tutor_instructions_from_request(req, user, mistakes)
+
+    goal_tool = uses_goal_tool(req)
+    if req.pipelineMode:
+        return {"clientSecret": None, "model": None, "instructions": instructions, "goalTool": goal_tool}
+
+    if not settings.openai_api_key:
+        raise HTTPException(500, "OPENAI_API_KEY not configured")
+
+    config = session_config(req, user, instructions)
+    model = config["model"]
+    logger.info(
+        "[Realtime] session config model=%s language=%s mode=%s goalTool=%s turnMode=%s vad=%s",
+        model, req.language, req.mode, req.goalTool, turn_mode_for(req), config["audio"]["input"]["turn_detection"],
+    )
 
     last_error = "unknown"
     for attempt in range(MAX_RETRIES + 1):
@@ -252,7 +259,7 @@ async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = No
             async with http_client(timeout=SESSION_TIMEOUT_S) as client:
                 res = await client.post(
                     "https://api.openai.com/v1/realtime/client_secrets",
-                    json={"session": session_config},
+                    json={"session": config},
                     headers={"Authorization": f"Bearer {settings.openai_api_key}"},
                 )
         except Exception as err:  # timeout / network
