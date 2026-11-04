@@ -1,7 +1,7 @@
 """Schemas for the OpenAI Realtime ephemeral session endpoint."""
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, StringConstraints, model_validator
 
 RealtimeVoice = Literal[
     "alloy", "ash", "ballad", "cedar", "coral", "echo", "marin", "sage", "shimmer", "verse",
@@ -120,4 +120,45 @@ class RealtimeSessionResponse(BaseModel):
     instructions: str | None = None
     # True when the session carries registrar_meta: the client may drive the lesson's goals with it.
     goalTool: bool = False
+    # The backend deploy that built the instructions; the client echoes it in /session-metrics.
+    promptVersion: str | None = None
     error: str | None = None
+
+
+SkipReason = Annotated[str, StringConstraints(pattern=r"^[a-z_]{1,32}$")]
+
+
+class SessionOutcomes(BaseModel):
+    """Tool evaluations (registrar_resultado / registrar_meta) by result."""
+    correto: int = Field(0, ge=0, le=2000)
+    parcial: int = Field(0, ge=0, le=2000)
+    incorreto: int = Field(0, ge=0, le=2000)
+    fora_do_roteiro: int = Field(0, ge=0, le=2000)
+
+
+class SessionMetricsRequest(BaseModel):
+    """One voice session's counters, sent once by the client (flueai docs/flua-tutor/02-medir-e-enxugar.md,
+    2b). A reconnect stays on the same row. No transcript text."""
+    client: Literal["web", "app"]
+    mode: Literal["lesson", "free_practice", "guided_lesson"]
+    language: Literal["en", "es"]
+    level: Literal["beginner", "intermediate", "advanced"]
+    model: str = Field(max_length=64)
+    promptVersion: str = Field(max_length=128)
+    lessonId: str = Field("", max_length=64)
+    durationSeconds: int = Field(ge=0, le=7200)
+    learnerTurns: int = Field(ge=0, le=2000)
+    fluaTurns: int = Field(ge=0, le=2000)
+    fluaWords: int = Field(ge=0, le=200_000)
+    fluaWordsMax: int = Field(ge=0, le=5000)
+    openingWords: int = Field(ge=0, le=5000)
+    # Connection to the learner's first accepted turn; null when they never spoke.
+    openingSeconds: Annotated[float, Field(ge=0, le=7200)] | None
+    outcomes: SessionOutcomes
+    goalsReached: int = Field(ge=0, le=100)
+    goalsAfterMisses: int = Field(ge=0, le=100)
+    skippedTurns: dict[SkipReason, Annotated[int, Field(ge=0, le=2000)]] = Field(max_length=10)
+    silenceNudges: int = Field(ge=0, le=1000)
+    unreadableEvaluations: int = Field(ge=0, le=1000)
+    reconnects: int = Field(ge=0, le=1000)
+    endedBy: Literal["learner", "time", "left", "error"]

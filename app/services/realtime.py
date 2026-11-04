@@ -190,6 +190,12 @@ def turn_mode_for(req: RealtimeSessionRequest) -> str:
     return "educational" if req.mode == "guided_lesson" or uses_goal_tool(req) else req.turnMode
 
 
+def prompt_version() -> str:
+    """The deploy that built Flua's prompt: the tag of FLY_IMAGE_REF (Fly sets it at runtime, e.g.
+    registry.fly.io/flua-backend-gru:deployment-01ABC → deployment-01ABC), or "dev" outside Fly."""
+    return get_settings().fly_image_ref.strip().rsplit(":", 1)[-1] or "dev"
+
+
 def model_for_level(level: str) -> str:
     """Básico (beginner) uses the mini model; intermediate and advanced use the full one."""
     settings = get_settings()
@@ -233,15 +239,19 @@ def session_config(req: RealtimeSessionRequest, user: AuthUser | None, instructi
 
 
 async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = None) -> dict:
-    """Create the ephemeral client secret; returns {clientSecret, model, instructions}."""
+    """Create the ephemeral client secret; returns {clientSecret, model, instructions, goalTool, promptVersion}."""
     settings = get_settings()
     # Flua's memory of recent mistakes; the guided lesson follows the app's script and skips it.
     mistakes = await learner_memory.recent(user.id) if user and req.mode != "guided_lesson" else []
     instructions = build_tutor_instructions_from_request(req, user, mistakes)
 
     goal_tool = uses_goal_tool(req)
+    version = prompt_version()
     if req.pipelineMode:
-        return {"clientSecret": None, "model": None, "instructions": instructions, "goalTool": goal_tool}
+        return {
+            "clientSecret": None, "model": None, "instructions": instructions, "goalTool": goal_tool,
+            "promptVersion": version,
+        }
 
     if not settings.openai_api_key:
         raise HTTPException(500, "OPENAI_API_KEY not configured")
@@ -282,7 +292,10 @@ async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = No
         secret = data.get("value") or (data.get("client_secret") or {}).get("value")
         if not secret:
             raise HTTPException(502, "OpenAI did not return a client secret")
-        return {"clientSecret": secret, "model": model, "instructions": instructions, "goalTool": goal_tool}
+        return {
+            "clientSecret": secret, "model": model, "instructions": instructions, "goalTool": goal_tool,
+            "promptVersion": version,
+        }
 
     logger.warning("realtime session failed after retries: %s", last_error)
     raise HTTPException(502, "O serviço de voz falhou após várias tentativas. Tente novamente.")

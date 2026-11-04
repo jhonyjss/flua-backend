@@ -3,6 +3,7 @@ import time
 
 import httpx
 import jwt
+import pytest
 
 from app.core.auth import AuthUser
 from app.core.config import get_settings
@@ -195,6 +196,33 @@ def test_pipeline_mode_skips_openai_call(client, auth_headers, mock_transport):
     data = res.json()
     assert data["clientSecret"] is None
     assert "Ana" in data["instructions"]
+
+
+@pytest.mark.parametrize("pipeline_mode", [False, True], ids=["openai", "pipeline"])
+@pytest.mark.parametrize(
+    ("image_ref", "expected"),
+    [
+        ("registry.fly.io/flua-backend-gru:deployment-01ABC", "deployment-01ABC"),
+        (None, "dev"),
+        ("", "dev"),
+    ],
+    ids=["fly", "unset", "empty"],
+)
+def test_session_reports_the_prompt_version(
+    client, auth_headers, mock_transport, monkeypatch, pipeline_mode, image_ref, expected,
+):
+    # Fly sets FLY_IMAGE_REF at runtime; its tag tells which deploy built Flua's prompt.
+    if image_ref is None:
+        monkeypatch.delenv("FLY_IMAGE_REF", raising=False)
+    else:
+        monkeypatch.setenv("FLY_IMAGE_REF", image_ref)
+    get_settings.cache_clear()
+    mock_transport(lambda request: httpx.Response(200, json={"value": "ek_live_abc"}))
+
+    res = client.post("/api/realtime/session", json={"pipelineMode": pipeline_mode}, headers=auth_headers)
+
+    assert res.status_code == 200
+    assert res.json()["promptVersion"] == expected
 
 
 def test_retries_then_fails_on_5xx(client, auth_headers, mock_transport):
