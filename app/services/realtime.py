@@ -203,13 +203,7 @@ def session_config(req: RealtimeSessionRequest, user: AuthUser | None, instructi
     same function, so what it measures is what learners get."""
     settings = get_settings()
     model = model_for_level(req.level)
-    turn_mode = turn_mode_for(req)
-    turn_detection = _turn_detection(turn_mode)
-    logger.info(
-        "[Realtime] session config model=%s language=%s mode=%s goalTool=%s turnMode=%s vad=%s",
-        model, req.language, req.mode, req.goalTool, turn_mode, turn_detection,
-    )
-
+    turn_detection = _turn_detection(turn_mode_for(req))
     config = {
         "type": "realtime",
         "model": model,
@@ -254,6 +248,10 @@ async def create_session(req: RealtimeSessionRequest, user: AuthUser | None = No
 
     config = session_config(req, user, instructions)
     model = config["model"]
+    logger.info(
+        "[Realtime] session config model=%s language=%s mode=%s goalTool=%s turnMode=%s vad=%s",
+        model, req.language, req.mode, req.goalTool, turn_mode_for(req), config["audio"]["input"]["turn_detection"],
+    )
 
     last_error = "unknown"
     for attempt in range(MAX_RETRIES + 1):

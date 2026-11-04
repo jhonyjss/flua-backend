@@ -3,10 +3,12 @@ import re
 
 from evals.flua.session import Reply
 
-# Words she must never say to the learner, whatever the case: the tools' internal labels, the old spoken
-# marker and the words the prompt forbids in error feedback.
-INTERNAL = ["fora_do_roteiro", "parcial", "incorreto", "errado", "tentativa 1 de 2", "tentativa 2 de 2",
-            "registrar_meta", "registrar_resultado", "EXACT_MATCH", "repetition mode", "Correct!"]
+# Internal names she must never say in any mode.
+INTERNAL = ["fora_do_roteiro", "tentativa 1 de 2", "tentativa 2 de 2", "registrar_meta", "registrar_resultado",
+            "EXACT_MATCH", "repetition mode"]
+# With a tool in the session (the lessons) the prompt also forbids the outcome labels, the old spoken marker and
+# the words for "wrong" in feedback; in free practice "That's correct!" is just praise.
+TOOL_MODE = ["parcial", "incorreto", "errado", "Correct!", "Correto!"]
 # Spanish in an English lesson (the prompt allows only Portuguese and English).
 SPANISH = ["¿", "¡", "cuéntame", "puedes", "vamos a ver", "muy bien", "hola"]
 PLACEHOLDER = re.compile(r"\[[^\]]*\]|\{[^}]*\}|<nome>")
@@ -38,7 +40,9 @@ def _has(text: str, needle: str) -> bool:
     return needle.lower() in text.lower()
 
 
-def check_reply(reply: Reply, expect: dict, *, language: str = "en") -> list[str]:
+def check_reply(reply: Reply, expect: dict, *, language: str = "en", tool_mode: bool = False,
+                learner: str = "") -> list[str]:
+    """`learner` is the learner's last turn: echoing their words ("Você disse Hola…") is not speaking Spanish."""
     text = reply.text
     failures: list[str] = []
     if not text.strip():
@@ -47,10 +51,13 @@ def check_reply(reply: Reply, expect: dict, *, language: str = "en") -> list[str
         failures.append(f"chamou ferramenta fora da avaliação: {reply.calls[0].name}")
     # Always on: what she must never say in any case.
     failures += [f"disse o rótulo interno {word!r}" for word in INTERNAL if _has(text, word)]
+    if tool_mode:
+        failures += [f"disse {word!r} na aula" for word in TOOL_MODE if _has(text, word)]
     if PLACEHOLDER.search(text):
         failures.append("placeholder na fala")
     if language == "en":
-        failures += [f"espanhol na aula de inglês: {word!r}" for word in SPANISH if _has(text, word)]
+        failures += [f"espanhol na aula de inglês: {word!r}" for word in SPANISH
+                     if _has(text, word) and not _has(learner, word)]
 
     count = len(sentences(text))
     if "max_sentences" in expect and count > expect["max_sentences"]:

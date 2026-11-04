@@ -7,13 +7,19 @@ from contextlib import AbstractAsyncContextManager
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 
+from websockets.exceptions import WebSocketException
+
 from app.schemas.realtime import RealtimeSessionRequest
 from app.services.realtime import build_tutor_instructions_from_request, session_config
 from evals.flua.checks import check_reply, check_tool
+from evals.flua.judge import JudgeError
 from evals.flua.session import Reply, SessionError, TextSession, text_session
 
 Connect = Callable[[str], AbstractAsyncContextManager[TextSession]]
 Judge = Callable[[str, list[str], str], Awaitable[list[str]]]
+
+# The API or the judge failed, not Flua: such a run is neither a pass nor a failure of the prompt.
+INFRA_ERRORS = (SessionError, JudgeError, TimeoutError, OSError, WebSocketException)
 
 
 @dataclass
@@ -26,6 +32,8 @@ class CaseResult:
     passes: int = 0
     # Failures of each failed run, and the transcript of the last failed one, to read why.
     failures: list[list[str]] = field(default_factory=list)
+    # Runs lost to the API or the judge (see INFRA_ERRORS).
+    errors: list[str] = field(default_factory=list)
     transcript: list[str] = field(default_factory=list)
 
 
@@ -65,12 +73,14 @@ async def run_once(case: dict, config: dict, session: TextSession, judge: Judge)
     transcript = await _history(session, case.get("history", []))
     failures: list[str] = []
     replies: list[Reply] = []
+    learner = next((entry[1] for entry in reversed(case.get("history", [])) if entry[0] == "aluno"), "")
 
     for step in case["steps"]:
         reply: Reply | None = None
         if "say" in step:
             await session.learner(step["say"])
             transcript.append(f"Aluno: {step['say']}")
+            learner = step["say"]
         elif "evaluate" in step:
             await session.system(step["evaluate"])
             reply = await session.respond(
@@ -78,8 +88,11 @@ async def run_once(case: dict, config: dict, session: TextSession, judge: Judge)
             )
             transcript.append(f"[{step['tool']} {' | '.join(call.arguments for call in reply.calls)}]")
         elif "tool_output" in step:
+            # The judge reads the reply against what the app told her to do.
+            transcript.append(f"[app para a Flua: {step['tool_output']}]")
             reply = await session.answer_tool(step["tool_output"], **plain)
         elif "instruct" in step:
+            transcript.append(f"[app para a Flua: {step['instruct']}]")
             await session.system(step["instruct"])
             reply = await session.respond(**plain)
         elif step.get("respond") or step.get("open"):
@@ -93,7 +106,7 @@ async def run_once(case: dict, config: dict, session: TextSession, judge: Judge)
             continue
         transcript.append(f"Flua: {reply.text}")
         replies.append(reply)
-        failures += check_reply(reply, expect.get("reply", {}), language=language)
+        failures += check_reply(reply, expect.get("reply", {}), language=language, tool_mode=tools, learner=learner)
         if expect.get("rubric"):
             failures += await judge(reply.text, expect["rubric"], "\n".join(transcript[:-1]) or "(início da aula)")
 
@@ -111,8 +124,9 @@ async def run_case(case: dict, *, runs: int, connect: Connect, judge: Judge) -> 
         try:
             async with connect(config["model"]) as session:
                 failures, transcript = await run_once(case, config, session, judge)
-        except (SessionError, TimeoutError, OSError) as err:
-            failures, transcript = [f"erro da sessão: {err}"], []
+        except INFRA_ERRORS as err:
+            result.errors.append(f"{type(err).__name__}: {err}")
+            continue
         if failures:
             result.failures.append(failures)
             result.transcript = transcript
@@ -151,6 +165,10 @@ def report(results: list[CaseResult], *, runs: int) -> dict:
     }
 
 
+def error_count(report_: dict) -> int:
+    return sum(len(case.get("errors", [])) for case in report_["cases"])
+
+
 def by_category(report_: dict) -> dict[str, tuple[int, int]]:
     """Passes and runs per category."""
     totals: dict[str, tuple[int, int]] = {}
@@ -166,11 +184,15 @@ def regressions(current: dict, baseline: dict) -> list[str]:
     left out, so a partial run is compared on what it ran."""
     if current["runs"] != baseline["runs"]:
         return [f"rodadas diferentes: {current['runs']} contra {baseline['runs']} no baseline"]
-    ran = {case["id"] for case in current["cases"]}
-    old = {case["id"]: case for case in baseline["cases"] if case["id"] in ran}
-    shared = {**baseline, "cases": list(old.values())}
+    lost = error_count(current) + error_count(baseline)
+    if lost:
+        return [f"{lost} rodadas perdidas por erro da API ou do juiz: rode de novo antes de comparar"]
+    # Only the cases both sides ran: a case added after the baseline must not hide an old one getting worse.
+    old = {case["id"]: case for case in baseline["cases"]}
+    shared_ids = {case["id"] for case in current["cases"]} & old.keys()
     problems = []
-    now_totals, old_totals = by_category(current), by_category(shared)
+    now_totals = by_category({"cases": [case for case in current["cases"] if case["id"] in shared_ids]})
+    old_totals = by_category({"cases": [old[case_id] for case_id in shared_ids]})
     for category, (passes, _) in sorted(old_totals.items()):
         now = now_totals.get(category, (0, 0))[0]
         if now < passes:
@@ -190,9 +212,11 @@ def summary(report_: dict) -> str:
     total_passes = sum(case["passes"] for case in report_["cases"])
     total_runs = sum(case["runs"] for case in report_["cases"])
     lines.append(f"  {'total':24} {total_passes}/{total_runs}")
+    if error_count(report_):
+        lines.append(f"  ! {error_count(report_)} rodadas perdidas por erro da API ou do juiz (não contam)")
     failed = [case for case in report_["cases"] if case["passes"] < case["runs"]]
     for case in failed:
         first = case["failures"][0] if case["failures"] else []
-        lines.append(f"  ✗ {case['id']} {case['passes']}/{case['runs']}: {'; '.join(first)[:240]}")
+        lines.append(f"  ✗ {case['id']} {case['passes']}/{case['runs']}: {'; '.join(first or case['errors'][:1])[:240]}")
     return "\n".join(lines)
 

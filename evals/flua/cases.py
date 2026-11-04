@@ -112,7 +112,8 @@ GOAL_3 = [*GOAL_2, ("aluno", "She is a teacher."),
 LESSON_CASES = [
     judged("aula-curta-certa", GOAL_1, "I'm Ana.", 1, ["correto"]),
     judged("aula-forma-plena", GOAL_1, "I am Ana.", 1, ["correto"]),
-    judged("aula-dados-proprios", GOAL_1, "I am Pedro.", 1, ["correto"]),
+    # Another correct sentence that says who she is, not the model: the goal, not the phrase, is judged.
+    judged("aula-outra-frase-certa", GOAL_1, "I'm a student.", 1, ["correto"]),
     judged("aula-sem-sujeito", GOAL_1, "Am Ana.", 1, ["parcial", "incorreto"], correct_has=["I"]),
     judged("aula-literal-no-que-ouviu", GOAL_1, "I Ana.", 1, ["parcial", "incorreto"], heard_lacks=["am"]),
     judged("aula-sem-artigo", GOAL_2, "She is teacher.", 2, ["parcial", "incorreto"], correct_has=["a teacher"]),
@@ -402,8 +403,9 @@ OPENING_CASES = [
     },
 ]
 
-# Memory of earlier mistakes (learner_memory.recent) for the app's free practice.
+# Memory of earlier mistakes (learner_memory.recent) for the app's free practice, on an error no case tests, so
+# what a case measures (recast, explicit correction) is not the memory block at work.
 for case in FREE_CASES:
-    case.setdefault("mistakes", [{"said": "I have 30 years", "natural": "I'm 30", "tip": "idade usa to be"}])
+    case.setdefault("mistakes", [{"said": "I am agree", "natural": "I agree", "tip": "agree já é verbo, sem am"}])
 
 CASES = [*LESSON_CASES, *GUIDED_CASES, *FREE_CASES, *OPENING_CASES]

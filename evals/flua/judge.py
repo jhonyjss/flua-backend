@@ -4,6 +4,7 @@ another family than the voice model under test, when the Anthropic account has c
 import json
 import os
 
+from dotenv import dotenv_values
 from fastapi import HTTPException
 
 from app.core.config import get_settings
@@ -12,12 +13,19 @@ from app.services import anthropic_client
 from app.services.openai_client import extract_response_text
 from evals.flua.usage import USAGE
 
-JUDGE_MODEL = os.environ.get("FLUA_EVAL_JUDGE_MODEL", "gpt-5.5")
+DEFAULT_JUDGE_MODEL = "gpt-5.5"
+
+
+def judge_model() -> str:
+    """FLUA_EVAL_JUDGE_MODEL from the environment or the backend .env, like the API keys."""
+    return (os.environ.get("FLUA_EVAL_JUDGE_MODEL") or dotenv_values(".env").get("FLUA_EVAL_JUDGE_MODEL")
+            or DEFAULT_JUDGE_MODEL)
 
 SYSTEM = (
     "Você avalia falas da Flua, tutora de inglês por voz para brasileiros. Para cada critério, decida se a "
-    "fala o cumpre e cite o trecho da fala que mostra isso (ou diga o que falta). Julgue só a fala contra o "
-    "critério, de forma literal; não cobre nada além dele. Responda só com JSON: "
+    "fala o cumpre e cite o trecho da fala que mostra isso (ou diga o que falta). No contexto, as linhas entre "
+    "colchetes são o que o app mandou a Flua fazer naquele momento. Julgue só a fala contra o critério, de forma "
+    "literal; não cobre nada além dele. Responda só com JSON: "
     '{"criterios": [{"n": 1, "passou": true, "trecho": "..."}]}'
 )
 
@@ -39,10 +47,10 @@ class JudgeError(RuntimeError):
     stops the eval instead of counting as a failed case."""
 
 
-async def _openai(system: str, message: str, *, max_tokens: int, schema: dict | None) -> str:
+async def _openai(model: str, system: str, message: str, *, max_tokens: int, schema: dict | None) -> str:
     settings = get_settings()
     payload: dict = {
-        "model": JUDGE_MODEL,
+        "model": model,
         "input": [{"role": "system", "content": system}, {"role": "user", "content": message}],
         "max_output_tokens": max_tokens,
         "reasoning": {"effort": "low"},
@@ -58,17 +66,21 @@ async def _openai(system: str, message: str, *, max_tokens: int, schema: dict | 
     if res.status_code != 200:
         raise JudgeError(f"OpenAI {res.status_code}: {res.text[:200]}")
     data = res.json()
-    USAGE.add(JUDGE_MODEL, data.get("usage"))
+    USAGE.add(model, data.get("usage"))
+    # Cut short (the reasoning used up max_output_tokens) or refused: the verdict would be partial.
+    if data.get("status") != "completed":
+        raise JudgeError(f"resposta {data.get('status')}: {data.get('incomplete_details')}")
     return extract_response_text(data)
 
 
 async def ask(system: str, message: str, *, max_tokens: int = 4000, schema: dict | None = None) -> str:
     """One completion from the judge model; the audit uses it too."""
-    if not JUDGE_MODEL.startswith("claude"):
-        return await _openai(system, message, max_tokens=max_tokens, schema=schema)
+    model = judge_model()
+    if not model.startswith("claude"):
+        return await _openai(model, system, message, max_tokens=max_tokens, schema=schema)
     try:
         return await anthropic_client.complete(system, message, max_tokens=max_tokens, temperature=0.0,
-                                               model=JUDGE_MODEL)
+                                               model=model)
     except HTTPException as err:
         raise JudgeError(str(err.detail)) from err
 
