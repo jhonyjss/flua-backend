@@ -464,12 +464,11 @@ def _name_en(name_ref: str) -> str:
                 "pronúncia brasileira, sem traduzir nem encurtar. NUNCA use, invente ou suponha qualquer outro "
                 f'nome, nem em exemplos ("I am {name_ref}"). Não pergunte o nome.')
     return ("# Nome do aluno\n- Você ainda não sabe o nome. NUNCA use, invente ou suponha um nome, nem em exemplos "
-            '(ensine com "I am a student." ou "I am ___").\n- Pergunte uma vez "Como posso te chamar?" e use '
-            '"você" até ele responder.')
+            '(ensine com "I am a student." ou "I am ___"). Use "você" até ele dizer o nome.')
 
 
 _PRECISION_EN = """# Precisão
-- Ensine só inglês real e correto: não invente palavras, regras, traduções nem a origem de expressões. Se não tiver certeza, diga que não tem e dê só o que sabe.
+- Ensine só inglês real e correto: não invente palavras, regras, traduções nem a origem de expressões; traduza pelo sentido, não ao pé da letra. Se não tiver certeza, diga que não tem e dê só o que sabe.
 - Comente só o que o aluno realmente disse; nunca complete a fala dele.
 
 # Áudio pouco claro
@@ -497,15 +496,15 @@ def _lesson_flow_en() -> str:
     ex = _GUIDED_EXAMPLES["inglês"]
     return f"""# Como a aula funciona (o app conduz o progresso)
 - O app sabe qual é a meta atual e decide quando ela termina; você ensina, conversa e avalia quando o app pedir. NUNCA avance nem pule meta por conta própria.
-- Ensinar uma meta: em até 2 frases, mostre o modelo em inglês com a tradução e peça para o aluno dizer. PARE.
-- Depois de cada fala do aluno, o app pede registrar_meta com a meta atual. Avalie só a última fala do aluno contra ela, pelo que você OUVIU:
+- Ensinar uma meta: em até 2 frases, mostre o modelo em inglês com a tradução e peça para ele dizer. PARE.
+- Depois de cada fala do aluno, o app pede registrar_meta: avalie só essa fala contra a meta atual, pelo que você OUVIU:
   - correto: cumpre a meta com palavras e estrutura certas. Vale qualquer frase correta que cumpra a meta, com nomes e dados próprios.
 {_judging_rules(ex)}
   - Responder em português (mesmo com a tradução certa da meta), um "sim" ou uma dúvida são fora_do_roteiro, nunca incorreto: não é uma tentativa em inglês.
 - A resposta de registrar_meta é o próximo passo: faça tudo o que ela pedir, na ordem, numa única fala. Não dê pista, não corrija nem peça nova tentativa por conta própria.
 {_feedback_en(ex)}
 - Antes de o app dizer que as metas terminaram, não se despeça: "Ainda temos mais para praticar — vamos continuar?".
-- Metas terminadas: siga praticando o mesmo foco, um exemplo por vez, corrigindo no máximo um erro por fala, até o aluno querer parar. Aviso de que o tempo está acabando: 1 ponto forte, 1 a melhorar e uma despedida carinhosa."""
+- Metas terminadas: siga praticando o mesmo foco, um exemplo por vez, trocando uma palavra, com no máximo uma correção por fala e, se ele travar, os degraus (primeira palavra → metade → frase inteira), até ele querer parar. Aviso de fim de tempo: 1 ponto forte, 1 a melhorar e uma despedida carinhosa."""
 
 
 def _guided_flow_en() -> str:
@@ -538,6 +537,8 @@ def _free_flow_en(topic: str) -> str:
 {start}
 - Se o aluno pedir outro assunto ou outra situação, mude na hora para o que ele pediu.
 - Não há metas, pontuação nem roteiro. Numa simulação (entrevista, restaurante), faça um papel e uma pergunta por vez.
+- Ensine frases úteis do assunto em blocos prontos ("I'm from…", "Can I have…?") e treine trocando uma palavra.
+- Se o aluno travar, ajude em degraus, um por vez: a primeira palavra, depois metade da frase, só então a frase inteira para ele repetir.
 {_recast_rule("inglês")}
 - Conversa não é interrogatório: depois de duas falas suas com pergunta, a próxima não tem pergunta — só reaja, comente algo seu ou complete a ideia dele (ex.: "Pasta every Sunday sounds perfect.") e deixe-o continuar.
 - Despeça-se com naturalidade quando o aluno quiser encerrar."""
@@ -553,9 +554,14 @@ def _memory_en(mistakes: list[dict]) -> str:
             "permitir, e peça a forma certa. Não liste nem cobre todos; se ele acertar, comemore o progresso.")
 
 
-def _intermediate_opening_en(greeting: str) -> str:
-    return ("Na sua primeira fala, pergunte também, uma vez só, se o aluno prefere tudo em inglês ou com apoio em "
-            f"português, e siga a escolha. {greeting}")
+def _intermediate_opening_en(greeting: str, *, alone: bool) -> str:
+    """The language choice, asked once at the opening. `alone`: the opening already asks something (free
+    practice), so the language question goes first, on its own turn."""
+    question = "se o aluno prefere tudo em inglês ou com apoio em português"
+    if alone:
+        return (f"Na sua primeira fala, cumprimente e pergunte só {question}; PARE e espere. Depois, siga a escolha: "
+                f"{greeting}")
+    return f"Na sua primeira fala, pergunte também, uma vez só, {question}, e siga a escolha. {greeting}"
 
 
 def _build_mode_prompt_english(
@@ -602,6 +608,8 @@ def _build_mode_prompt_english(
             _role_en("levar o aluno a cumprir as metas da aula falando inglês, uma meta por vez."),
             f"# Aula de hoje\n{lesson_context}",
         ]
+        if focus := _goals_focus(learning_goals).strip():
+            sections.append(focus)
         if recent_mistakes:
             sections.append(_memory_en(recent_mistakes))
         sections.append(_lesson_flow_en())
@@ -615,7 +623,7 @@ def _build_mode_prompt_english(
         else:
             greeting = 'Cumprimente de forma acolhedora em uma frase, pergunte "Como posso te chamar?" e pare.'
     if level == "intermediate" and mode != "guided_lesson":
-        greeting = _intermediate_opening_en(greeting)
+        greeting = _intermediate_opening_en(greeting, alone=mode == "free_practice")
 
     shared = [_TONE_EN, _language_en(level, explanation_language), _name_en(name_ref), _PRECISION_EN, _ACCENT_EN]
     if mode != "guided_lesson":

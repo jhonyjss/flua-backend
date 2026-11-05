@@ -15,9 +15,25 @@ MODES = {
                                         reviewPhrases=[{"english": "Good morning", "portuguese": "Bom dia"}]),
 }
 MEMORY = [{"said": "I am agree", "natural": "I agree", "tip": "agree já é verbo, sem am"}]
+# Real app plans carry a grammar point (the app's docs/gramatica-spec.md); the eval's plan doesn't.
+GRAMMAR = {
+    "name": "Verbo to be para se apresentar",
+    "rule": "Para dizer quem você é, use I am + nome; para dizer o nome, My name is + nome.",
+    "forms": [
+        {"label": "afirmativa", "english": "I am Ana.", "portuguese": "Eu sou a Ana."},
+        {"label": "nome", "english": "My name is Ana.", "portuguese": "Meu nome é Ana."},
+        {"label": "contração", "english": "I'm Ana.", "portuguese": "Sou a Ana."},
+    ],
+    "contrast": "Em português dá para dizer só \"Sou a Ana\"; em inglês o I é obrigatório.",
+    "mistake": {"wrong": "Am Ana.", "right": "I am Ana.", "why": "o sujeito não cai em inglês"},
+    "recap": "I am + nome; My name is + nome.",
+}
 
-# The spec's ceiling ("no máximo metade do tamanho atual", proposed at 7,000 characters in English).
+# The spec's ceiling ("no máximo metade do tamanho atual", proposed at 7,000 characters in English), measured on the
+# eval's requests. A real guided plan adds its grammar point, which is lesson data, not instructions: for that the
+# ceiling is the top of the research's 6–8k range (spec changed with 2c's review, flueai 02-medir-e-enxugar.md).
 MAX_CHARS = 7000
+MAX_CHARS_WITH_GRAMMAR = 8000
 # "NUNCA" kept for the few rules that can't bend (other languages, other names, advancing alone).
 MAX_NUNCA = 5
 # Rules with no input in these modes: the client drives the turn (no silence to fill, no barge-in), the labels
@@ -39,6 +55,13 @@ def test_each_mode_fits_the_ceiling_with_few_absolute_rules(mode, level):
     out = prompt(mode, level, MEMORY)
     assert len(out) <= MAX_CHARS
     assert len(re.findall(r"\bNUNCA\b", out)) <= MAX_NUNCA
+
+
+def test_a_guided_lesson_with_its_grammar_point_fits_the_ceiling():
+    plan = {**guided()["plan"], "grammar": GRAMMAR}
+    out = build_tutor_instructions_from_request(RealtimeSessionRequest(**guided(plan=plan)), None, [])
+    assert "# Gramática da aula: Verbo to be para se apresentar" in out
+    assert len(out) <= MAX_CHARS_WITH_GRAMMAR
 
 
 @pytest.mark.parametrize("mode", list(MODES))
@@ -75,9 +98,25 @@ def test_the_tool_modes_correct_only_through_the_tool_and_free_practice_by_recas
 
 
 def test_the_language_question_is_asked_once_at_the_opening_not_mid_conversation():
-    out = prompt("free_practice", "intermediate")
-    assert "Na sua primeira fala, pergunte também, uma vez só" in out.split("# Como começar")[1]
-    assert "pergunte" not in out.split("# Idioma")[1].split("#")[0]
+    # free practice already asks what to practise: the language question gets its own first turn
+    free_opening = prompt("free_practice", "intermediate").split("# Como começar")[1]
+    assert free_opening.count("pergunte só se o aluno prefere tudo em inglês") == 1
+    lesson_opening = prompt("lesson", "intermediate").split("# Como começar")[1]
+    assert "pergunte também, uma vez só, se o aluno prefere tudo em inglês" in lesson_opening
+    for mode in ("free_practice", "lesson"):
+        assert "pergunte" not in prompt(mode, "intermediate").split("# Idioma")[1].split("#")[0]
+
+
+def test_where_no_tool_corrects_a_stuck_learner_gets_the_help_ladder():
+    for mode in ("free_practice", "lesson"):
+        assert "primeira palavra" in prompt(mode) and "metade" in prompt(mode)
+    assert "blocos prontos" in prompt("free_practice")
+
+
+def test_the_lesson_keeps_the_profile_goals():
+    req = RealtimeSessionRequest(**lesson(learningGoals=["work"]))
+    out = build_tutor_instructions_from_request(req, None, [])
+    assert "# Foco do aluno" in out and "trabalho (reuniões" in out
 
 
 def test_legacy_paths_keep_the_old_prompt():

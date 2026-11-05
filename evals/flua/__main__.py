@@ -96,7 +96,8 @@ def main() -> int:
     run = sub.add_parser("run", help="roda os casos e compara com o baseline")
     run.add_argument("--mode", choices=["lesson", "guided_lesson", "free_practice"])
     run.add_argument("--case", action="append", help="id do caso (repetível)")
-    run.add_argument("--runs", type=int, default=3)
+    # The baseline's run count by default: results only compare at the same count.
+    run.add_argument("--runs", type=int, default=json.loads(BASELINE.read_text())["runs"] if BASELINE.exists() else 5)
     run.add_argument("--concurrency", type=int, default=4)
     run.add_argument("--save-baseline", action="store_true", help="grava este resultado como baseline")
     run.add_argument("--against", help="compara com este resultado em vez do baseline.json (ex.: o prompt "

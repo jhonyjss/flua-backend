@@ -403,7 +403,7 @@ def test_goal_tool_lesson_is_driven_by_registrar_meta_not_a_spoken_marker():
     # Spec changed (flueai docs/flua-tutor/02-medir-e-enxugar.md, 2c): English has its own lesson prompt.
     english = _goal_lesson("en")
     assert "# Como a aula funciona (o app conduz o progresso)" in english
-    assert "o app pede registrar_meta com a meta atual" in english
+    assert "o app pede registrar_meta: avalie só essa fala contra a meta atual" in english
     assert "faça tudo o que ela pedir, na ordem, numa única fala" in english
     assert "NUNCA avance nem pule meta por conta própria" in english
     spanish = _goal_lesson("es")
