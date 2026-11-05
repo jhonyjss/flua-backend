@@ -8,7 +8,10 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, StringConstraints
 
-EventName = Literal[
+# The events the app sends today (flueai-app src/services/analytics/events.ts). Documentation only:
+# any name in the table's format is accepted, so an app release that adds an event before this list
+# does not lose the rest of its batch.
+KNOWN_EVENTS = (
     "screen_view",
     "paywall_view",
     "subscribe_click",
@@ -20,7 +23,8 @@ EventName = Literal[
     "trial_exhausted",
     "sign_up",
     "login",
-]
+)
+EventName = Annotated[str, StringConstraints(pattern=r"^[a-z][a-z_]{0,39}$")]
 
 ParamKey = Annotated[str, StringConstraints(pattern=r"^[a-z][a-z_]{0,31}$")]
 # Flat values only: ids, plan names, counts, flags. Long text has no place in an event.

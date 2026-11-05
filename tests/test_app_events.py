@@ -115,7 +115,7 @@ def test_unknown_or_oversized_events_are_refused_before_any_write(client, auth_h
     captured: list = []
     mock_transport(recording_supabase(captured))
     refused = [
-        _body(_event(name="credit_card_entered")),                                  # not an event of the contract
+        _body(_event(name="Credit-Card")),                                         # name outside the table's format
         _body(_event(params={"Plan": "pro"})),                                     # key outside [a-z_]
         _body(_event(params={"note": "x" * 121})),                                 # long text
         _body(_event(params={"items": ["a", "b"]})),                               # nested value
@@ -142,3 +142,18 @@ def test_a_failed_write_answers_502_without_the_database_text(client, auth_heade
 
     assert res.status_code == 502
     assert "db down" not in res.text
+
+
+def test_an_event_newer_than_this_backend_is_stored_with_the_rest_of_its_batch(client, auth_headers, mock_transport):
+    # An app release can add an event before this list knows it: the batch must not be lost for it.
+    captured: list = []
+    mock_transport(recording_supabase(captured))
+
+    res = client.post(
+        "/api/events",
+        json=_body(_event(), _event(EVENT_B, "streak_shared", {"days": 7})),
+        headers=auth_headers,
+    )
+
+    assert res.status_code == 201
+    assert [row["name"] for row in captured[0]["rows"]] == ["subscribe_click", "streak_shared"]
