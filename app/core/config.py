@@ -51,6 +51,7 @@ class Settings(BaseSettings):
     classroom_v2_enabled: bool = False
     classroom_v2_users: str = ""
     classroom_voice_speed: float = Field(0.9, ge=0.75, le=1.1)
+    classroom_teaching_pilot_enabled: bool = False
 
     # Telegram error alerts (dormant unless both are set)
     telegram_bot_token: str = ""

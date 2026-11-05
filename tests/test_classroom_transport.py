@@ -5,8 +5,10 @@ from unittest.mock import AsyncMock
 
 import pytest
 
+from app.core.config import get_settings
 from app.services.classroom import realtime_connection as transport
 from app.services.classroom.orchestrator import initial
+from app.services.classroom.teaching import GREETINGS, skill_for_lesson
 
 PLAN = {
     "items": [
@@ -140,7 +142,10 @@ async def test_sideband_classifies_before_speaking_and_waits_for_playback(monkey
     monkeypatch.setattr(transport, "hangup", AsyncMock())
     ready = asyncio.get_running_loop().create_future()
     await asyncio.wait_for(
-        transport.run("user", "session", "owner", "call", PLAN, ready), 3
+        transport.run(
+            "user", "session", "owner", "call", PLAN, ready, teaching_skill=GREETINGS
+        ),
+        3,
     )
     assert ready.result()
     replies = [e["response"] for e in sent if e["type"] == "response.create"]
@@ -149,7 +154,19 @@ async def test_sideband_classifies_before_speaking_and_waits_for_playback(monkey
         "classroom_speak",
     ]
     assert events.count("lesson.delivered") == 1
+    assert GREETINGS not in replies[0]["instructions"]
+    assert GREETINGS in replies[1]["instructions"]
+    assert "Idioma de conversa: pt-BR" in replies[1]["instructions"]
     transport.hangup.assert_awaited_once_with("call")
+
+
+def test_teaching_pilot_only_applies_to_greetings(monkeypatch):
+    settings = get_settings()
+    monkeypatch.setattr(settings, "classroom_teaching_pilot_enabled", False)
+    assert not skill_for_lesson("fund-u1-l1")
+    monkeypatch.setattr(settings, "classroom_teaching_pilot_enabled", True)
+    assert skill_for_lesson("fund-u1-l1") == GREETINGS
+    assert not skill_for_lesson("fund-u1-l2")
 
 
 def test_classroom_requires_authentication(client):

@@ -16,6 +16,7 @@ from app.schemas.classroom import TurnDecision
 from app.services.classroom import content, service
 from app.services.classroom import orchestrator as machine
 from app.services.classroom import repository as repo
+from app.services.classroom.teaching import skill_for_lesson
 
 log = logging.getLogger(__name__)
 TASKS: set[asyncio.Task] = set()
@@ -118,7 +119,17 @@ async def connect(user, session, body):
         if not re.fullmatch(r"[A-Za-z0-9_-]{1,200}", call_id):
             raise HTTPException(502, {"code": "voice_connection_failed"})
         ready = asyncio.get_running_loop().create_future()
-        task = asyncio.create_task(run(user, session, owner, call_id, plan, ready))
+        task = asyncio.create_task(
+            run(
+                user,
+                session,
+                owner,
+                call_id,
+                plan,
+                ready,
+                teaching_skill=skill_for_lesson(row["lesson_id"]),
+            )
+        )
         TASKS.add(task)
         task.add_done_callback(TASKS.discard)
         await asyncio.wait_for(asyncio.shield(ready), 10)
@@ -137,7 +148,7 @@ async def connect(user, session, body):
         raise
 
 
-async def run(user, session, owner, call_id, plan, ready):
+async def run(user, session, owner, call_id, plan, ready, *, teaching_skill=""):
     limit = 600
     sent_generation = -1
     active_response = None
@@ -305,7 +316,10 @@ async def run(user, session, owner, call_id, plan, ready):
                                     "generation": str(active_generation),
                                 },
                                 "instructions": machine.instructions(
-                                    plan, state, state["pendingInstruction"]
+                                    plan,
+                                    state,
+                                    state["pendingInstruction"],
+                                    teaching_skill=teaching_skill,
                                 ),
                             },
                         }

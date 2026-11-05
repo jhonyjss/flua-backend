@@ -53,10 +53,13 @@ def teach(plan: dict, state: dict) -> str:
     )
 
 
-def instructions(plan: dict, state: dict, action: str) -> str:
+def instructions(
+    plan: dict, state: dict, action: str, *, teaching_skill: str = ""
+) -> str:
     return (
         PERSONA
         + f"\nIdioma de conversa: {state['replyLanguage']}.\n"
+        + (f"\nDidática da aula:\n{teaching_skill}\n" if teaching_skill else "")
         + "Estado e conteúdo confiável:\n"
         + json.dumps({"plan": plan, "state": state}, ensure_ascii=False)
         + "\nAção deste turno: "
