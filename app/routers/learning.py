@@ -75,7 +75,13 @@ async def guided_lesson_access(
 ) -> GuidedLessonAccess:
     """What the app shows on a lesson (read-only); POST /api/realtime/session is what decides."""
     access = await guided_access.get_access(user.id, lessonId)
-    return GuidedLessonAccess(canStart=access.can_start, reason=access.reason, trialLessonId=access.trial_lesson_id)
+    return GuidedLessonAccess(
+        canStart=access.can_start,
+        reason=access.reason,
+        trialLessonId=access.trial_lesson_id,
+        trialsUsed=access.trials_used,
+        trialLimit=guided_access.TRIAL_LIMIT,
+    )
 
 
 @router.get("/conversation/time", response_model=ConversationCreditStatus)

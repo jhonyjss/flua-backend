@@ -111,7 +111,11 @@ class GuidedLessonAccess(BaseModel):
     """What the app shows on a lesson; the session mint is the one that decides."""
     canStart: bool
     reason: Literal["subscriber", "trial_available", "trial_in_progress", "trial_used", "unavailable"]
+    # This lesson when it is one of the trials, otherwise the latest trial taken.
     trialLessonId: str | None = None
+    # Trial lessons the account has taken; None for subscribers and when they could not be read.
+    trialsUsed: int | None = None
+    trialLimit: int
 
 
 class RealtimeSessionResponse(BaseModel):
