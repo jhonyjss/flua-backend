@@ -134,8 +134,8 @@ async def update_returning(
     return rows if isinstance(rows, list) else []
 
 
-async def upsert(table: str, row: dict, on_conflict: str, *, ignore_duplicates: bool = False) -> None:
-    """INSERT, or on conflict update the existing row (ignore_duplicates: keep it as it is)."""
+async def upsert(table: str, row: dict | list[dict], on_conflict: str, *, ignore_duplicates: bool = False) -> None:
+    """INSERT one row or a list, or on conflict update the existing row (ignore_duplicates: keep it as it is)."""
     settings = get_settings()
     _require_config(settings)
     async with http_client(timeout=15.0) as client:
