@@ -306,7 +306,8 @@ def test_lesson_with_goal_tool_carries_registrar_meta_and_stays_client_driven(cl
     assert session["tool_choice"] == "auto"
     vad = session["audio"]["input"]["turn_detection"]
     assert vad["create_response"] is False and vad["interrupt_response"] is False
-    assert "# Metas da aula (o app conduz" in session["instructions"]
+    # Spec changed (flueai docs/flua-tutor/02-medir-e-enxugar.md, 2c): the English lesson has its own prompt.
+    assert "# Como a aula funciona (o app conduz o progresso)" in session["instructions"]
 
 
 def test_goal_tool_is_ignored_outside_the_lesson(client, auth_headers, mock_transport):
