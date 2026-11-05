@@ -1,0 +1,1752 @@
+{
+  "contentVersion": "0.2.0",
+  "lessons": {
+    "fund-u1-l1": {
+      "title": "Cumprimentos",
+      "skill": "se apresentar",
+      "items": [
+        {
+          "id": "c-hello",
+          "english": "Hello, Ana!",
+          "portuguese": "Olá, Ana!",
+          "note": "Hello abre a conversa.",
+          "cue": "Cumprimente a Flua com Hello e o nome dela.",
+          "accepts": [
+            "Hello, Flua!"
+          ]
+        },
+        {
+          "id": "c-goodbye",
+          "english": "Goodbye, Ana!",
+          "portuguese": "Tchau, Ana!",
+          "note": "Goodbye encerra a conversa.",
+          "cue": "Agora se despeça da Flua usando o nome dela.",
+          "accepts": [
+            "Goodbye, Flua!"
+          ]
+        },
+        {
+          "id": "c-i-am",
+          "english": "I am Ana.",
+          "portuguese": "Eu sou Ana.",
+          "note": "I sempre vem com am.",
+          "cue": "Diga quem você é, usando I am e o seu nome.",
+          "accepts": [
+            "I am <seu nome>."
+          ]
+        },
+        {
+          "id": "c-my-name-is",
+          "english": "My name is Ana.",
+          "portuguese": "Meu nome é Ana.",
+          "note": "My name sempre vem com is.",
+          "cue": "Diga o seu nome começando com My name.",
+          "accepts": [
+            "My name is <seu nome>."
+          ]
+        },
+        {
+          "id": "c-whats-your-name",
+          "english": "What’s your name? — My name is Ana.",
+          "portuguese": "Qual é o seu nome? — Meu nome é Ana.",
+          "note": "A resposta começa com My name is ou I am.",
+          "cue": "Pergunte o nome da Flua.",
+          "accepts": [
+            "What’s your name?",
+            "What is your name?"
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Verbo to be: I am e my name is",
+        "rule": "Em inglês, ser e estar são um verbo só: to be. Ele muda conforme de quem falamos: com I (eu), usamos am. Quando falamos do nome, my name, usamos is. Por isso dizemos I am Ana e My name is Ana.",
+        "forms": [
+          {
+            "label": "Com I",
+            "english": "I am Ana.",
+            "portuguese": "Eu sou a Ana."
+          },
+          {
+            "label": "Com my name",
+            "english": "My name is Ana.",
+            "portuguese": "Meu nome é Ana."
+          },
+          {
+            "label": "Pergunta",
+            "english": "What’s your name?",
+            "portuguese": "Qual é o seu nome?"
+          }
+        ],
+        "contrast": "Em português, ser também muda com a pessoa: eu sou, ele é. Em inglês é igual: I am, my name is. A diferença: antes do nome não vai artigo. “Eu sou a Ana” fica só I am Ana.",
+        "mistake": {
+          "wrong": "I is Ana.",
+          "right": "I am Ana.",
+          "why": "Com I, o verbo to be é sempre am. Is fica para quando falamos de outra coisa, como my name."
+        },
+        "recap": "Com I, o verbo to be é am: I am Ana. Com my name, é is: My name is Ana."
+      }
+    },
+    "fund-u1-l2": {
+      "title": "Apresentações",
+      "skill": "se apresentar e dizer “prazer em conhecer”",
+      "items": [
+        {
+          "id": "c-hi",
+          "english": "Hi, Tom!",
+          "portuguese": "Oi, Tom!",
+          "note": "Hi é mais informal que Hello.",
+          "cue": "Cumprimente um amigo de um jeito informal, com o nome dele.",
+          "accepts": [
+            "Hi, <nome>!"
+          ]
+        },
+        {
+          "id": "c-nice-to-meet-you",
+          "english": "Nice to meet you. — Nice to meet you, too.",
+          "portuguese": "Prazer em conhecer você. — Prazer em conhecer você também.",
+          "note": "Para responder, acrescente too no final.",
+          "cue": "A Flua diz: “Nice to meet you.” Responda a ela.",
+          "accepts": [
+            "Nice to meet you, too."
+          ]
+        },
+        {
+          "id": "c-im",
+          "english": "I’m Ana.",
+          "portuguese": "Eu sou a Ana.",
+          "note": "I’m é a forma curta de I am.",
+          "cue": "Apresente-se usando a forma curta, I’m, e o seu nome.",
+          "accepts": [
+            "I’m <seu nome>."
+          ]
+        },
+        {
+          "id": "c-my-name-is",
+          "english": "My name is Lucas.",
+          "portuguese": "Meu nome é Lucas.",
+          "note": "My name sempre vem com is.",
+          "cue": "Diga o seu nome para a Flua, começando com My name.",
+          "accepts": [
+            "My name is <seu nome>."
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Contração: I’m = I am",
+        "rule": "I’m é a forma curta de I am, o verbo to be com I. Essa forma curta se chama contração: o apóstrofo (’) entra no lugar da letra a, que sai. As duas querem dizer “eu sou”, mas na conversa quase todo mundo usa I’m.",
+        "forms": [
+          {
+            "label": "Forma completa",
+            "english": "I am Ana.",
+            "portuguese": "Eu sou a Ana."
+          },
+          {
+            "label": "Contração",
+            "english": "Hi, I’m Ana.",
+            "portuguese": "Oi, eu sou a Ana."
+          },
+          {
+            "label": "Apresentação",
+            "english": "Hi, I’m Lucas. Nice to meet you.",
+            "portuguese": "Oi, eu sou o Lucas. Prazer em conhecer você."
+          }
+        ],
+        "contrast": "Em português também encurtamos ao falar: “está” vira “tá”, mas só na fala. Em inglês, a forma curta também se escreve, com apóstrofo: I am vira I’m.",
+        "mistake": {
+          "wrong": "I’m is Ana.",
+          "right": "I’m Ana.",
+          "why": "I’m já traz o verbo dentro: é I am. Colocar is depois repete o verbo."
+        },
+        "recap": "I’m é a contração de I am; na conversa, use I’m: Hi, I’m Ana."
+      }
+    },
+    "fund-u1-l3": {
+      "title": "Você e eu",
+      "skill": "falar com a outra pessoa usando “you are”",
+      "items": [
+        {
+          "id": "c-you-are",
+          "english": "You are Ana.",
+          "portuguese": "Você é a Ana.",
+          "note": "You sempre vem com are.",
+          "cue": "Diga à Flua quem ela é, usando You are.",
+          "accepts": [
+            "You are Flua."
+          ]
+        },
+        {
+          "id": "c-are-you",
+          "english": "Are you Ana?",
+          "portuguese": "Você é a Ana?",
+          "note": "Na pergunta, are vem antes de you.",
+          "cue": "Pergunte à Flua se ela é a Ana.",
+          "accepts": [
+            "Are you Ana?"
+          ]
+        },
+        {
+          "id": "c-yes-i-am",
+          "english": "Are you Pedro? — Yes, I am.",
+          "portuguese": "Você é o Pedro? — Sim, sou.",
+          "note": "A resposta curta repete I am.",
+          "cue": "A Flua vai perguntar se você é você mesmo, pelo seu nome. Responda que sim, com a resposta curta.",
+          "accepts": [
+            "Yes, I am."
+          ]
+        },
+        {
+          "id": "c-no-im-not",
+          "english": "Are you Carla? — No, I’m not. I’m Ana.",
+          "portuguese": "Você é a Carla? — Não, não sou. Eu sou a Ana.",
+          "note": "Para negar, coloque not depois de I’m.",
+          "cue": "A Flua vai perguntar se você é o Pedro. Diga que não e diga quem você é.",
+          "accepts": [
+            "No, I’m not. I’m <seu nome>."
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Verbo to be: you are",
+        "rule": "Em inglês, ser e estar são um verbo só: to be. Ele muda conforme a pessoa: com I usamos am, com you usamos are. Por isso dizemos I am Ana, mas You are Pedro.",
+        "forms": [
+          {
+            "label": "Afirmativa",
+            "english": "You are Pedro.",
+            "portuguese": "Você é o Pedro."
+          },
+          {
+            "label": "Pergunta",
+            "english": "Are you Pedro?",
+            "portuguese": "Você é o Pedro?"
+          },
+          {
+            "label": "Resposta curta",
+            "english": "Yes, I am. / No, I’m not.",
+            "portuguese": "Sim, sou. / Não, não sou."
+          }
+        ],
+        "contrast": "Em português a pergunta usa a mesma ordem e só muda a entonação. Em inglês, are passa para antes de you: You are… vira Are you…?",
+        "mistake": {
+          "wrong": "You is Pedro.",
+          "right": "You are Pedro.",
+          "why": "Com you, o verbo to be é sempre are. O is é para falar de outra pessoa, e você vai ver isso mais adiante."
+        },
+        "recap": "Com you, o verbo to be é are; na pergunta, are vem antes: Are you…?"
+      }
+    },
+    "fund-u1-l4": {
+      "title": "Conversas curtas",
+      "skill": "ter uma conversa curta do começo ao fim",
+      "items": [
+        {
+          "id": "c-how-are-you",
+          "english": "Hi, Ana! How are you?",
+          "portuguese": "Oi, Ana! Como você está?",
+          "note": "How are you? vem logo depois do cumprimento.",
+          "cue": "Cumprimente a Flua e pergunte como ela está.",
+          "accepts": [
+            "Hi, Flua! How are you?",
+            "Hello! How are you?"
+          ]
+        },
+        {
+          "id": "c-im-fine",
+          "english": "I’m fine, thanks.",
+          "portuguese": "Estou bem, obrigado.",
+          "note": "I’m também quer dizer “eu estou”.",
+          "cue": "A Flua pergunta como você está. Diga que está bem e agradeça.",
+          "accepts": [
+            "I’m fine, thanks.",
+            "I’m fine, thank you."
+          ]
+        },
+        {
+          "id": "c-see-you",
+          "english": "Goodbye! See you later!",
+          "portuguese": "Tchau! Até mais tarde!",
+          "note": "See you é uma despedida informal.",
+          "cue": "Despeça-se da Flua de um jeito informal.",
+          "accepts": [
+            "See you!",
+            "See you later!",
+            "Goodbye! See you later!"
+          ]
+        },
+        {
+          "id": "c-goodbye",
+          "english": "Goodbye, Leo!",
+          "portuguese": "Tchau, Leo!",
+          "note": "Responda a uma despedida com outra.",
+          "cue": "A Flua se despede de você. Responda com outra despedida e o nome dela.",
+          "accepts": [
+            "Goodbye, Flua!"
+          ]
+        },
+        {
+          "id": "c-nice-to-meet-you",
+          "english": "Hi, Maria! Nice to meet you.",
+          "portuguese": "Oi, Maria! Prazer em conhecer você.",
+          "note": "Usamos só no primeiro encontro.",
+          "cue": "Você acabou de conhecer a Maria. Cumprimente e diga que é um prazer conhecê-la.",
+          "accepts": [
+            "Hi, Maria! Nice to meet you."
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Verbo to be como “estar”: How are you?",
+        "rule": "O verbo to be quer dizer ser e também estar. Por isso a pergunta How are you? (Como você está?) usa are, e a resposta usa I’m, a contração de I am: I’m fine, “Estou bem”.",
+        "forms": [
+          {
+            "label": "Pergunta",
+            "english": "How are you?",
+            "portuguese": "Como você está?"
+          },
+          {
+            "label": "Resposta",
+            "english": "I’m fine, thanks.",
+            "portuguese": "Estou bem, obrigado."
+          },
+          {
+            "label": "Ser × estar",
+            "english": "I’m Ana. I’m fine.",
+            "portuguese": "Eu sou a Ana. Eu estou bem."
+          }
+        ],
+        "contrast": "Em português, ser e estar são verbos diferentes. Em inglês, to be faz os dois papéis: I’m Ana (sou) e I’m fine (estou). O resto da frase mostra qual é o sentido.",
+        "mistake": {
+          "wrong": "How you are?",
+          "right": "How are you?",
+          "why": "Na pergunta, are vem antes de you, como em Are you Ana?. O How fica no começo."
+        },
+        "recap": "To be é ser e estar: How are you? — I’m fine, thanks."
+      }
+    },
+    "fund-u2-l1": {
+      "title": "Países",
+      "skill": "dizer de onde você é",
+      "items": [
+        {
+          "id": "c-im-from",
+          "english": "I’m from Brazil.",
+          "portuguese": "Eu sou do Brasil.",
+          "note": "Para origem, use from, nunca of.",
+          "cue": "Diga de onde você é.",
+          "accepts": [
+            "I’m from <país>."
+          ]
+        },
+        {
+          "id": "c-countries",
+          "english": "Brazil, Spain, Germany, Japan",
+          "portuguese": "Brasil, Espanha, Alemanha, Japão",
+          "note": "Nomes de países começam com letra maiúscula.",
+          "cue": "Diga em inglês o nome de dois países.",
+          "accepts": [
+            "<país> and <país>."
+          ]
+        },
+        {
+          "id": "c-where-are-you-from",
+          "english": "Where are you from? — I’m from Brazil.",
+          "portuguese": "De onde você é? — Eu sou do Brasil.",
+          "note": "From aparece na pergunta e na resposta.",
+          "cue": "Pergunte de onde a Flua é.",
+          "accepts": [
+            "Where are you from?"
+          ]
+        },
+        {
+          "id": "c-are-you-from",
+          "english": "Are you from Spain? — No, I’m from Brazil.",
+          "portuguese": "Você é da Espanha? — Não, eu sou do Brasil.",
+          "note": "Na pergunta, are vem antes de you.",
+          "cue": "Pergunte se a Flua é do Japão.",
+          "accepts": [
+            "Are you from Japan?"
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Verbo to be + from: de onde você é",
+        "rule": "Para dizer a origem, usamos o verbo to be + from: I’m from Brazil. From é o “de” de origem. Na pergunta, are vem antes de you, como em Are you Ana?, e o from vai para o fim: Where are you from?",
+        "forms": [
+          {
+            "label": "Afirmativa",
+            "english": "I’m from Brazil.",
+            "portuguese": "Eu sou do Brasil."
+          },
+          {
+            "label": "Pergunta",
+            "english": "Are you from Spain?",
+            "portuguese": "Você é da Espanha?"
+          },
+          {
+            "label": "Pergunta com where",
+            "english": "Where are you from?",
+            "portuguese": "De onde você é?"
+          },
+          {
+            "label": "Resposta",
+            "english": "No, I’m from Brazil.",
+            "portuguese": "Não, eu sou do Brasil."
+          }
+        ],
+        "contrast": "Em português, o “de” vem no começo: “De onde você é?”. Em inglês, where abre a pergunta e o from fica sozinho no fim: Where are you from?",
+        "mistake": {
+          "wrong": "I’m of Brazil.",
+          "right": "I’m from Brazil.",
+          "why": "Of também pode ser “de”, mas não indica origem. Para dizer de onde você vem, use sempre from."
+        },
+        "recap": "Origem é to be + from: I’m from Brazil; na pergunta, Where are you from?"
+      }
+    },
+    "fund-u2-l2": {
+      "title": "Nacionalidades",
+      "skill": "dizer sua nacionalidade",
+      "items": [
+        {
+          "id": "c-brazilian",
+          "english": "I’m Brazilian.",
+          "portuguese": "Eu sou brasileiro. / Eu sou brasileira.",
+          "note": "A mesma palavra serve para homem e mulher.",
+          "cue": "Diga a sua nacionalidade.",
+          "accepts": [
+            "I’m Brazilian."
+          ]
+        },
+        {
+          "id": "c-nationalities",
+          "english": "American, Spanish, Japanese, Mexican",
+          "portuguese": "americano, espanhol, japonês, mexicano",
+          "note": "Em inglês, nacionalidades têm letra maiúscula.",
+          "cue": "Diga em inglês as nacionalidades japonês e mexicano.",
+          "accepts": [
+            "Japanese and Mexican."
+          ]
+        },
+        {
+          "id": "c-country-or-nationality",
+          "english": "I’m from Brazil. I’m Brazilian.",
+          "portuguese": "Eu sou do Brasil. Eu sou brasileiro.",
+          "note": "From + país; I’m + nacionalidade.",
+          "cue": "Diga de onde você é e a sua nacionalidade, em duas frases.",
+          "accepts": [
+            "I’m from Brazil. I’m Brazilian."
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Verbo to be + nacionalidade: I’m Brazilian",
+        "rule": "Depois de I’m, sem from, vem a nacionalidade: I’m Brazilian. Depois de from, vem o país: I’m from Brazil. A nacionalidade é uma palavra só para homem e mulher e começa com letra maiúscula.",
+        "forms": [
+          {
+            "label": "Nacionalidade",
+            "english": "I’m Brazilian.",
+            "portuguese": "Eu sou brasileiro. / Eu sou brasileira."
+          },
+          {
+            "label": "País",
+            "english": "I’m from Brazil.",
+            "portuguese": "Eu sou do Brasil."
+          },
+          {
+            "label": "Pergunta",
+            "english": "Are you American?",
+            "portuguese": "Você é americano?"
+          },
+          {
+            "label": "Resposta",
+            "english": "No, I’m Brazilian.",
+            "portuguese": "Não, eu sou brasileiro."
+          }
+        ],
+        "contrast": "Em português, a nacionalidade tem masculino e feminino e letra minúscula: brasileiro, brasileira. Em inglês, é uma palavra só, com maiúscula: Brazilian.",
+        "mistake": {
+          "wrong": "I’m brazilian.",
+          "right": "I’m Brazilian.",
+          "why": "Em inglês, nacionalidade começa sempre com letra maiúscula, mesmo no meio da frase."
+        },
+        "recap": "Depois de from vem o país; depois de I’m, a nacionalidade: I’m from Brazil. I’m Brazilian."
+      }
+    },
+    "fund-u2-l3": {
+      "title": "Números",
+      "skill": "contar até vinte e dizer seu telefone",
+      "items": [
+        {
+          "id": "c-numbers-1-10",
+          "english": "one, two, three, four, five, six, seven, eight, nine, ten",
+          "portuguese": "um, dois, três, quatro, cinco, seis, sete, oito, nove, dez",
+          "note": "Three começa com o som de th.",
+          "cue": "Conte em inglês de um até cinco.",
+          "accepts": [
+            "One, two, three, four, five."
+          ]
+        },
+        {
+          "id": "c-numbers-11-20",
+          "english": "eleven, twelve, thirteen, fourteen, fifteen… twenty",
+          "portuguese": "onze, doze, treze, catorze, quinze… vinte",
+          "note": "De 13 a 19, os números terminam em teen.",
+          "cue": "Diga em inglês os números 12 e 15.",
+          "accepts": [
+            "Twelve and fifteen."
+          ]
+        },
+        {
+          "id": "c-phone-number",
+          "english": "What’s your phone number? — It’s 98765-4321.",
+          "portuguese": "Qual é o seu telefone? — É 98765-4321.",
+          "note": "Falamos o telefone número por número.",
+          "cue": "Pergunte o número de telefone da Flua.",
+          "accepts": [
+            "What’s your phone number?"
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Verbo to be com coisas: is, What’s e It’s",
+        "rule": "Para falar de uma coisa, como my phone number, o verbo to be é is. Na conversa, ele vira contração: What is fica What’s, e It is fica It’s. It quer dizer “ele” ou “ela” para coisas, como o número.",
+        "forms": [
+          {
+            "label": "Afirmativa",
+            "english": "My phone number is 98765-4321.",
+            "portuguese": "Meu telefone é 98765-4321."
+          },
+          {
+            "label": "Pergunta",
+            "english": "What’s your phone number?",
+            "portuguese": "Qual é o seu telefone?"
+          },
+          {
+            "label": "Resposta",
+            "english": "It’s 98765-4321.",
+            "portuguese": "É 98765-4321."
+          }
+        ],
+        "contrast": "Em português, a resposta pode começar direto no verbo: “É 98765-4321”. Em inglês, sempre vem alguém antes do verbo, então dizemos It’s: It’s 98765-4321.",
+        "mistake": {
+          "wrong": "Is 98765-4321.",
+          "right": "It’s 98765-4321.",
+          "why": "Em inglês, o verbo não começa a frase sozinho. It fica no lugar de “o número”: It’s = It is."
+        },
+        "recap": "Para uma coisa, o verbo to be é is: What’s = What is, It’s = It is."
+      }
+    },
+    "fund-u2-l4": {
+      "title": "Idade",
+      "skill": "dizer sua idade",
+      "items": [
+        {
+          "id": "c-im-years-old",
+          "english": "I’m 25 years old.",
+          "portuguese": "Eu tenho 25 anos.",
+          "note": "Idade vem com I am, nunca com I have.",
+          "cue": "Diga a sua idade com a frase completa.",
+          "accepts": [
+            "I’m <idade> years old."
+          ]
+        },
+        {
+          "id": "c-tens",
+          "english": "twenty, thirty, forty, fifty",
+          "portuguese": "vinte, trinta, quarenta, cinquenta",
+          "note": "As dezenas terminam em ty.",
+          "cue": "Diga em inglês os números 20, 30 e 40.",
+          "accepts": [
+            "Twenty, thirty, forty."
+          ]
+        },
+        {
+          "id": "c-teen-vs-ty",
+          "english": "thirteen (13) — thirty (30)",
+          "portuguese": "treze — trinta",
+          "note": "Teen é longo e forte; ty é curto.",
+          "cue": "Diga em inglês o número 14 e depois o 40.",
+          "accepts": [
+            "Fourteen, forty."
+          ]
+        },
+        {
+          "id": "c-how-old-are-you",
+          "english": "How old are you? — I’m 28.",
+          "portuguese": "Quantos anos você tem? — Tenho 28.",
+          "note": "A resposta pode ser só I’m e o número.",
+          "cue": "Pergunte a idade da Flua.",
+          "accepts": [
+            "How old are you?"
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Idade com o verbo to be: I’m 25 years old",
+        "rule": "Em português a gente tem anos; em inglês, a gente é a idade. Por isso usamos o verbo to be: I am 25 years old. A pergunta segue a mesma ideia: How old are you?, ao pé da letra “Quão velho você é?”.",
+        "forms": [
+          {
+            "label": "Afirmativa",
+            "english": "I’m 25 years old.",
+            "portuguese": "Eu tenho 25 anos."
+          },
+          {
+            "label": "Forma curta",
+            "english": "I’m 25.",
+            "portuguese": "Tenho 25."
+          },
+          {
+            "label": "Pergunta",
+            "english": "How old are you?",
+            "portuguese": "Quantos anos você tem?"
+          }
+        ],
+        "contrast": "Em português usamos ter: “Eu tenho 25 anos”. Em inglês usamos to be: I’m 25. A frase completa termina em years old, mas dá para parar no número.",
+        "mistake": {
+          "wrong": "I have 25 years.",
+          "right": "I’m 25 years old.",
+          "why": "Have é “ter”, mas não serve para idade. Em inglês, idade vem com o verbo to be: I am."
+        },
+        "recap": "Idade usa o verbo to be, não have: I’m 25 years old."
+      }
+    },
+    "fund-u3-l1": {
+      "title": "Família",
+      "skill": "falar sobre a sua família",
+      "items": [
+        {
+          "id": "c-mother-father",
+          "english": "My mother is Ana. My father is Paulo.",
+          "portuguese": "Minha mãe é a Ana. Meu pai é o Paulo.",
+          "note": "Mother é mãe, father é pai.",
+          "cue": "Diga o nome da sua mãe ou do seu pai.",
+          "accepts": [
+            "My mother is <nome>.",
+            "My father is <nome>."
+          ]
+        },
+        {
+          "id": "c-brother-sister",
+          "english": "Leo is my brother. Bia is my sister.",
+          "portuguese": "O Leo é meu irmão. A Bia é minha irmã.",
+          "note": "Brother é irmão, sister é irmã.",
+          "cue": "Fale de um irmão ou irmã: diga o nome e quem a pessoa é para você.",
+          "accepts": [
+            "<nome> is my brother.",
+            "<nome> is my sister."
+          ]
+        },
+        {
+          "id": "c-son-daughter",
+          "english": "Leo is my son. Bia is my daughter.",
+          "portuguese": "O Leo é meu filho. A Bia é minha filha.",
+          "note": "Son é filho, daughter é filha.",
+          "cue": "Imagine que a Bia é sua filha. Diga isso em inglês.",
+          "accepts": [
+            "Bia is my daughter."
+          ]
+        },
+        {
+          "id": "c-my-family-member",
+          "english": "My sister is Bia.",
+          "portuguese": "Minha irmã é a Bia.",
+          "note": "My serve para “meu” e “minha”. Não há “a” antes do nome.",
+          "cue": "Diga o nome de alguém da sua família, começando com My.",
+          "accepts": [
+            "My sister is <nome>.",
+            "My brother is <nome>."
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Possessivo my: meu e minha",
+        "rule": "My quer dizer meu e minha: é a palavra que mostra que alguém é seu. Ela não muda para homem ou mulher: my father, my mother. E, como falamos de uma pessoa só, o verbo to be é is: My mother is Ana.",
+        "forms": [
+          {
+            "label": "Meu",
+            "english": "My father is Paulo.",
+            "portuguese": "Meu pai é o Paulo."
+          },
+          {
+            "label": "Minha",
+            "english": "My sister is Bia.",
+            "portuguese": "Minha irmã é a Bia."
+          },
+          {
+            "label": "Nome primeiro",
+            "english": "Leo is my brother.",
+            "portuguese": "O Leo é meu irmão."
+          }
+        ],
+        "contrast": "Em português dizemos meu pai e minha mãe, e “a Bia”, “o Paulo”. Em inglês, my serve para os dois, e nada vem antes do nome: My sister is Bia.",
+        "mistake": {
+          "wrong": "My sister is the Bia.",
+          "right": "My sister is Bia.",
+          "why": "Em português dizemos “a Bia”. Em inglês, o nome vem sozinho, sem the (o, a) antes dele."
+        },
+        "recap": "My serve para meu e minha, e o nome vem sem “o” ou “a”: My sister is Bia."
+      }
+    },
+    "fund-u3-l2": {
+      "title": "Objetos",
+      "skill": "dizer o nome dos objetos do dia a dia",
+      "items": [
+        {
+          "id": "c-phone-key-bag",
+          "english": "It’s a key.",
+          "portuguese": "É uma chave.",
+          "note": "Phone é celular, key é chave, bag é bolsa.",
+          "cue": "Mostre o seu celular e diga o que ele é.",
+          "accepts": [
+            "It’s a phone."
+          ]
+        },
+        {
+          "id": "c-book-pen",
+          "english": "It’s a pen.",
+          "portuguese": "É uma caneta.",
+          "note": "Book é livro, pen é caneta.",
+          "cue": "Diga que o objeto na sua mão é um livro.",
+          "accepts": [
+            "It’s a book."
+          ]
+        },
+        {
+          "id": "c-table-chair",
+          "english": "It’s a chair.",
+          "portuguese": "É uma cadeira.",
+          "note": "Table é mesa, chair é cadeira.",
+          "cue": "Diga que o objeto à sua frente é uma mesa.",
+          "accepts": [
+            "It’s a table."
+          ]
+        },
+        {
+          "id": "c-it-is-object",
+          "english": "What is it? — It’s a book.",
+          "portuguese": "O que é isso? — É um livro.",
+          "note": "It’s é a forma curta de It is. A frase sempre começa com it.",
+          "cue": "Pergunte à Flua o que é o objeto que ela mostra.",
+          "accepts": [
+            "What is it?"
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Verbo to be: it is (it’s)",
+        "rule": "Para falar de uma coisa, usamos it, a palavra que aponta para o objeto. Com it, o verbo to be é is. Em inglês, a frase precisa de alguém antes do verbo, então “é um celular” vira It is a phone.",
+        "forms": [
+          {
+            "label": "Afirmativa",
+            "english": "It is a phone.",
+            "portuguese": "É um celular."
+          },
+          {
+            "label": "Contração",
+            "english": "It’s a book.",
+            "portuguese": "É um livro."
+          },
+          {
+            "label": "Pergunta",
+            "english": "What is it?",
+            "portuguese": "O que é isso?"
+          }
+        ],
+        "contrast": "Em português, a frase pode começar direto com “é”. Em inglês, não: o it vem antes do is, mesmo sem tradução. “É uma caneta” vira It’s a pen.",
+        "mistake": {
+          "wrong": "Is a phone.",
+          "right": "It’s a phone.",
+          "why": "Em inglês, a frase não começa com is. O it vem sempre antes, mesmo que em português ele não apareça."
+        },
+        "recap": "Para falar de uma coisa, use it is ou it’s, nunca is sozinho: It’s a phone."
+      }
+    },
+    "fund-u3-l3": {
+      "title": "A ou an",
+      "skill": "escolher entre a e an antes de uma palavra",
+      "items": [
+        {
+          "id": "c-apple-egg-orange",
+          "english": "It’s an egg.",
+          "portuguese": "É um ovo.",
+          "note": "Apple, egg, orange e umbrella começam com som de vogal.",
+          "cue": "Diga que a fruta na sua mão é uma maçã.",
+          "accepts": [
+            "It’s an apple."
+          ]
+        },
+        {
+          "id": "c-a-an-meaning",
+          "english": "a book, an apple",
+          "portuguese": "um livro, uma maçã",
+          "note": "A e an querem dizer “um” ou “uma”.",
+          "cue": "Diga em inglês: um livro e uma maçã.",
+          "accepts": [
+            "A book and an apple."
+          ]
+        },
+        {
+          "id": "c-article-an",
+          "english": "It’s an orange.",
+          "portuguese": "É uma laranja.",
+          "note": "Usamos an antes de som de vogal: an apple, an egg.",
+          "cue": "Diga que o objeto é um guarda-chuva.",
+          "accepts": [
+            "It’s an umbrella."
+          ]
+        },
+        {
+          "id": "c-article-a",
+          "english": "It’s a pen.",
+          "portuguese": "É uma caneta.",
+          "note": "Usamos a antes de som de consoante: a book, a phone.",
+          "cue": "Diga que o objeto é um celular.",
+          "accepts": [
+            "It’s a phone."
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Artigos a e an: um, uma",
+        "rule": "A e an são artigos: palavras que querem dizer um ou uma. A escolha depende do som do começo da palavra seguinte: antes de som de consoante, a (a phone); antes de som de vogal, an (an apple).",
+        "forms": [
+          {
+            "label": "Com a",
+            "english": "It’s a pen.",
+            "portuguese": "É uma caneta."
+          },
+          {
+            "label": "Com an",
+            "english": "It’s an apple.",
+            "portuguese": "É uma maçã."
+          },
+          {
+            "label": "Pergunta e resposta",
+            "english": "What is it? — It’s an egg.",
+            "portuguese": "O que é isso? — É um ovo."
+          }
+        ],
+        "contrast": "Em português, um ou uma muda com a palavra: um ovo, uma maçã. Em inglês, a e an mudam só pelo som que vem depois. E o artigo não some: It’s a pen, nunca It’s pen.",
+        "mistake": {
+          "wrong": "It’s pen.",
+          "right": "It’s a pen.",
+          "why": "Em português às vezes tiramos o “um”. Em inglês, para uma coisa só, o a ou an é obrigatório."
+        },
+        "recap": "Use a antes de som de consoante e an antes de som de vogal: a pen, an apple."
+      }
+    },
+    "fund-u3-l4": {
+      "title": "Este e aquele",
+      "skill": "mostrar o que está perto e o que está longe",
+      "items": [
+        {
+          "id": "c-this-near",
+          "english": "This is my phone.",
+          "portuguese": "Este é o meu celular.",
+          "note": "This é para o que está perto de você.",
+          "cue": "Mostre uma coisa sua que está perto e diga que é sua.",
+          "accepts": [
+            "This is my <objeto>."
+          ]
+        },
+        {
+          "id": "c-that-far",
+          "english": "That is your bag.",
+          "portuguese": "Aquela é a sua bolsa.",
+          "note": "That é para o que está longe de você.",
+          "cue": "A bolsa da Flua está longe. Aponte e diga de quem ela é.",
+          "accepts": [
+            "That is your bag."
+          ]
+        },
+        {
+          "id": "c-this-is-my",
+          "english": "This is my sister.",
+          "portuguese": "Esta é a minha irmã.",
+          "note": "This is my apresenta pessoas e coisas. Não há “a” antes de my.",
+          "cue": "Apresente alguém da sua família para a Flua.",
+          "accepts": [
+            "This is my <pessoa>."
+          ]
+        },
+        {
+          "id": "c-what-is-that",
+          "english": "What is that? — That is a key.",
+          "portuguese": "O que é aquilo? — Aquilo é uma chave.",
+          "note": "Também podemos responder com It’s: It’s a key.",
+          "cue": "Pergunte à Flua o que é aquilo, lá longe.",
+          "accepts": [
+            "What is that?"
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "This e that: perto e longe",
+        "rule": "This aponta para o que está perto de você: este, esta. That aponta para o que está longe: aquele, aquela. Os dois não mudam para homem ou mulher, e o verbo to be depois deles é is.",
+        "forms": [
+          {
+            "label": "Perto",
+            "english": "This is my phone.",
+            "portuguese": "Este é o meu celular."
+          },
+          {
+            "label": "Longe",
+            "english": "That is your bag.",
+            "portuguese": "Aquela é a sua bolsa."
+          },
+          {
+            "label": "Pergunta e resposta",
+            "english": "What is that? — That is a key.",
+            "portuguese": "O que é aquilo? — Aquilo é uma chave."
+          }
+        ],
+        "contrast": "Em português temos este, esse e aquele, que mudam para homem e mulher. Em inglês são só dois: this (perto) e that (longe). E não vai “o” ou “a” antes de my.",
+        "mistake": {
+          "wrong": "This is the my sister.",
+          "right": "This is my sister.",
+          "why": "Em português dizemos “a minha irmã”. Em inglês, my já basta: nada de the antes dele."
+        },
+        "recap": "This é para o que está perto e that para o que está longe: This is my phone. That is your bag."
+      }
+    },
+    "fund-u4-l1": {
+      "title": "Verbos do dia",
+      "skill": "dizer o que você faz no dia a dia",
+      "items": [
+        {
+          "id": "c-verb-work-study",
+          "english": "I work and I study.",
+          "portuguese": "Eu trabalho e estudo.",
+          "note": "Work é trabalhar, study é estudar.",
+          "cue": "Diga se você trabalha, estuda ou os dois.",
+          "accepts": [
+            "I work and I study.",
+            "I work.",
+            "I study."
+          ]
+        },
+        {
+          "id": "c-verb-eat-drink",
+          "english": "I eat at home.",
+          "portuguese": "Eu como em casa.",
+          "note": "Eat é comer, drink é beber.",
+          "cue": "Diga onde você come.",
+          "accepts": [
+            "I eat at home.",
+            "I eat at <lugar>."
+          ]
+        },
+        {
+          "id": "c-i-plus-verb",
+          "english": "I study English.",
+          "portuguese": "Eu estudo inglês.",
+          "note": "I + ação, sem am no meio.",
+          "cue": "Diga o que você estuda.",
+          "accepts": [
+            "I study <matéria>."
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Presente simples: I work, I study",
+        "rule": "O presente simples fala do que você faz sempre. Com I, a ação vem logo depois, do jeito que está no dicionário: I work, I study. Não entra am no meio: am é do verbo to be, para dizer o que você é.",
+        "forms": [
+          {
+            "label": "Afirmativa",
+            "english": "I work in an office.",
+            "portuguese": "Eu trabalho num escritório."
+          },
+          {
+            "label": "Outra ação",
+            "english": "I study English.",
+            "portuguese": "Eu estudo inglês."
+          },
+          {
+            "label": "Duas ações",
+            "english": "I work and I study.",
+            "portuguese": "Eu trabalho e estudo."
+          }
+        ],
+        "contrast": "Em português, a ação muda com a pessoa: eu trabalho, ele trabalha. Em inglês, com I, ela fica igual ao dicionário. Mas o I não some: “trabalho” vira I work.",
+        "mistake": {
+          "wrong": "I am work in an office.",
+          "right": "I work in an office.",
+          "why": "Am é do verbo to be (sou, estou). Com uma ação como work, ele não entra: I work."
+        },
+        "recap": "Com I, a ação vem direto, sem am: I work, I study, I eat."
+      }
+    },
+    "fund-u4-l2": {
+      "title": "Rotina",
+      "skill": "contar como é a sua rotina",
+      "items": [
+        {
+          "id": "c-get-up-sleep",
+          "english": "I get up in the morning. I sleep at night.",
+          "portuguese": "Eu levanto de manhã. Eu durmo à noite.",
+          "note": "Get up é levantar, sleep é dormir.",
+          "cue": "Diga em que parte do dia você levanta.",
+          "accepts": [
+            "I get up in the morning."
+          ]
+        },
+        {
+          "id": "c-morning-night",
+          "english": "I work in the morning and I study at night.",
+          "portuguese": "Eu trabalho de manhã e estudo à noite.",
+          "note": "In the morning, mas at night.",
+          "cue": "Diga uma coisa que você faz de manhã e outra que faz à noite.",
+          "accepts": [
+            "I work in the morning and I study at night."
+          ]
+        },
+        {
+          "id": "c-go-to-work",
+          "english": "I go to work.",
+          "portuguese": "Eu vou para o trabalho.",
+          "note": "Go to + lugar. Sem the antes de work.",
+          "cue": "Diga para onde você vai de manhã.",
+          "accepts": [
+            "I go to work.",
+            "I go to school."
+          ]
+        },
+        {
+          "id": "c-every-day",
+          "english": "I work every day.",
+          "portuguese": "Eu trabalho todo dia.",
+          "note": "Every day vai no fim da frase.",
+          "cue": "Diga uma coisa que você faz todo dia.",
+          "accepts": [
+            "I <ação> every day."
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Preposições da rotina: to, in, at",
+        "rule": "Preposições são palavras pequenas que ligam a ação a um lugar ou a uma hora. Depois de go, usamos to para dizer aonde: go to work. Para a parte do dia, dizemos in the morning, mas at night. Elas não seguem o português, então vale guardar o par inteiro.",
+        "forms": [
+          {
+            "label": "Para onde",
+            "english": "I go to work.",
+            "portuguese": "Eu vou para o trabalho."
+          },
+          {
+            "label": "De manhã",
+            "english": "I get up in the morning.",
+            "portuguese": "Eu levanto de manhã."
+          },
+          {
+            "label": "À noite",
+            "english": "I sleep at night.",
+            "portuguese": "Eu durmo à noite."
+          },
+          {
+            "label": "Todo dia",
+            "english": "I work every day.",
+            "portuguese": "Eu trabalho todo dia."
+          }
+        ],
+        "contrast": "Em português dizemos “de manhã” e “à noite”; em inglês também muda: in the morning, at night. E em go to work não vai “o” antes de work, como em “para o trabalho”.",
+        "mistake": {
+          "wrong": "I sleep in the night.",
+          "right": "I sleep at night.",
+          "why": "Pensamos “na noite” e usamos in the. Mas night pede at, sem the: at night. Já morning pede in the."
+        },
+        "recap": "Go pede to, e a parte do dia pede in the morning ou at night: I go to work in the morning."
+      }
+    },
+    "fund-u4-l3": {
+      "title": "Eu gosto",
+      "skill": "dizer do que você gosta",
+      "items": [
+        {
+          "id": "c-i-like",
+          "english": "I like tea.",
+          "portuguese": "Eu gosto de chá.",
+          "note": "I like já inclui o “de”.",
+          "cue": "Diga uma bebida de que você gosta.",
+          "accepts": [
+            "I like <bebida>."
+          ]
+        },
+        {
+          "id": "c-coffee-tea-music",
+          "english": "I like coffee and music.",
+          "portuguese": "Eu gosto de café e de música.",
+          "note": "Coffee é café, tea é chá, music é música, soccer é futebol.",
+          "cue": "Diga duas coisas de que você gosta.",
+          "accepts": [
+            "I like <coisa> and <coisa>."
+          ]
+        },
+        {
+          "id": "c-do-you-like",
+          "english": "Do you like soccer?",
+          "portuguese": "Você gosta de futebol?",
+          "note": "A pergunta começa com Do.",
+          "cue": "Pergunte se a Flua gosta de música.",
+          "accepts": [
+            "Do you like music?"
+          ]
+        },
+        {
+          "id": "c-yes-i-do",
+          "english": "Do you like music? — Yes, I do.",
+          "portuguese": "Você gosta de música? — Gosto, sim.",
+          "note": "Pergunta com Do, resposta com do.",
+          "cue": "A Flua vai perguntar se você gosta de café. Responda que sim, com a resposta curta.",
+          "accepts": [
+            "Yes, I do."
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Like e perguntas com do",
+        "rule": "Like quer dizer gostar de: o “de” já está dentro dele, então I like coffee. Para perguntar com uma ação como like, colocamos do no começo: Do you like coffee? Do não tem tradução: ele só avisa que é uma pergunta.",
+        "forms": [
+          {
+            "label": "Afirmativa",
+            "english": "I like coffee.",
+            "portuguese": "Eu gosto de café."
+          },
+          {
+            "label": "Pergunta",
+            "english": "Do you like music?",
+            "portuguese": "Você gosta de música?"
+          },
+          {
+            "label": "Resposta curta",
+            "english": "Yes, I do.",
+            "portuguese": "Gosto, sim."
+          }
+        ],
+        "contrast": "Em português, a pergunta é a mesma frase com outra entonação. Em inglês, com ações como like, a pergunta começa com do. Com o verbo to be, não: aí é Are you…?",
+        "mistake": {
+          "wrong": "I like of coffee.",
+          "right": "I like coffee.",
+          "why": "Em português é “gostar de”, mas like já carrega o “de”. A coisa vem logo depois: I like coffee."
+        },
+        "recap": "Like já inclui o “de”, e a pergunta começa com do: Do you like coffee? — Yes, I do."
+      }
+    },
+    "fund-u4-l4": {
+      "title": "Eu não gosto",
+      "skill": "dizer do que você não gosta",
+      "items": [
+        {
+          "id": "c-i-dont-like",
+          "english": "I don’t like coffee.",
+          "portuguese": "Eu não gosto de café.",
+          "note": "Don’t vem antes de like. Nunca “I not like”.",
+          "cue": "Diga uma coisa de que você não gosta.",
+          "accepts": [
+            "I don’t like <coisa>."
+          ]
+        },
+        {
+          "id": "c-like-vs-dont-like",
+          "english": "I like tea. I don’t like coffee.",
+          "portuguese": "Eu gosto de chá. Eu não gosto de café.",
+          "note": "A única diferença é don’t.",
+          "cue": "Diga uma coisa de que você gosta e outra de que não gosta.",
+          "accepts": [
+            "I like <coisa>. I don’t like <coisa>."
+          ]
+        },
+        {
+          "id": "c-no-i-dont",
+          "english": "Do you like soccer? — No, I don’t.",
+          "portuguese": "Você gosta de futebol? — Não, não gosto.",
+          "note": "Pergunta com Do, resposta com don’t.",
+          "cue": "A Flua vai perguntar se você gosta de futebol. Responda que não, com a resposta curta.",
+          "accepts": [
+            "No, I don’t."
+          ]
+        },
+        {
+          "id": "c-i-dont-verb",
+          "english": "I don’t work at night.",
+          "portuguese": "Eu não trabalho à noite.",
+          "note": "Don’t nega qualquer ação: work, study, eat.",
+          "cue": "Diga uma coisa que você não faz à noite.",
+          "accepts": [
+            "I don’t <ação> at night."
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Negativa com don’t: I don’t like",
+        "rule": "Para negar uma ação, colocamos don’t antes dela: I don’t like coffee. Don’t é a contração de do not, o mesmo do das perguntas. Ele serve para qualquer ação: like, work, study.",
+        "forms": [
+          {
+            "label": "Afirmativa",
+            "english": "I like tea.",
+            "portuguese": "Eu gosto de chá."
+          },
+          {
+            "label": "Negativa",
+            "english": "I don’t like coffee.",
+            "portuguese": "Eu não gosto de café."
+          },
+          {
+            "label": "Pergunta",
+            "english": "Do you like soccer?",
+            "portuguese": "Você gosta de futebol?"
+          },
+          {
+            "label": "Resposta curta",
+            "english": "No, I don’t.",
+            "portuguese": "Não, não gosto."
+          }
+        ],
+        "contrast": "Em português, basta pôr “não” antes da ação: eu não gosto. Em inglês, not sozinho não nega uma ação: precisa de don’t. Com o verbo to be é diferente: I’m not.",
+        "mistake": {
+          "wrong": "I not like coffee.",
+          "right": "I don’t like coffee.",
+          "why": "Traduzimos o “não” direto e usamos not. Com uma ação como like, o “não” é don’t."
+        },
+        "recap": "Para negar uma ação, use don’t antes dela: I don’t like coffee. No, I don’t."
+      }
+    },
+    "fund-u5-l1": {
+      "title": "No café",
+      "skill": "pedir uma bebida com educação",
+      "items": [
+        {
+          "id": "c-drinks",
+          "english": "Coffee, tea or water?",
+          "portuguese": "Café, chá ou água?",
+          "note": "Coffee, tea, water e juice são as bebidas mais pedidas.",
+          "cue": "Diga em inglês o nome de três bebidas.",
+          "accepts": [
+            "Coffee, tea and water."
+          ]
+        },
+        {
+          "id": "c-please",
+          "english": "A water, please.",
+          "portuguese": "Uma água, por favor.",
+          "note": "Please costuma vir no fim do pedido.",
+          "cue": "Peça um café com educação.",
+          "accepts": [
+            "A coffee, please."
+          ]
+        },
+        {
+          "id": "c-thank-you",
+          "english": "Here’s your juice. — Thank you!",
+          "portuguese": "Aqui está o seu suco. — Obrigado!",
+          "note": "Please é para pedir; thank you é para agradecer.",
+          "cue": "A Flua entrega o seu suco. Agradeça.",
+          "accepts": [
+            "Thank you!",
+            "Thanks!"
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Pedido curto: a + bebida + please",
+        "rule": "Para pedir no balcão, basta dizer o que você quer e acrescentar please no fim: A coffee, please. O a quer dizer “um” ou “uma”. Quando o pedido chega, você agradece com thank you.",
+        "forms": [
+          {
+            "label": "Pedido",
+            "english": "A coffee, please.",
+            "portuguese": "Um café, por favor."
+          },
+          {
+            "label": "Escolha",
+            "english": "Coffee or tea? — Tea, please.",
+            "portuguese": "Café ou chá? — Chá, por favor."
+          },
+          {
+            "label": "Agradecimento",
+            "english": "Here’s your tea. — Thank you!",
+            "portuguese": "Aqui está o seu chá. — Obrigado!"
+          }
+        ],
+        "contrast": "Como em português, o pedido pode ser só “um café, por favor”, sem verbo. A diferença: please costuma ir no fim, e thank you serve para todo mundo, sem obrigado ou obrigada.",
+        "mistake": {
+          "wrong": "I want a coffee.",
+          "right": "A coffee, please.",
+          "why": "I want soa seco, quase uma ordem. No balcão, o jeito educado é dizer a bebida e acrescentar please."
+        },
+        "recap": "Para pedir, diga a bebida e acrescente please no fim; ao receber, agradeça com thank you."
+      }
+    },
+    "fund-u5-l2": {
+      "title": "Comida",
+      "skill": "pedir algo para comer",
+      "items": [
+        {
+          "id": "c-food",
+          "english": "A sandwich and a cake, please.",
+          "portuguese": "Um sanduíche e um bolo, por favor.",
+          "note": "Sandwich, salad, cake e bread aparecem em quase todo cardápio.",
+          "cue": "Peça um sanduíche e uma salada.",
+          "accepts": [
+            "A sandwich and a salad, please."
+          ]
+        },
+        {
+          "id": "c-a-an",
+          "english": "A cake and an apple.",
+          "portuguese": "Um bolo e uma maçã.",
+          "note": "An vem antes de som de vogal; a, antes de consoante.",
+          "cue": "Peça um bolo e uma maçã.",
+          "accepts": [
+            "A cake and an apple, please."
+          ]
+        },
+        {
+          "id": "c-with",
+          "english": "A tea with milk, please.",
+          "portuguese": "Um chá com leite, por favor.",
+          "note": "With quer dizer “com” e vem antes do que você quer acrescentar.",
+          "cue": "Peça um café com leite.",
+          "accepts": [
+            "A coffee with milk, please."
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Artigo a ou an, e with para “com”",
+        "rule": "A e an são artigos: querem dizer “um” ou “uma”. A escolha depende do som que começa a palavra seguinte: som de vogal pede an (an apple), som de consoante pede a (a salad). Para acrescentar algo, use with, “com”.",
+        "forms": [
+          {
+            "label": "Com a",
+            "english": "A salad, please.",
+            "portuguese": "Uma salada, por favor."
+          },
+          {
+            "label": "Com an",
+            "english": "An apple, please.",
+            "portuguese": "Uma maçã, por favor."
+          },
+          {
+            "label": "Com with",
+            "english": "A sandwich with cheese, please.",
+            "portuguese": "Um sanduíche com queijo, por favor."
+          }
+        ],
+        "contrast": "Em português, “um” e “uma” mudam conforme a palavra é masculina ou feminina. Em inglês isso não existe: a e an mudam só pelo som do começo da palavra seguinte.",
+        "mistake": {
+          "wrong": "A apple, please.",
+          "right": "An apple, please.",
+          "why": "Apple começa com som de vogal. Antes de som de vogal, o artigo é an."
+        },
+        "recap": "Antes de som de vogal use an, antes de consoante use a; e “com” é with."
+      }
+    },
+    "fund-u5-l3": {
+      "title": "Eu gostaria",
+      "skill": "fazer pedidos educados com I’d like",
+      "items": [
+        {
+          "id": "c-id-like",
+          "english": "I’d like a sandwich, please.",
+          "portuguese": "Eu gostaria de um sanduíche, por favor.",
+          "note": "I’d like é para pedir; I like é para dizer do que você gosta.",
+          "cue": "Peça uma salada usando I’d like.",
+          "accepts": [
+            "I’d like a salad, please."
+          ]
+        },
+        {
+          "id": "c-can-i-have",
+          "english": "Can I have a water, please?",
+          "portuguese": "Posso pedir uma água, por favor?",
+          "note": "Can I have…? é outro jeito educado de pedir.",
+          "cue": "Peça um suco usando Can I have.",
+          "accepts": [
+            "Can I have a juice, please?"
+          ]
+        },
+        {
+          "id": "c-what-would-you-like",
+          "english": "What would you like? — I’d like a tea, please.",
+          "portuguese": "O que você gostaria? — Eu gostaria de um chá, por favor.",
+          "note": "A pergunta usa would like; a resposta, I’d like.",
+          "cue": "A Flua pergunta o que você gostaria. Peça uma bebida.",
+          "accepts": [
+            "I’d like a <bebida>, please."
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Pedido educado: I’d like e Can I have",
+        "rule": "I’d é a contração, a forma curta, de I would. I’d like quer dizer “eu gostaria” e é o jeito educado de pedir. Depois de like vem direto o que você quer. Can I have…? é outra forma: “posso pedir…?”.",
+        "forms": [
+          {
+            "label": "Pedido",
+            "english": "I’d like a coffee, please.",
+            "portuguese": "Eu gostaria de um café, por favor."
+          },
+          {
+            "label": "Pergunta",
+            "english": "Can I have a tea, please?",
+            "portuguese": "Posso pedir um chá, por favor?"
+          },
+          {
+            "label": "No restaurante",
+            "english": "What would you like? — I’d like a salad.",
+            "portuguese": "O que você gostaria? — Eu gostaria de uma salada."
+          }
+        ],
+        "contrast": "Em português dizemos “gostaria de um café”. Em inglês o “de” some: I’d like a coffee. E cuidado: I like, sem o ’d, é “eu gosto” e não serve para pedir.",
+        "mistake": {
+          "wrong": "I like a coffee, please.",
+          "right": "I’d like a coffee, please.",
+          "why": "I like é “eu gosto”. Para pedir, use I’d like, “eu gostaria”: o ’d faz toda a diferença."
+        },
+        "recap": "Para pedir com educação, use I’d like ou Can I have, sem traduzir o “de”."
+      }
+    },
+    "fund-u5-l4": {
+      "title": "Quanto custa?",
+      "skill": "perguntar o preço e pagar",
+      "items": [
+        {
+          "id": "c-how-much",
+          "english": "How much is the cake?",
+          "portuguese": "Quanto custa o bolo?",
+          "note": "How much is…? pergunta o preço de uma coisa.",
+          "cue": "Pergunte quanto custa o sanduíche.",
+          "accepts": [
+            "How much is the sandwich?"
+          ]
+        },
+        {
+          "id": "c-dollars",
+          "english": "It’s six dollars. ($6)",
+          "portuguese": "Custa seis dólares.",
+          "note": "O número vem antes de dollars, e dollars leva s quando é mais de um.",
+          "cue": "Diga que custa oito dólares.",
+          "accepts": [
+            "It’s eight dollars."
+          ]
+        },
+        {
+          "id": "c-here-you-go",
+          "english": "That’s ten dollars. — Here you go.",
+          "portuguese": "São dez dólares. — Aqui está.",
+          "note": "Here you go acompanha a entrega do dinheiro ou do cartão.",
+          "cue": "A Flua diz que são cinco dólares. Entregue o dinheiro e responda.",
+          "accepts": [
+            "Here you go."
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Preço: How much is…?",
+        "rule": "Para saber o preço, pergunte How much is…?, “quanto custa…?”. How much quer dizer “quanto”, e is é o verbo to be para uma coisa só. Na resposta, o número vem antes de dollars: It’s five dollars.",
+        "forms": [
+          {
+            "label": "Pergunta",
+            "english": "How much is the coffee?",
+            "portuguese": "Quanto custa o café?"
+          },
+          {
+            "label": "Pergunta curta",
+            "english": "How much is it?",
+            "portuguese": "Quanto custa?"
+          },
+          {
+            "label": "Resposta",
+            "english": "It’s five dollars.",
+            "portuguese": "Custa cinco dólares."
+          },
+          {
+            "label": "Pagamento",
+            "english": "That’s eight dollars. — Here you go.",
+            "portuguese": "São oito dólares. — Aqui está."
+          }
+        ],
+        "contrast": "Em português usamos o verbo custar. Em inglês, o mais comum é o verbo to be: How much is it?, palavra por palavra “quanto é?”. O número vem antes de dollars, como em “cinco dólares”.",
+        "mistake": {
+          "wrong": "How much costs the coffee?",
+          "right": "How much is the coffee?",
+          "why": "Pensar em “quanto custa” leva a costs. O jeito simples e certo é usar is, o verbo to be: How much is…?"
+        },
+        "recap": "Para perguntar o preço, use How much is…?; para pagar, entregue dizendo Here you go."
+      }
+    },
+    "fund-u6-l1": {
+      "title": "Primeiro papo",
+      "skill": "começar uma conversa e se apresentar",
+      "items": [
+        {
+          "id": "c-chat-how-are-you",
+          "english": "How are you? — I’m fine, thanks. And you?",
+          "portuguese": "Como você está? — Estou bem, obrigado. E você?",
+          "note": "Responda como está e devolva a pergunta com And you?",
+          "cue": "A Flua pergunta como você está. Responda e devolva a pergunta.",
+          "accepts": [
+            "I’m fine, thanks. And you?"
+          ]
+        },
+        {
+          "id": "c-chat-introduce",
+          "english": "Hi, I’m Ana. What’s your name?",
+          "portuguese": "Oi, eu sou a Ana. Qual é o seu nome?",
+          "note": "My name é o seu nome; your name é o nome da outra pessoa.",
+          "cue": "Apresente-se e pergunte o nome da Flua.",
+          "accepts": [
+            "Hi, I’m <seu nome>. What’s your name?"
+          ]
+        },
+        {
+          "id": "c-chat-nice-to-meet-you",
+          "english": "Nice to meet you! — Nice to meet you too!",
+          "portuguese": "Prazer em te conhecer! — Prazer em te conhecer também!",
+          "note": "Na resposta, acrescente too no fim.",
+          "cue": "A Flua diz que é um prazer te conhecer. Responda a ela.",
+          "accepts": [
+            "Nice to meet you too!"
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Revisão: verbo to be, my e your",
+        "rule": "Para se apresentar, você usa o verbo to be: I’m, a forma curta de I am, e How are you? para a outra pessoa. My é “meu” ou “minha”; your é “seu” ou “sua”. Por isso: My name is Ana. What’s your name?",
+        "forms": [
+          {
+            "label": "Apresentação",
+            "english": "Hi, my name is Pedro.",
+            "portuguese": "Oi, meu nome é Pedro."
+          },
+          {
+            "label": "Pergunta",
+            "english": "What’s your name?",
+            "portuguese": "Qual é o seu nome?"
+          },
+          {
+            "label": "Como vai",
+            "english": "How are you? — I’m fine, thanks. And you?",
+            "portuguese": "Como você está? — Estou bem, obrigado. E você?"
+          },
+          {
+            "label": "Resposta",
+            "english": "Nice to meet you! — Nice to meet you too!",
+            "portuguese": "Prazer em te conhecer! — Prazer em te conhecer também!"
+          }
+        ],
+        "contrast": "Em português, “sou” e “estou” são verbos diferentes. Em inglês, os dois são o verbo to be: I’m Ana (sou) e I’m fine (estou).",
+        "mistake": {
+          "wrong": "What’s you name?",
+          "right": "What’s your name?",
+          "why": "You é “você”; your é “seu” ou “sua”. Antes de name, use your."
+        },
+        "recap": "Para se apresentar, use I’m e my name; para a outra pessoa, are you e your name."
+      }
+    },
+    "fund-u6-l2": {
+      "title": "De onde você é",
+      "skill": "falar de onde você é e da sua família",
+      "items": [
+        {
+          "id": "c-chat-where-from",
+          "english": "Where are you from? — I’m from Brazil.",
+          "portuguese": "De onde você é? — Eu sou do Brasil.",
+          "note": "Pergunta e resposta usam from.",
+          "cue": "A Flua pergunta de onde você é. Responda.",
+          "accepts": [
+            "I’m from <país>."
+          ]
+        },
+        {
+          "id": "c-chat-and-you",
+          "english": "I’m from Brazil. And you?",
+          "portuguese": "Eu sou do Brasil. E você?",
+          "note": "And you? devolve a pergunta sem repetir tudo.",
+          "cue": "Diga de onde você é e devolva a pergunta para a Flua.",
+          "accepts": [
+            "I’m from <país>. And you?"
+          ]
+        },
+        {
+          "id": "c-chat-family",
+          "english": "I have a brother and a sister.",
+          "portuguese": "Eu tenho um irmão e uma irmã.",
+          "note": "Para dizer quem você tem na família, use I have.",
+          "cue": "Diga quem você tem na sua família.",
+          "accepts": [
+            "I have a brother.",
+            "I have a sister and a brother."
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Revisão: I’m from… e I have…",
+        "rule": "Para dizer de onde você é, use o verbo to be com from: I’m from Brazil. Na pergunta, from vai para o fim: Where are you from? Para falar da família, use have, “ter”: I have a brother.",
+        "forms": [
+          {
+            "label": "Pergunta",
+            "english": "Where are you from?",
+            "portuguese": "De onde você é?"
+          },
+          {
+            "label": "Resposta",
+            "english": "I’m from Brazil. And you?",
+            "portuguese": "Eu sou do Brasil. E você?"
+          },
+          {
+            "label": "Família",
+            "english": "I have a brother and a sister.",
+            "portuguese": "Eu tenho um irmão e uma irmã."
+          },
+          {
+            "label": "Apresentar",
+            "english": "This is my sister.",
+            "portuguese": "Esta é a minha irmã."
+          }
+        ],
+        "contrast": "Em português, o “de” abre a pergunta: “De onde você é?”. Em inglês, from fica no fim: Where are you from? E “ter” é have, como em I have a sister.",
+        "mistake": {
+          "wrong": "I’m of Brazil.",
+          "right": "I’m from Brazil.",
+          "why": "Para origem, o “de” do português vira from, não of."
+        },
+        "recap": "Origem se diz com from, que fica no fim da pergunta; família se conta com I have."
+      }
+    },
+    "fund-u6-l3": {
+      "title": "Seu dia",
+      "skill": "falar da sua rotina e do que você gosta",
+      "items": [
+        {
+          "id": "c-chat-do-you-like",
+          "english": "Do you like music? — Yes, I do.",
+          "portuguese": "Você gosta de música? — Sim, gosto.",
+          "note": "A pergunta começa com Do; a resposta curta também usa do.",
+          "cue": "Pergunte se a Flua gosta de café.",
+          "accepts": [
+            "Do you like coffee?"
+          ]
+        },
+        {
+          "id": "c-chat-short-answers",
+          "english": "Do you work? — No, I don’t.",
+          "portuguese": "Você trabalha? — Não.",
+          "note": "Yes, I do e No, I don’t respondem perguntas com Do.",
+          "cue": "A Flua vai perguntar se você trabalha. Responda com a resposta curta.",
+          "accepts": [
+            "Yes, I do.",
+            "No, I don’t."
+          ]
+        },
+        {
+          "id": "c-chat-routine",
+          "english": "I get up at seven and I work in the morning.",
+          "portuguese": "Eu me levanto às sete e trabalho de manhã.",
+          "note": "De manhã = in the morning; à noite = at night.",
+          "cue": "Diga a que horas você levanta e o que faz de manhã.",
+          "accepts": [
+            "I get up at <hora> and I <ação> in the morning."
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Revisão: do nas perguntas e respostas curtas",
+        "rule": "Com ações como like, work e study, a pergunta começa com do, uma palavrinha sem tradução que avisa que é pergunta: Do you like tea? A resposta curta repete o do: Yes, I do. / No, I don’t. Na afirmativa, a ação vem direto: I work.",
+        "forms": [
+          {
+            "label": "Afirmativa",
+            "english": "I work in the morning.",
+            "portuguese": "Eu trabalho de manhã."
+          },
+          {
+            "label": "Pergunta",
+            "english": "Do you like music?",
+            "portuguese": "Você gosta de música?"
+          },
+          {
+            "label": "Resposta curta",
+            "english": "Yes, I do. / No, I don’t.",
+            "portuguese": "Sim, gosto. / Não, não gosto."
+          },
+          {
+            "label": "Negativa",
+            "english": "I don’t work on Sunday.",
+            "portuguese": "Eu não trabalho no domingo."
+          }
+        ],
+        "contrast": "Em português, a pergunta é a mesma frase com outra entonação: “Você gosta de música?”. Em inglês, com ações, do entra no começo. Com o verbo to be, não: Are you from Brazil?",
+        "mistake": {
+          "wrong": "Are you like music?",
+          "right": "Do you like music?",
+          "why": "Are é o verbo to be. Para perguntar sobre ações como like e work, a pergunta começa com do."
+        },
+        "recap": "Perguntas com ações começam com do, e a resposta curta repete: Yes, I do ou No, I don’t."
+      }
+    },
+    "fund-u6-l4": {
+      "title": "No restaurante",
+      "skill": "fazer um pedido do começo ao fim",
+      "items": [
+        {
+          "id": "c-chat-order",
+          "english": "What can I get you? — I’d like a sandwich, please.",
+          "portuguese": "O que vai querer? — Eu gostaria de um sanduíche, por favor.",
+          "note": "Responda com I’d like ou Can I have, e feche com please.",
+          "cue": "A Flua é a garçonete e pergunta o que você vai querer. Faça o seu pedido.",
+          "accepts": [
+            "I’d like a <comida>, please.",
+            "Can I have a <comida>, please?"
+          ]
+        },
+        {
+          "id": "c-chat-pay",
+          "english": "How much is it? — That’s ten dollars. — Here you go.",
+          "portuguese": "Quanto custa? — São dez dólares. — Aqui está.",
+          "note": "Pergunte o preço, entenda o número e entregue o pagamento.",
+          "cue": "Pergunte quanto custa a conta.",
+          "accepts": [
+            "How much is it?"
+          ]
+        },
+        {
+          "id": "c-chat-closing",
+          "english": "Have a nice day! — You too!",
+          "portuguese": "Tenha um bom dia! — Pra você também!",
+          "note": "You too devolve o desejo; me too quer dizer “eu também”.",
+          "cue": "A Flua deseja um bom dia para você. Responda.",
+          "accepts": [
+            "You too!"
+          ]
+        }
+      ],
+      "grammar": {
+        "name": "Revisão: I’d like, a/an e How much is it?",
+        "rule": "Um pedido completo junta o que você já aprendeu: peça com I’d like ou Can I have, use a ou an antes da comida (an antes de som de vogal) e feche com please. Para pagar, pergunte How much is it? e entregue dizendo Here you go.",
+        "forms": [
+          {
+            "label": "Pedido",
+            "english": "I’d like an orange juice, please.",
+            "portuguese": "Eu gostaria de um suco de laranja, por favor."
+          },
+          {
+            "label": "Pergunta",
+            "english": "Can I have a coffee, please?",
+            "portuguese": "Posso pedir um café, por favor?"
+          },
+          {
+            "label": "Preço",
+            "english": "How much is it? — That’s twelve dollars.",
+            "portuguese": "Quanto custa? — São doze dólares."
+          },
+          {
+            "label": "Despedida",
+            "english": "Have a nice day! — You too!",
+            "portuguese": "Tenha um bom dia! — Pra você também!"
+          }
+        ],
+        "contrast": "Em português, “suco de laranja” tem a fruta no fim. Em inglês, a fruta vem antes e o “de” some: orange juice. O mesmo “de” some em I’d like a salad.",
+        "mistake": {
+          "wrong": "I’d like a orange juice.",
+          "right": "I’d like an orange juice, please.",
+          "why": "Orange começa com som de vogal, então o artigo é an. E please no fim deixa o pedido educado."
+        },
+        "recap": "Peça com I’d like ou Can I have, use an antes de som de vogal e feche com please."
+      }
+    }
+  }
+}

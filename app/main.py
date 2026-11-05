@@ -13,6 +13,7 @@ from app.routers import (
     app_progress,
     avatar,
     billing,
+    classroom,
     health,
     learning,
     learning_intel,
@@ -109,7 +110,9 @@ def create_app() -> FastAPI:
     @app.on_event("shutdown")
     async def _close_http_clients() -> None:
         from app.core.http import close_http_clients
+        from app.services.classroom.realtime_connection import shutdown
 
+        await shutdown()
         await close_http_clients()
 
     app.include_router(health.router)
@@ -117,6 +120,7 @@ def create_app() -> FastAPI:
     app.include_router(avatar.router)
     app.include_router(voice.router)
     app.include_router(realtime.router)
+    app.include_router(classroom.router)
     app.include_router(billing.router)
     app.include_router(revenuecat.router)
     app.include_router(users.router)

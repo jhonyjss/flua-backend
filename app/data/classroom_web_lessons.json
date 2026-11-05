@@ -1,0 +1,3375 @@
+{
+  "contentVersion": "web-2026-11-05",
+  "lessons": {
+    "beginner-01-verb-to-be": {
+      "title": "Lição 1: Verbo To Be",
+      "skill": "Apresentar-se usando \"I am...\"",
+      "items": [
+        {
+          "id": "verb_to_be_intro",
+          "english": "My name is Maria.",
+          "portuguese": "Meu nome é Maria.",
+          "note": "Use \"I am\" (or \"I'm\") with the pronoun \"I\". Never say \"I is\" or \"I are\".",
+          "cue": "Apresentando-se",
+          "accepts": []
+        },
+        {
+          "id": "verb_to_be_professions",
+          "english": "I am a student.",
+          "portuguese": "Eu sou um estudante.",
+          "note": "Use \"a\" before consonant sounds (a teacher) and \"an\" before vowel sounds (an engineer).",
+          "cue": "Falando Sobre Profissões",
+          "accepts": []
+        },
+        {
+          "id": "verb_to_be_nationalities",
+          "english": "I am Brazilian.",
+          "portuguese": "Eu sou brasileiro(a).",
+          "note": "Nationalities are adjectives. \"I am Brazilian\" NOT \"I am a Brazilian\" (without article is more common).",
+          "cue": "Países e Nacionalidades",
+          "accepts": []
+        },
+        {
+          "id": "verb_to_be_descriptions",
+          "english": "This is a book.",
+          "portuguese": "Isto é um livro.",
+          "note": "Use \"is\" for singular things (it is, this is) and \"are\" for plural (these are, they are).",
+          "cue": "Descrevendo Coisas",
+          "accepts": []
+        },
+        {
+          "id": "verb_to_be_questions",
+          "english": "Are you a student?",
+          "portuguese": "Você é estudante?",
+          "note": "For yes/no questions, put the verb before the subject: \"Are you...?\" \"Is she...?\"",
+          "cue": "Fazendo Perguntas",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-02-personal-pronouns": {
+      "title": "Lição 2: Pronomes Pessoais",
+      "skill": "Aprender todos os pronomes de sujeito (I, you, he, she, it, we, they)",
+      "items": [
+        {
+          "id": "pronouns_subject",
+          "english": "I like coffee.",
+          "portuguese": "Eu gosto de café.",
+          "note": "Subject pronouns come BEFORE the verb: I eat, She runs, They work.",
+          "cue": "Pronomes de Sujeito",
+          "accepts": []
+        },
+        {
+          "id": "pronouns_object",
+          "english": "Can you help me?",
+          "portuguese": "Você pode me ajudar?",
+          "note": "Object pronouns come AFTER the verb: Call me, Help her, Tell them.",
+          "cue": "Pronomes de Objeto",
+          "accepts": []
+        },
+        {
+          "id": "pronouns_possessive",
+          "english": "My name is João.",
+          "portuguese": "Meu nome é João.",
+          "note": "Possessive adjectives come BEFORE nouns: my book, her car, their house.",
+          "cue": "Adjetivos Possessivos",
+          "accepts": []
+        },
+        {
+          "id": "pronouns_practice",
+          "english": "I have a sister. She is younger than me.",
+          "portuguese": "Eu tenho uma irmã. Ela é mais nova que eu.",
+          "note": "Mix subject, object, and possessive pronouns naturally in sentences.",
+          "cue": "Falando Sobre Pessoas",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-03-simple-present": {
+      "title": "Lição 3: Presente Simples",
+      "skill": "Formar frases afirmativas (I work, She works)",
+      "items": [
+        {
+          "id": "simple_present_affirmative",
+          "english": "I drink coffee every morning.",
+          "portuguese": "Eu bebo café toda manhã.",
+          "note": "Add -s or -es to the verb for he/she/it: work→works, go→goes, watch→watches.",
+          "cue": "Frases Afirmativas",
+          "accepts": []
+        },
+        {
+          "id": "simple_present_negative",
+          "english": "I don't eat meat.",
+          "portuguese": "Eu não como carne.",
+          "note": "Use DON'T (do not) for I/you/we/they. Use DOESN'T (does not) for he/she/it. The main verb stays in base form!",
+          "cue": "Frases Negativas",
+          "accepts": []
+        },
+        {
+          "id": "simple_present_questions",
+          "english": "Do you speak English?",
+          "portuguese": "Você fala inglês?",
+          "note": "Start with DO/DOES + subject + base verb. For Wh- questions: Wh-word + do/does + subject + verb.",
+          "cue": "Perguntas",
+          "accepts": []
+        },
+        {
+          "id": "simple_present_frequency",
+          "english": "I always brush my teeth before bed.",
+          "portuguese": "Eu sempre escovo os dentes antes de dormir.",
+          "note": "Frequency adverbs go BEFORE the main verb but AFTER the verb \"to be\": I always work. / I am always happy.",
+          "cue": "Advérbios de Frequência",
+          "accepts": []
+        },
+        {
+          "id": "simple_present_routine",
+          "english": "I wake up at 6:30 and take a shower.",
+          "portuguese": "Eu acordo às 6:30 e tomo banho.",
+          "note": "Connect sentences with \"then\", \"after that\", \"before\": I wake up, then I take a shower.",
+          "cue": "Descrevendo Sua Rotina",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-04-articles": {
+      "title": "Lição 4: Artigos",
+      "skill": "Entender quando usar 'a' vs 'an'",
+      "items": [
+        {
+          "id": "articles_a_an",
+          "english": "I have a cat.",
+          "portuguese": "Eu tenho um gato.",
+          "note": "Use 'a' before consonant SOUNDS. Use 'an' before vowel SOUNDS. It's about the sound, not the letter!",
+          "cue": "A vs An",
+          "accepts": []
+        },
+        {
+          "id": "articles_the",
+          "english": "The book you gave me is great.",
+          "portuguese": "O livro que você me deu é ótimo.",
+          "note": "Use 'the' when both speaker and listener know which specific thing you mean, or for unique things.",
+          "cue": "The (Artigo Definido)",
+          "accepts": []
+        },
+        {
+          "id": "articles_zero",
+          "english": "I love music.",
+          "portuguese": "Eu amo música. (em geral)",
+          "note": "No article for: general/abstract concepts, languages, meals, sports, and some places (school, work, home).",
+          "cue": "Sem Artigo (Artigo Zero)",
+          "accepts": []
+        },
+        {
+          "id": "articles_practice",
+          "english": "I exercise in the morning.",
+          "portuguese": "Eu me exercito de manhã.",
+          "note": "Some expressions have fixed article usage - memorize them as phrases!",
+          "cue": "Expressões Comuns",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-05-numbers": {
+      "title": "Lição 5: Números e Quantidades",
+      "skill": "Contar de 1 a 100 em inglês",
+      "items": [
+        {
+          "id": "numbers_cardinal",
+          "english": "I have two brothers.",
+          "portuguese": "Eu tenho dois irmãos.",
+          "note": "Numbers 1-12 are unique. 13-19 end in -teen. Tens (20,30...) end in -ty. Combine: twenty-one, thirty-five.",
+          "cue": "Números Cardinais (1-100)",
+          "accepts": []
+        },
+        {
+          "id": "numbers_ordinal",
+          "english": "This is my first English class.",
+          "portuguese": "Esta é minha primeira aula de inglês.",
+          "note": "Most ordinals add -th (fourth, fifth). Exceptions: first (1st), second (2nd), third (3rd). Use for dates and order.",
+          "cue": "Números Ordinais",
+          "accepts": []
+        },
+        {
+          "id": "numbers_quantities",
+          "english": "I need some help.",
+          "portuguese": "Eu preciso de alguma ajuda.",
+          "note": "SOME for affirmative, ANY for questions/negatives. MUCH for uncountable, MANY for countable nouns.",
+          "cue": "Some, Any, Much, Many",
+          "accepts": []
+        },
+        {
+          "id": "numbers_prices",
+          "english": "How much is this shirt?",
+          "portuguese": "Quanto custa esta camisa?",
+          "note": "For prices: \"ten dollars\" or \"ten ninety-nine\" ($10.99). Ask: \"How much is/are...?\" or \"How much does it cost?\"",
+          "cue": "Falando Sobre Preços",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-06-likes-dislikes": {
+      "title": "Lição 6: Gostos e Preferências",
+      "skill": "Expressar gostos usando 'I like' + substantivo/verbo-ing",
+      "items": [
+        {
+          "id": "likes_expressing",
+          "english": "I like chocolate.",
+          "portuguese": "Eu gosto de chocolate.",
+          "note": "LIKE + noun (I like coffee) OR LIKE + verb-ing (I like reading). Never 'I like to read' for general habits.",
+          "cue": "Expressando Gostos",
+          "accepts": []
+        },
+        {
+          "id": "likes_dislikes",
+          "english": "I don't like spicy food.",
+          "portuguese": "Eu não gosto de comida apimentada.",
+          "note": "DON'T LIKE is polite. HATE is strong. CAN'T STAND is very strong. Use verb-ing after these.",
+          "cue": "Expressando Desgostos",
+          "accepts": []
+        },
+        {
+          "id": "likes_favorites",
+          "english": "My favorite food is pizza.",
+          "portuguese": "Minha comida favorita é pizza.",
+          "note": "Use 'favorite' + noun OR 'prefer X to Y' for comparisons. 'Best' = superlative for opinions.",
+          "cue": "Falando Sobre Favoritos",
+          "accepts": []
+        },
+        {
+          "id": "likes_asking",
+          "english": "Do you like your job?",
+          "portuguese": "Você gosta do seu trabalho?",
+          "note": "Use 'Do you like...?' for yes/no. Use 'What kind of... do you like?' for open questions.",
+          "cue": "Perguntando Sobre Preferências",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-07-present-continuous": {
+      "title": "Lição 7: Presente Contínuo",
+      "skill": "Formar presente contínuo: am/is/are + verbo-ing",
+      "items": [
+        {
+          "id": "continuous_forming",
+          "english": "I am learning English right now.",
+          "portuguese": "Eu estou aprendendo inglês agora.",
+          "note": "Structure: Subject + am/is/are + verb-ING. I am, You/We/They are, He/She/It is.",
+          "cue": "Formando o Presente Contínuo",
+          "accepts": []
+        },
+        {
+          "id": "continuous_negative",
+          "english": "I'm not feeling well today.",
+          "portuguese": "Não estou me sentindo bem hoje.",
+          "note": "Negative: am/is/are + NOT + verb-ing. Questions: Am/Is/Are + subject + verb-ing?",
+          "cue": "Negativo e Perguntas",
+          "accepts": []
+        },
+        {
+          "id": "continuous_now",
+          "english": "Right now I am practicing English.",
+          "portuguese": "Agora eu estou praticando inglês.",
+          "note": "Time markers: right now, at the moment, currently, today, this week. Use 'Look!' and 'Listen!' to draw attention.",
+          "cue": "Ações Neste Momento",
+          "accepts": []
+        },
+        {
+          "id": "continuous_vs_simple",
+          "english": "I work at a bank. (routine) / I am working at home today. (temporary)",
+          "portuguese": "Eu trabalho em um banco. / Estou trabalhando em casa hoje.",
+          "note": "Simple Present = habits, routines, facts. Present Continuous = happening NOW, temporary situations.",
+          "cue": "Simples vs Contínuo",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-08-cafe-ordering": {
+      "title": "Lição 8: Pedindo em uma Cafeteria",
+      "skill": "Usar frases educadas: 'I would like...', 'Can I have...?'",
+      "items": [
+        {
+          "id": "cafe_ordering",
+          "english": "I would like a large coffee, please.",
+          "portuguese": "Eu gostaria de um café grande, por favor.",
+          "note": "Polite order: 'I would like...' (formal) > 'Can I have...?' > 'I'll have...' (casual). Always add 'please'!",
+          "cue": "Pedindo Educadamente",
+          "accepts": []
+        },
+        {
+          "id": "cafe_customize",
+          "english": "A large cappuccino with almond milk, please.",
+          "portuguese": "Um cappuccino grande com leite de amêndoa, por favor.",
+          "note": "Specify: size (small/medium/large) + drink + 'with' + extras. 'No' + item you don't want.",
+          "cue": "Personalizando Seu Pedido",
+          "accepts": []
+        },
+        {
+          "id": "cafe_paying",
+          "english": "How much is a large latte?",
+          "portuguese": "Quanto custa um latte grande?",
+          "note": "'How much is/are...?' for prices. 'Can I pay by...?' for payment method. 'Here you go' when giving money/card.",
+          "cue": "Perguntando e Pagando",
+          "accepts": []
+        },
+        {
+          "id": "cafe_situations",
+          "english": "Excuse me, is this seat taken?",
+          "portuguese": "Com licença, este lugar está ocupado?",
+          "note": "'Is this...?' to ask about availability. 'We're out of...' = sold out. 'Can I get...?' for extra requests.",
+          "cue": "Situações Comuns em Cafeteria",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-09-describing-people": {
+      "title": "Lição 9: Descrevendo Pessoas",
+      "skill": "Descrever aparência física (altura, cabelo, olhos)",
+      "items": [
+        {
+          "id": "describe_appearance",
+          "english": "My brother is tall and slim.",
+          "portuguese": "Meu irmão é alto e magro.",
+          "note": "Use 'is/are' for appearance: He IS tall. She IS beautiful. For age: 'in his/her 20s/30s/40s'.",
+          "cue": "Aparência Física",
+          "accepts": []
+        },
+        {
+          "id": "describe_hair_eyes",
+          "english": "My mother has long black hair.",
+          "portuguese": "Minha mãe tem cabelo preto longo.",
+          "note": "Use 'HAS' for hair and eyes: She HAS long hair. He HAS brown eyes. (Not 'is'!)",
+          "cue": "Cabelo e Olhos",
+          "accepts": []
+        },
+        {
+          "id": "describe_personality",
+          "english": "My best friend is very outgoing.",
+          "portuguese": "Meu melhor amigo é muito extrovertido.",
+          "note": "Personality uses 'is/are': She IS friendly. Add 'very', 'really', 'quite', 'a bit' for intensity.",
+          "cue": "Traços de Personalidade",
+          "accepts": []
+        },
+        {
+          "id": "describe_asking",
+          "english": "What does your sister look like?",
+          "portuguese": "Como é a aparência da sua irmã?",
+          "note": "'What does X look like?' = physical. 'What is X like?' = personality. 'Who does X look like?' = resemblance.",
+          "cue": "Perguntando Sobre Pessoas",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-10-family": {
+      "title": "Lição 10: Família e Relacionamentos",
+      "skill": "Aprender todo o vocabulário de membros da família",
+      "items": [
+        {
+          "id": "family_immediate",
+          "english": "I have one brother and two sisters.",
+          "portuguese": "Eu tenho um irmão e duas irmãs.",
+          "note": "Possessive + family: MY mother, YOUR father, HIS sister. 'Older/younger than me' for age comparison.",
+          "cue": "Família Imediata",
+          "accepts": []
+        },
+        {
+          "id": "family_extended",
+          "english": "My grandfather passed away last year.",
+          "portuguese": "Meu avô faleceu ano passado.",
+          "note": "Family from parent's side: uncle = parent's brother, aunt = parent's sister. Cousin = uncle/aunt's child.",
+          "cue": "Família Estendida",
+          "accepts": []
+        },
+        {
+          "id": "family_inlaws",
+          "english": "My husband and I have been married for 10 years.",
+          "portuguese": "Meu marido e eu somos casados há 10 anos.",
+          "note": "'In-law' = through marriage: mother-in-law (spouse's mother), brother-in-law (spouse's brother or sister's husband).",
+          "cue": "Sogros e Relacionamentos",
+          "accepts": []
+        },
+        {
+          "id": "family_talking",
+          "english": "Do you have any brothers or sisters?",
+          "portuguese": "Você tem irmãos ou irmãs?",
+          "note": "'Do you have...?' for questions. 'There are X people in my family.' 'We are close' = good relationship.",
+          "cue": "Falando Sobre Família",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-11-basic-questions": {
+      "title": "Lição 11: Perguntas Básicas",
+      "skill": "Usar todas as palavras interrogativas corretamente",
+      "items": [
+        {
+          "id": "questions_what_where",
+          "english": "What is your favorite food?",
+          "portuguese": "Qual é sua comida favorita?",
+          "note": "WHAT asks about things/information. WHERE asks about places/location. Structure: Question word + auxiliary + subject + verb.",
+          "cue": "What e Where",
+          "accepts": []
+        },
+        {
+          "id": "questions_when_who",
+          "english": "When is the meeting?",
+          "portuguese": "Quando é a reunião?",
+          "note": "WHEN asks about time/dates. WHO asks about people. 'Who' as subject doesn't need 'do/does': Who lives here?",
+          "cue": "When e Who",
+          "accepts": []
+        },
+        {
+          "id": "questions_why_how",
+          "english": "Why are you learning English?",
+          "portuguese": "Por que você está aprendendo inglês?",
+          "note": "WHY asks for reasons (answer with 'because...'). HOW asks about manner, method, or state.",
+          "cue": "Why e How",
+          "accepts": []
+        },
+        {
+          "id": "questions_combinations",
+          "english": "What kind of books do you read?",
+          "portuguese": "Que tipo de livros você lê?",
+          "note": "Combinations: What + noun (What time?), How + adjective (How old?), How + adverb (How often?).",
+          "cue": "Combinações de Palavras Interrogativas",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-12-telling-time": {
+      "title": "Lição 12: Dizendo as Horas e Horários",
+      "skill": "Dizer as horas usando o'clock, half past, quarter to/past",
+      "items": [
+        {
+          "id": "time_telling",
+          "english": "It's three o'clock.",
+          "portuguese": "São três horas.",
+          "note": "o'clock = exact hour. Half past = :30. Quarter past = :15. Quarter to = :45. Or use digital: 'ten fifteen'.",
+          "cue": "Dizendo as Horas",
+          "accepts": []
+        },
+        {
+          "id": "time_asking",
+          "english": "Excuse me, what time is it?",
+          "portuguese": "Com licença, que horas são?",
+          "note": "'What time is it?' or 'Do you have the time?' to ask current time. 'What time does X...?' for schedules.",
+          "cue": "Perguntando as Horas",
+          "accepts": []
+        },
+        {
+          "id": "time_prepositions",
+          "english": "I wake up at 7 AM.",
+          "portuguese": "Eu acordo às 7 da manhã.",
+          "note": "AT for exact times (at 9:00). IN for parts of day/months/years. ON for days/dates.",
+          "cue": "Preposições de Tempo",
+          "accepts": []
+        },
+        {
+          "id": "time_schedules",
+          "english": "I work from 9 to 5.",
+          "portuguese": "Eu trabalho das 9 às 5.",
+          "note": "'From X to Y' for duration. 'I'm free at/after...' for availability. Use days with 'on' (on Monday).",
+          "cue": "Horários Diários",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-13-prepositions-of-place": {
+      "title": "Lição 13: Preposições de Lugar",
+      "skill": "Usar in, on, at corretamente",
+      "items": [
+        {
+          "id": "prep_place_in_on_at",
+          "english": "The cat is in the box.",
+          "portuguese": "O gato está na caixa.",
+          "note": "IN = inside enclosed spaces and countries/cities. ON = on surfaces or on top of something. AT = specific points and locations.",
+          "cue": "In, On, At - Preposições Básicas",
+          "accepts": []
+        },
+        {
+          "id": "prep_place_under_behind",
+          "english": "The cat is under the bed.",
+          "portuguese": "O gato está embaixo da cama.",
+          "note": "UNDER = below something. BEHIND = at the back of something. IN FRONT OF = facing something or before it.",
+          "cue": "Under, Behind, In Front Of",
+          "accepts": []
+        },
+        {
+          "id": "prep_place_next_between",
+          "english": "My house is next to the supermarket.",
+          "portuguese": "Minha casa fica ao lado do supermercado.",
+          "note": "NEXT TO = beside something, very close. BETWEEN = in the middle of two things. ACROSS FROM = on the opposite side.",
+          "cue": "Next To, Between, Across From",
+          "accepts": []
+        },
+        {
+          "id": "prep_place_above_below",
+          "english": "The painting is above the sofa.",
+          "portuguese": "O quadro está acima do sofá.",
+          "note": "ABOVE = higher than something. BELOW = lower than something. OVER = from one side to the other, higher. THROUGH = from inside one side to the other.",
+          "cue": "Above, Below, Over, Through",
+          "accepts": []
+        },
+        {
+          "id": "prep_place_asking_questions",
+          "english": "Where is the bathroom?",
+          "portuguese": "Onde fica o banheiro?",
+          "note": "Use WHERE IS for singular items and WHERE ARE for plural items or people. Prepositions answer WHERE questions.",
+          "cue": "Perguntando Sobre Locais",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-14-weather-and-seasons": {
+      "title": "Lição 14: Tempo e Estações",
+      "skill": "Descrever as condições do tempo",
+      "items": [
+        {
+          "id": "weather_conditions_basic",
+          "english": "It is sunny today.",
+          "portuguese": "Está ensolarado hoje.",
+          "note": "Use \"It is\" or \"It's\" with weather adjectives. Weather is usually described with impersonal \"it\".",
+          "cue": "Condições Básicas de Tempo",
+          "accepts": []
+        },
+        {
+          "id": "weather_advanced_conditions",
+          "english": "It is snowing in the south of Brazil.",
+          "portuguese": "Está nevando no sul do Brasil.",
+          "note": "Some weather expressions use \"there is\" for specific weather events. \"It is\" for general conditions.",
+          "cue": "Mais Palavras de Tempo",
+          "accepts": []
+        },
+        {
+          "id": "seasons_vocabulary",
+          "english": "Spring is my favorite season.",
+          "portuguese": "A primavera é minha estação favorita.",
+          "note": "Season names can be used with \"the\" (the spring, the summer) or without. Seasons tell us expected weather.",
+          "cue": "As Quatro Estações",
+          "accepts": []
+        },
+        {
+          "id": "weather_asking_questions",
+          "english": "What is the weather like today?",
+          "portuguese": "Como está o tempo hoje?",
+          "note": "\"What is the weather like?\" is the standard way to ask about weather. \"How is the weather?\" is also common.",
+          "cue": "Perguntando Sobre o Tempo",
+          "accepts": []
+        },
+        {
+          "id": "weather_temperature",
+          "english": "The temperature is 28 degrees Celsius.",
+          "portuguese": "A temperatura é de 28 graus Celsius.",
+          "note": "Use temperature with degrees. Celsius is common in Brazil. Adjectives like warm, cool, cold describe how temperature feels.",
+          "cue": "Temperatura e Estações",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-15-shopping-and-money": {
+      "title": "Lição 15: Compras e Dinheiro",
+      "skill": "Perguntar sobre preços usando \"How much?\"",
+      "items": [
+        {
+          "id": "shopping_demonstratives",
+          "english": "This dress is beautiful.",
+          "portuguese": "Este vestido é bonito.",
+          "note": "THIS/THESE for near you, THAT/THOSE for far away. THIS/THAT are singular, THESE/THOSE are plural.",
+          "cue": "This, That, These, Those",
+          "accepts": []
+        },
+        {
+          "id": "shopping_prices_money",
+          "english": "How much is this shirt?",
+          "portuguese": "Quanto custa esta camiseta?",
+          "note": "Use \"How much is/are\" to ask about price. Brazil uses Real (R$). Numbers are essential for prices.",
+          "cue": "Preços e Moeda",
+          "accepts": []
+        },
+        {
+          "id": "shopping_vocabulary",
+          "english": "I want to buy a pair of shoes.",
+          "portuguese": "Quero comprar um par de sapatos.",
+          "note": "Shopping vocabulary includes clothing sizes, colors, and store locations. Questions are common in shopping.",
+          "cue": "Vocabulário de Compras",
+          "accepts": []
+        },
+        {
+          "id": "shopping_at_store",
+          "english": "Can I help you?",
+          "portuguese": "Posso ajudá-lo?",
+          "note": "Polite phrases are important when shopping. Questions start with question words or auxiliary verbs.",
+          "cue": "Na Loja",
+          "accepts": []
+        },
+        {
+          "id": "shopping_comparing",
+          "english": "This shirt is cheaper than that one.",
+          "portuguese": "Esta camiseta é mais barata que aquela.",
+          "note": "Use comparative adjectives to compare. \"This is...\" vs \"That is...\" for comparison.",
+          "cue": "Comparando Preços",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-16-food-and-cooking": {
+      "title": "Lição 16: Comida e Culinária",
+      "skill": "Nomear alimentos comuns em inglês",
+      "items": [
+        {
+          "id": "food_basic_vocabulary",
+          "english": "I like eating chicken and rice.",
+          "portuguese": "Gosto de comer frango e arroz.",
+          "note": "Food words can be countable (an apple, two oranges) or uncountable (rice, milk, water).",
+          "cue": "Alimentos Comuns",
+          "accepts": []
+        },
+        {
+          "id": "food_countable_uncountable",
+          "english": "I have an orange.",
+          "portuguese": "Tenho uma laranja.",
+          "note": "Countable: use \"a/an\", \"one/two/three\", \"How many?\" Uncountable: use \"some\", \"How much?\"",
+          "cue": "Nomes Contáveis e Incontáveis",
+          "accepts": []
+        },
+        {
+          "id": "food_meals_times",
+          "english": "Breakfast is my favorite meal.",
+          "portuguese": "O café da manhã é minha refeição favorita.",
+          "note": "Meal names are: breakfast, lunch, dinner (or supper). Time is expressed with \"at\" + time.",
+          "cue": "Refeições e Horas",
+          "accepts": []
+        },
+        {
+          "id": "food_preferences_cooking",
+          "english": "I love Brazilian food.",
+          "portuguese": "Adoro comida brasileira.",
+          "note": "Express preferences with \"I like\", \"I love\", \"I prefer\". Cooking verbs include \"cook\", \"bake\", \"grill\".",
+          "cue": "Preferências de Comida e Culinária",
+          "accepts": []
+        },
+        {
+          "id": "food_ordering_restaurant",
+          "english": "I would like the feijoada, please.",
+          "portuguese": "Gostaria do feijão, por favor.",
+          "note": "\"I would like\" is polite for ordering. \"Can I have\" is casual. \"Would you like\" asks what someone wants.",
+          "cue": "No Restaurante",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-17-directions-and-transport": {
+      "title": "Lição 17: Direções e Transportes",
+      "skill": "Pedir e dar direções",
+      "items": [
+        {
+          "id": "directions_basic",
+          "english": "Turn left at the next street.",
+          "portuguese": "Vire à esquerda na próxima rua.",
+          "note": "Imperative form for directions: turn, go, stop, wait. These are command forms without a subject.",
+          "cue": "Direções Básicas",
+          "accepts": []
+        },
+        {
+          "id": "directions_landmarks",
+          "english": "The store is near the bank.",
+          "portuguese": "A loja fica perto do banco.",
+          "note": "Landmarks help give directions. Use \"near\", \"across from\", \"next to\", \"past\", \"in front of\", \"behind\".",
+          "cue": "Pontos de Referência e Locais",
+          "accepts": []
+        },
+        {
+          "id": "directions_asking",
+          "english": "Excuse me, where is the station?",
+          "portuguese": "Com licença, onde fica a estação?",
+          "note": "Use \"Where is...?\", \"How do I get to...?\", \"Is it far?\" Polite phrases like \"Excuse me\" are important.",
+          "cue": "Pedindo Direções",
+          "accepts": []
+        },
+        {
+          "id": "transport_vehicles",
+          "english": "I take the bus to work every day.",
+          "portuguese": "Pego o ônibus para o trabalho todos os dias.",
+          "note": "Use \"take\" for public transport (bus, train, taxi). Use \"ride\" for bike/motorcycle. Use \"drive\" for cars.",
+          "cue": "Veículos e Transportes",
+          "accepts": []
+        },
+        {
+          "id": "transport_public",
+          "english": "Where is the nearest bus stop?",
+          "portuguese": "Onde é o ponto de ônibus mais próximo?",
+          "note": "Questions about public transport use \"Where\", \"When\", \"How much\". Statements use imperatives or polite requests.",
+          "cue": "Usando Transportes Públicos",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-18-health-and-body": {
+      "title": "Lição 18: Saúde e Partes do Corpo",
+      "skill": "Nomear partes do corpo",
+      "items": [
+        {
+          "id": "body_parts_head",
+          "english": "My head hurts.",
+          "portuguese": "Minha cabeça dói.",
+          "note": "Body parts use \"my\", \"your\", \"his\", \"her\". Pain is expressed with \"have a\" + problem (have a headache).",
+          "cue": "Cabeça e Rosto",
+          "accepts": []
+        },
+        {
+          "id": "body_parts_torso_limbs",
+          "english": "I have strong arms.",
+          "portuguese": "Tenho braços fortes.",
+          "note": "Body parts are countable. Use \"arm/hand/leg/foot\". Pain uses \"have a\" + pain type.",
+          "cue": "Torso e Membros",
+          "accepts": []
+        },
+        {
+          "id": "health_problems",
+          "english": "I have a cold and a fever.",
+          "portuguese": "Tenho um resfriado e febre.",
+          "note": "\"Have a\" for temporary illnesses (cold, fever, flu). \"Feel\" for symptoms (sick, dizzy, tired).",
+          "cue": "Problemas de Saúde e Sintomas",
+          "accepts": []
+        },
+        {
+          "id": "health_doctor_visit",
+          "english": "I need to see a doctor.",
+          "portuguese": "Preciso ver um médico.",
+          "note": "Doctor conversations use \"I have\", \"I need\", \"I feel\". Doctor uses imperatives: take, rest, come back.",
+          "cue": "Visitando o Médico",
+          "accepts": []
+        },
+        {
+          "id": "health_wellness",
+          "english": "I exercise every morning.",
+          "portuguese": "Faço exercício toda manhã.",
+          "note": "Health habits use imperatives (sleep more, eat healthy) or present simple (I exercise, I feel healthy).",
+          "cue": "Saúde e Bem-estar",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-19-hobbies-and-free-time": {
+      "title": "Lição 19: Hobbies e Tempo Livre",
+      "skill": "Nomear hobbies comuns",
+      "items": [
+        {
+          "id": "hobbies_basic",
+          "english": "I like reading books in the evening.",
+          "portuguese": "Gosto de ler livros à noite.",
+          "note": "Hobbies use \"like/enjoy/love\" + verb-ing (reading, painting). Or use \"play\" for instruments/games.",
+          "cue": "Hobbies Comuns",
+          "accepts": []
+        },
+        {
+          "id": "hobbies_sports",
+          "english": "I play soccer with my friends.",
+          "portuguese": "Jogo futebol com meus amigos.",
+          "note": "\"Play\" for team sports (soccer, tennis, basketball). \"Do\" for activities (yoga, karate). \"Go\" for water sports.",
+          "cue": "Esportes e Jogos",
+          "accepts": []
+        },
+        {
+          "id": "hobbies_indoor",
+          "english": "I like playing video games.",
+          "portuguese": "Gosto de jogar videogames.",
+          "note": "Indoor activities commonly use \"like/enjoy\" + verb-ing. Can also use \"play\" for games and \"watch\" for movies/TV.",
+          "cue": "Atividades Internas",
+          "accepts": []
+        },
+        {
+          "id": "hobbies_outdoor",
+          "english": "I love going hiking on weekends.",
+          "portuguese": "Adoro fazer trilhas nos fins de semana.",
+          "note": "\"Go\" + verb-ing for outdoor activities (go hiking, go camping, go fishing). Can also use \"like + verb-ing\".",
+          "cue": "Atividades ao Ar Livre",
+          "accepts": []
+        },
+        {
+          "id": "hobbies_preferences",
+          "english": "What is your favorite hobby?",
+          "portuguese": "Qual é seu hobby favorito?",
+          "note": "Questions: \"What is your hobby?\", \"Do you like...?\", \"What do you do...?\" Answers: \"I like...\", \"My hobby is...\", \"I prefer...\"",
+          "cue": "Falando Sobre Preferências",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-20-clothes-and-fashion": {
+      "title": "Lição 20: Roupas e Moda",
+      "skill": "Nomear peças de roupa em inglês",
+      "items": [
+        {
+          "id": "clothes_basics",
+          "english": "I am wearing a blue shirt.",
+          "portuguese": "Estou vestindo uma camiseta azul.",
+          "note": "Clothing nouns are countable: a shirt, a dress, pants (always plural), a hat. Use \"wear\" and \"have\".",
+          "cue": "Peças Básicas de Roupa",
+          "accepts": []
+        },
+        {
+          "id": "clothes_colors",
+          "english": "I prefer white shirts.",
+          "portuguese": "Prefiro camisetas brancas.",
+          "note": "Color adjectives come before the noun: a blue shirt, red pants, yellow shoes. Most colors are singular.",
+          "cue": "Cores e Roupas",
+          "accepts": []
+        },
+        {
+          "id": "clothes_types",
+          "english": "He wears a formal suit to work.",
+          "portuguese": "Ele usa um traje formal para o trabalho.",
+          "note": "Clothing types follow noun rules. Some are countable (a suit, a shirt), some always plural (jeans, shorts).",
+          "cue": "Diferentes Tipos de Roupas",
+          "accepts": []
+        },
+        {
+          "id": "clothes_what_wearing",
+          "english": "What are you wearing today?",
+          "portuguese": "O que você está vestindo hoje?",
+          "note": "Use \"am/is/are wearing\" for present description. \"Have on\" is also common. Include details: color, type, fit.",
+          "cue": "O Que Você Está Vestindo?",
+          "accepts": []
+        },
+        {
+          "id": "clothes_accessories",
+          "english": "She wears a nice belt with her dresses.",
+          "portuguese": "Ela usa um cinto bonito com seus vestidos.",
+          "note": "Accessories follow normal noun rules. \"Wear\" can be used for most accessories (wear a watch, wear jewelry).",
+          "cue": "Acessórios e Estilo",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-21-daily-routine-extended": {
+      "title": "Lição 21: Rotina Diária Estendida",
+      "skill": "Descrever rotinas diárias em detalhes",
+      "items": [
+        {
+          "id": "routine_morning",
+          "english": "I wake up at 6 o'clock every morning.",
+          "portuguese": "Acordo às 6 horas toda manhã.",
+          "note": "Morning routines use present simple. Include specific times with \"at\" + time (at 6 am, at 7:30 am).",
+          "cue": "Rotina Matinal",
+          "accepts": []
+        },
+        {
+          "id": "routine_afternoon_evening",
+          "english": "I have lunch at noon.",
+          "portuguese": "Almoço ao meio-dia.",
+          "note": "Afternoon and evening routines follow the same structure. Use specific times and present simple.",
+          "cue": "Rotina da Tarde e Noite",
+          "accepts": []
+        },
+        {
+          "id": "routine_frequency_always",
+          "english": "I always wake up at 6 am.",
+          "portuguese": "Sempre acordo às 6 da manhã.",
+          "note": "Frequency adverbs: always (100%), usually (80%), sometimes (50%), rarely (10%), never (0%). Place after \"be\" or before main verb.",
+          "cue": "Advérbios de Frequência",
+          "accepts": []
+        },
+        {
+          "id": "routine_weekday_weekend",
+          "english": "On weekdays I work from 9 to 5.",
+          "portuguese": "Nos dias de semana trabalho de 9 a 5.",
+          "note": "Use \"on\" before day/period: on weekdays, on Monday, on the weekend. Can use present simple for both routines.",
+          "cue": "Dias de Semana vs. Fins de Semana",
+          "accepts": []
+        },
+        {
+          "id": "routine_time_expressions",
+          "english": "First I wake up, then I shower.",
+          "portuguese": "Primeiro acordo, depois tomo um banho.",
+          "note": "Use sequence words: first, then, after that, later, finally. Use time periods: in the morning, in the afternoon, in the evening.",
+          "cue": "Expressões de Tempo e Transições",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-22-house-and-home": {
+      "title": "Lição 22: Casa e Lar",
+      "skill": "Nomear cômodos em uma casa",
+      "items": [
+        {
+          "id": "house_rooms",
+          "english": "I have a living room with a big sofa.",
+          "portuguese": "Tenho uma sala de estar com um sofá grande.",
+          "note": "Room names are compound nouns (living room, dining room) or single nouns (bedroom, kitchen, bath). Use \"in the\" + room.",
+          "cue": "Cômodos em uma Casa",
+          "accepts": []
+        },
+        {
+          "id": "house_furniture",
+          "english": "I have a comfortable sofa in my living room.",
+          "portuguese": "Tenho um sofá confortável na minha sala.",
+          "note": "Furniture nouns can be countable (a chair, two tables) or uncountable (furniture). Use \"have\" or \"there is/are\".",
+          "cue": "Móveis",
+          "accepts": []
+        },
+        {
+          "id": "house_there_is_are",
+          "english": "There is a big kitchen in my house.",
+          "portuguese": "Há uma cozinha grande na minha casa.",
+          "note": "\"There is\" for singular, \"there are\" for plural. Negative: \"there is not/isn't\", \"there are not/aren't\".",
+          "cue": "There Is e There Are",
+          "accepts": []
+        },
+        {
+          "id": "house_household_items",
+          "english": "The refrigerator is in the kitchen.",
+          "portuguese": "O refrigerador fica na cozinha.",
+          "note": "Household items are countable nouns. Use \"have\", \"there is/are\", or describe with colors/size.",
+          "cue": "Itens Domésticos",
+          "accepts": []
+        },
+        {
+          "id": "house_describing",
+          "english": "My house is small but comfortable.",
+          "portuguese": "Minha casa é pequena mas confortável.",
+          "note": "Combine \"there is/are\", adjectives, and \"have\" to give complete house descriptions.",
+          "cue": "Descrevendo Sua Casa",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-23-animals-and-nature": {
+      "title": "Lição 23: Animais e Natureza",
+      "skill": "Nomear animais comuns",
+      "items": [
+        {
+          "id": "animals_pets",
+          "english": "I have a dog named Max.",
+          "portuguese": "Tenho um cachorro chamado Max.",
+          "note": "Pet names are countable nouns. Use \"have\" with pets. Describe them with adjectives.",
+          "cue": "Animais de Estimação",
+          "accepts": []
+        },
+        {
+          "id": "animals_wild",
+          "english": "Lions are strong and powerful.",
+          "portuguese": "Leões são fortes e poderosos.",
+          "note": "Wild animal names are countable. Use present simple to describe their characteristics.",
+          "cue": "Animais Selvagens",
+          "accepts": []
+        },
+        {
+          "id": "animals_characteristics",
+          "english": "Dogs are friendly and loyal.",
+          "portuguese": "Cachorros são amigáveis e leais.",
+          "note": "Use adjectives to describe animals. Can use \"is\" or \"are\" for physical descriptions.",
+          "cue": "Descrevendo Animais",
+          "accepts": []
+        },
+        {
+          "id": "animals_nature_environment",
+          "english": "The forest is full of animals and plants.",
+          "portuguese": "A floresta é cheia de animais e plantas.",
+          "note": "Nature vocabulary is mostly uncountable or used in singular/plural accordingly.",
+          "cue": "Natureza e Ambiente",
+          "accepts": []
+        },
+        {
+          "id": "animals_preferences",
+          "english": "What is your favorite animal?",
+          "portuguese": "Qual é seu animal favorito?",
+          "note": "Express preferences: \"I like\", \"I prefer\", \"My favorite is\". Questions: \"What is your favorite animal?\"",
+          "cue": "Preferências de Animais",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-24-celebrations-and-holidays": {
+      "title": "Lição 24: Celebrações e Feriados",
+      "skill": "Nomear feriados principais",
+      "items": [
+        {
+          "id": "celebrations_birthday",
+          "english": "Happy birthday to you!",
+          "portuguese": "Feliz aniversário para você!",
+          "note": "Birthday expressions use \"It is my birthday\", \"I am turning\" + age. \"Happy birthday\" is an exclamation.",
+          "cue": "Aniversários",
+          "accepts": []
+        },
+        {
+          "id": "celebrations_holidays",
+          "english": "Christmas is on December 25th.",
+          "portuguese": "Natal é em 25 de dezembro.",
+          "note": "Holiday names are nouns. Use \"on\" + holiday (on Christmas). Some are always capitalized.",
+          "cue": "Feriados Principais",
+          "accepts": []
+        },
+        {
+          "id": "celebrations_parties",
+          "english": "We are throwing a party tonight.",
+          "portuguese": "Estamos dando uma festa esta noite.",
+          "note": "Party vocabulary uses nouns and verbs: have a party, throw a party, attend a party, celebrate.",
+          "cue": "Festas e Eventos",
+          "accepts": []
+        },
+        {
+          "id": "celebrations_invitations",
+          "english": "Would you like to come to my party?",
+          "portuguese": "Você gostaria de vir à minha festa?",
+          "note": "Invitations use \"Would you like...?\", \"Can you...?\", \"I invite you...\". Responses: \"Yes, I can\", \"No, I cannot\".",
+          "cue": "Convites",
+          "accepts": []
+        },
+        {
+          "id": "celebrations_traditions",
+          "english": "We exchange gifts on Christmas.",
+          "portuguese": "Trocamos presentes no Natal.",
+          "note": "Traditions use present simple or present continuous. \"We exchange gifts\", \"They are celebrating\".",
+          "cue": "Tradições e Costumes",
+          "accepts": []
+        }
+      ]
+    },
+    "beginner-25-review-real-conversations": {
+      "title": "Lição 25: Revisão Iniciante e Conversas Reais",
+      "skill": "Revisar toda a gramática e vocabulário iniciante",
+      "items": [
+        {
+          "id": "review_meeting_people",
+          "english": "Hi, nice to meet you. What is your name?",
+          "portuguese": "Oi, prazer em conhecê-lo. Como é seu nome?",
+          "note": "Review: verb to be, present simple, questions, personal pronouns, simple sentences with am/is/are.",
+          "cue": "Conhecendo Pessoas - Diálogos Completos",
+          "accepts": []
+        },
+        {
+          "id": "review_daily_interactions",
+          "english": "Good morning! How are you today?",
+          "portuguese": "Bom dia! Como você está hoje?",
+          "note": "Review: greetings, present simple (how are you), telling time, politeness phrases.",
+          "cue": "Interações Diárias",
+          "accepts": []
+        },
+        {
+          "id": "review_restaurants_shopping",
+          "english": "What do you recommend? The feijoada is very good.",
+          "portuguese": "O que você recomenda? O feijão é muito bom.",
+          "note": "Review: polite requests (I would like), questions (How much?), countable/uncountable nouns, money terms.",
+          "cue": "Restaurantes, Compras e Dinheiro",
+          "accepts": []
+        },
+        {
+          "id": "review_directions_travel",
+          "english": "Excuse me, where is the nearest supermarket?",
+          "portuguese": "Com licença, onde fica o supermercado mais próximo?",
+          "note": "Review: directions (left, right, straight), prepositions of place, transportation verbs, polite questions.",
+          "cue": "Pedindo Direções e Viagens",
+          "accepts": []
+        },
+        {
+          "id": "review_conversations_all",
+          "english": "Let me tell you about my day. This morning I woke up at 6 am.",
+          "portuguese": "Deixe-me contar sobre meu dia. Esta manhã acordei às 6 da manhã.",
+          "note": "Review: past simple (had, met, discussed), present continuous, present simple, sequence words.",
+          "cue": "Conversas Completas",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-13-past-simple-regular": {
+      "title": "Lição 13: Passado Simples (Verbos Regulares)",
+      "skill": "Formar o passado simples com verbos regulares (-ed)",
+      "items": [
+        {
+          "id": "past_simple_intro",
+          "english": "I worked until 6 PM yesterday.",
+          "portuguese": "Eu trabalhei até às 18h ontem.",
+          "note": "Add -ed to the base verb. For verbs ending in -e, add only -d. For verbs ending in consonant + y, change y to i and add -ed.",
+          "cue": "Formando o Passado Simples",
+          "accepts": []
+        },
+        {
+          "id": "past_simple_pronunciation",
+          "english": "I walked (/wɔːkt/) to the office.",
+          "portuguese": "Eu caminhei até o escritório.",
+          "note": "After voiceless sounds (k, p, s, f, sh, ch) = /t/. After voiced sounds = /d/. After t or d = /ɪd/.",
+          "cue": "Pronunciando Terminações -ED",
+          "accepts": []
+        },
+        {
+          "id": "past_simple_negative",
+          "english": "I didnt work yesterday.",
+          "portuguese": "Eu não trabalhei ontem.",
+          "note": "Use \"did not\" (didn't) + base verb (NOT -ed). The verb returns to base form after \"didn't\".",
+          "cue": "Frases Negativas",
+          "accepts": []
+        },
+        {
+          "id": "past_simple_questions",
+          "english": "Did you enjoy the party?",
+          "portuguese": "Você gostou da festa?",
+          "note": "Did + subject + base verb. For Wh- questions: Wh-word + did + subject + base verb.",
+          "cue": "Fazendo Perguntas",
+          "accepts": []
+        },
+        {
+          "id": "past_simple_time_expressions",
+          "english": "I started this job last year.",
+          "portuguese": "Eu comecei esse emprego ano passado.",
+          "note": "Common time expressions: yesterday, last (week/month/year), ago, in (year), on (day/date).",
+          "cue": "Expressões de Tempo",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-14-past-simple-irregular": {
+      "title": "Lição 14: Passado Simples (Verbos Irregulares)",
+      "skill": "Aprender os 20 verbos irregulares mais comuns",
+      "items": [
+        {
+          "id": "irregular_be",
+          "english": "I was at work all day.",
+          "portuguese": "Eu estava no trabalho o dia todo.",
+          "note": "I/he/she/it WAS. You/we/they WERE. This is the only verb that changes form with different subjects.",
+          "cue": "Was e Were",
+          "accepts": []
+        },
+        {
+          "id": "irregular_go_come",
+          "english": "I went to Italy last summer.",
+          "portuguese": "Eu fui para a Itália no verão passado.",
+          "note": "go → went, come → came, see → saw, do → did. Memorize these - they are extremely common!",
+          "cue": "Go, Come, See, Do",
+          "accepts": []
+        },
+        {
+          "id": "irregular_have_eat",
+          "english": "I had a meeting this morning.",
+          "portuguese": "Eu tive uma reunião esta manhã.",
+          "note": "have → had, eat → ate, drink → drank, buy → bought. Notice the vowel changes!",
+          "cue": "Have, Eat, Drink, Buy",
+          "accepts": []
+        },
+        {
+          "id": "irregular_say_tell",
+          "english": "He said he would come later.",
+          "portuguese": "Ele disse que viria mais tarde.",
+          "note": "say → said, tell → told, know → knew, think → thought. \"Tell\" always needs an object (tell someone).",
+          "cue": "Say, Tell, Know, Think",
+          "accepts": []
+        },
+        {
+          "id": "irregular_mixed_practice",
+          "english": "I woke up, had breakfast, and went to work.",
+          "portuguese": "Eu acordei, tomei café e fui trabalhar.",
+          "note": "In real stories, you mix regular (-ed) and irregular verbs naturally. Focus on flow, not just rules.",
+          "cue": "Prática Mista: Conte uma História",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-15-present-perfect": {
+      "title": "Lição 15: Present Perfect",
+      "skill": "Formar o Present Perfect com have/has + particípio passado",
+      "items": [
+        {
+          "id": "pp_formation",
+          "english": "I have finished the project.",
+          "portuguese": "Eu terminei o projeto.",
+          "note": "I/you/we/they HAVE + past participle. He/she/it HAS + past participle. Regular: work → worked. Irregular: go → gone.",
+          "cue": "Formando o Present Perfect",
+          "accepts": []
+        },
+        {
+          "id": "pp_experiences",
+          "english": "Have you ever traveled alone?",
+          "portuguese": "Você já viajou sozinho?",
+          "note": "EVER in questions (Have you ever...?). NEVER for no experience. ALREADY for completed actions. YET in negatives and questions.",
+          "cue": "Falando Sobre Experiências",
+          "accepts": []
+        },
+        {
+          "id": "pp_recent",
+          "english": "I have just received your email.",
+          "portuguese": "Eu acabei de receber seu email.",
+          "note": "JUST goes between have/has and the past participle to emphasize that something happened very recently.",
+          "cue": "Eventos Recentes com Just",
+          "accepts": []
+        },
+        {
+          "id": "pp_for_since",
+          "english": "I have studied English for 3 years.",
+          "portuguese": "Eu estudo inglês há 3 anos.",
+          "note": "FOR + period of time (for 2 years, for a week). SINCE + point in time (since 2020, since Monday, since I was a child).",
+          "cue": "Duração: For e Since",
+          "accepts": []
+        },
+        {
+          "id": "pp_vs_past",
+          "english": "I have seen that movie. (no specific time)",
+          "portuguese": "Eu vi esse filme. (sem tempo específico)",
+          "note": "Use Present Perfect when time is not specified or when connecting to now. Use Past Simple when the time is specific (yesterday, last week, in 2020).",
+          "cue": "Present Perfect vs Passado Simples",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-16-future-will-going-to": {
+      "title": "Lição 16: Futuro (Will e Going To)",
+      "skill": "Usar \"will\" para previsões e decisões rápidas",
+      "items": [
+        {
+          "id": "future_will",
+          "english": "I think she will get the job.",
+          "portuguese": "Eu acho que ela vai conseguir o emprego.",
+          "note": "Will + base verb. Use for predictions, especially with \"I think\", \"probably\", \"maybe\". Negative: will not (wont).",
+          "cue": "Will para Previsões",
+          "accepts": []
+        },
+        {
+          "id": "future_spontaneous",
+          "english": "Ill have a coffee, please.",
+          "portuguese": "Vou querer um café, por favor.",
+          "note": "Use \"will\" for decisions made at the moment of speaking, offers, and promises.",
+          "cue": "Will para Decisões Rápidas",
+          "accepts": []
+        },
+        {
+          "id": "future_going_to_plans",
+          "english": "Im going to learn Spanish.",
+          "portuguese": "Eu vou aprender espanhol.",
+          "note": "am/is/are + going to + base verb. Use for plans, intentions, and decisions already made.",
+          "cue": "Going To para Planos",
+          "accepts": []
+        },
+        {
+          "id": "future_going_to_evidence",
+          "english": "Look! The bus is going to leave!",
+          "portuguese": "Olha! O ônibus vai partir!",
+          "note": "Use \"going to\" when you can see evidence now that something will happen soon.",
+          "cue": "Going To para Evidências",
+          "accepts": []
+        },
+        {
+          "id": "future_time_expressions",
+          "english": "Ill see you tomorrow.",
+          "portuguese": "Te vejo amanhã.",
+          "note": "Tomorrow, next (week/month/year), in (time), soon, later, this (evening/weekend), the day after tomorrow.",
+          "cue": "Expressões de Tempo Futuro",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-17-modal-verbs": {
+      "title": "Lição 17: Verbos Modais (Habilidade e Possibilidade)",
+      "skill": "Usar \"can\" para habilidade e permissão",
+      "items": [
+        {
+          "id": "can_ability",
+          "english": "I can speak three languages.",
+          "portuguese": "Eu sei falar três idiomas.",
+          "note": "Can + base verb (no \"to\"). Can doesnt change for he/she. Negative: cannot (cant).",
+          "cue": "Can para Habilidade",
+          "accepts": []
+        },
+        {
+          "id": "could_past",
+          "english": "I could play soccer well when I was 15.",
+          "portuguese": "Eu sabia jogar futebol bem quando tinha 15 anos.",
+          "note": "Could is the past of can for general ability. For a specific achievement, use \"was able to\".",
+          "cue": "Could para Habilidade Passada",
+          "accepts": []
+        },
+        {
+          "id": "may_might_possibility",
+          "english": "I may take a vacation next month.",
+          "portuguese": "Eu talvez tire férias mês que vem.",
+          "note": "May and might express possibility (about 50% certain). Might is slightly less certain than may.",
+          "cue": "May e Might para Possibilidade",
+          "accepts": []
+        },
+        {
+          "id": "polite_requests",
+          "english": "Could you open the window, please?",
+          "portuguese": "Você poderia abrir a janela, por favor?",
+          "note": "Politeness scale: Can I... < Could I... < May I... \"Could\" is more polite than \"can\".",
+          "cue": "Pedidos Educados",
+          "accepts": []
+        },
+        {
+          "id": "modals_practice",
+          "english": "Can I get you something to drink?",
+          "portuguese": "Posso pegar algo para você beber?",
+          "note": "In conversation, we use modals constantly. The key is matching the right modal to the situation.",
+          "cue": "Conversas Reais com Modais",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-18-comparatives-superlatives": {
+      "title": "Lição 18: Comparativos e Superlativos",
+      "skill": "Formar comparativos com -er e \"more\"",
+      "items": [
+        {
+          "id": "comparative_short",
+          "english": "This coffee is hotter than I expected.",
+          "portuguese": "Este café está mais quente do que eu esperava.",
+          "note": "One-syllable adjectives: add -er + than. Two syllables ending in -y: change y to i, add -er.",
+          "cue": "Comparativos: Adjetivos Curtos",
+          "accepts": []
+        },
+        {
+          "id": "comparative_long",
+          "english": "This hotel is more comfortable than the last one.",
+          "portuguese": "Este hotel é mais confortável que o último.",
+          "note": "Two or more syllables (not ending in -y): use \"more\" + adjective + than.",
+          "cue": "Comparativos: Adjetivos Longos",
+          "accepts": []
+        },
+        {
+          "id": "superlative_short",
+          "english": "This is the best pizza in town.",
+          "portuguese": "Esta é a melhor pizza da cidade.",
+          "note": "The + adjective-est. Use for comparing one thing to all others in a group.",
+          "cue": "Superlativos: Adjetivos Curtos",
+          "accepts": []
+        },
+        {
+          "id": "superlative_long",
+          "english": "This is the most delicious food Ive ever eaten.",
+          "portuguese": "Esta é a comida mais deliciosa que eu já comi.",
+          "note": "The most + adjective. Use with adjectives of 2+ syllables (not ending in -y).",
+          "cue": "Superlativos: Adjetivos Longos",
+          "accepts": []
+        },
+        {
+          "id": "irregular_comparatives",
+          "english": "This is much better than the original.",
+          "portuguese": "Isso é muito melhor que o original.",
+          "note": "good → better → the best. bad → worse → the worst. far → farther/further → the farthest/furthest.",
+          "cue": "Comparativos Irregulares",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-19-conditionals": {
+      "title": "Lição 19: Condicionais (Cláusulas If)",
+      "skill": "Formar o First Conditional para possibilidades reais",
+      "items": [
+        {
+          "id": "first_conditional",
+          "english": "If the weather is nice, well go to the beach.",
+          "portuguese": "Se o tempo estiver bom, iremos à praia.",
+          "note": "If + present simple, will + base verb. The \"if\" clause is about a real possibility; the result uses \"will\".",
+          "cue": "First Conditional: Possibilidades Reais",
+          "accepts": []
+        },
+        {
+          "id": "second_conditional",
+          "english": "If I were you, I would accept the offer.",
+          "portuguese": "Se eu fosse você, aceitaria a oferta.",
+          "note": "If + past simple, would + base verb. Use for imaginary, unlikely, or impossible situations. Use \"were\" for all subjects with \"be\".",
+          "cue": "Second Conditional: Imaginário",
+          "accepts": []
+        },
+        {
+          "id": "conditional_questions",
+          "english": "What would you do if you lost your job?",
+          "portuguese": "O que você faria se perdesse seu emprego?",
+          "note": "Question word + will/would + subject + verb... if + condition clause.",
+          "cue": "Perguntas Condicionais",
+          "accepts": []
+        },
+        {
+          "id": "unless_provided",
+          "english": "Ill go unless its raining.",
+          "portuguese": "Eu vou a menos que esteja chovendo.",
+          "note": "UNLESS = if not. AS LONG AS = only if. IN CASE = for possible situations. PROVIDED THAT = on the condition that.",
+          "cue": "Unless e Outras Condições",
+          "accepts": []
+        },
+        {
+          "id": "conditional_practice",
+          "english": "If you have time, could you review this?",
+          "portuguese": "Se você tiver tempo, poderia revisar isso?",
+          "note": "Conditionals are very common in polite requests, offers, and everyday planning conversations.",
+          "cue": "Conversas Reais com Condicionais",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-20-passive-voice": {
+      "title": "Lição 20: Voz Passiva",
+      "skill": "Entender quando usar a voz passiva",
+      "items": [
+        {
+          "id": "passive_present",
+          "english": "Coffee is grown in Brazil.",
+          "portuguese": "Café é cultivado no Brasil.",
+          "note": "am/is/are + past participle. The object becomes the subject.",
+          "cue": "Passiva no Presente",
+          "accepts": []
+        },
+        {
+          "id": "passive_past",
+          "english": "This house was built 100 years ago.",
+          "portuguese": "Esta casa foi construída há 100 anos.",
+          "note": "was/were + past participle. Use for completed actions in the past.",
+          "cue": "Passiva no Passado",
+          "accepts": []
+        },
+        {
+          "id": "passive_future",
+          "english": "The winner will be announced tonight.",
+          "portuguese": "O vencedor será anunciado esta noite.",
+          "note": "will be + past participle. Use for future passive actions.",
+          "cue": "Passiva no Futuro",
+          "accepts": []
+        },
+        {
+          "id": "passive_by_agent",
+          "english": "The telephone was invented by Alexander Graham Bell.",
+          "portuguese": "O telefone foi inventado por Alexander Graham Bell.",
+          "note": "Add \"by + agent\" when the doer is important or interesting. Omit \"by\" when the doer is unknown, obvious, or unimportant.",
+          "cue": "Usando \"By\" na Passiva",
+          "accepts": []
+        },
+        {
+          "id": "passive_when_use",
+          "english": "It is believed that exercise is good for health.",
+          "portuguese": "Acredita-se que exercício é bom para a saúde.",
+          "note": "Use passive when: 1) The doer is unknown, 2) The action is more important, 3) In formal/academic writing, 4) To avoid blame.",
+          "cue": "Quando Usar a Passiva",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-21-phrasal-verbs": {
+      "title": "Lição 21: Phrasal Verbs Comuns",
+      "skill": "Entender como phrasal verbs funcionam",
+      "items": [
+        {
+          "id": "phrasal_daily",
+          "english": "I wake up early every day.",
+          "portuguese": "Eu acordo cedo todos os dias.",
+          "note": "Phrasal verbs combine a verb + particle to create new meaning. \"Turn on\" ≠ \"turn\" + \"on\".",
+          "cue": "Phrasal Verbs do Dia a Dia",
+          "accepts": []
+        },
+        {
+          "id": "phrasal_movement",
+          "english": "Please come in and sit down.",
+          "portuguese": "Por favor, entre e sente-se.",
+          "note": "Many movement phrasal verbs describe direction or position changes.",
+          "cue": "Phrasal Verbs de Movimento",
+          "accepts": []
+        },
+        {
+          "id": "phrasal_work",
+          "english": "I cant figure out this problem.",
+          "portuguese": "Não consigo resolver este problema.",
+          "note": "Many phrasal verbs relate to problem-solving, completing tasks, and persistence.",
+          "cue": "Phrasal Verbs de Trabalho e Estudo",
+          "accepts": []
+        },
+        {
+          "id": "phrasal_relationship",
+          "english": "I get along well with my colleagues.",
+          "portuguese": "Eu me dou bem com meus colegas.",
+          "note": "These phrasal verbs describe interpersonal relationships and caring for others.",
+          "cue": "Phrasal Verbs de Relacionamentos",
+          "accepts": []
+        },
+        {
+          "id": "phrasal_separable",
+          "english": "Turn the light off / Turn off the light.",
+          "portuguese": "Desligue a luz.",
+          "note": "Separable: the object can go between verb and particle. Inseparable: the object must come after the phrasal verb.",
+          "cue": "Separáveis vs Inseparáveis",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-22-reported-speech": {
+      "title": "Lição 22: Discurso Indireto",
+      "skill": "Transformar discurso direto em indireto",
+      "items": [
+        {
+          "id": "reported_statements",
+          "english": "\"Im hungry.\" → She said she was hungry.",
+          "portuguese": "\"Estou com fome.\" → Ela disse que estava com fome.",
+          "note": "Direct: \"I am tired.\" → Reported: She said (that) she was tired. The tense shifts back.",
+          "cue": "Relatando Afirmações",
+          "accepts": []
+        },
+        {
+          "id": "reported_tense_changes",
+          "english": "\"I love pizza.\" → She said she loved pizza.",
+          "portuguese": "\"Eu amo pizza.\" → Ela disse que amava pizza.",
+          "note": "Present Simple → Past Simple. Present Perfect → Past Perfect. Will → Would. Can → Could.",
+          "cue": "Mudanças de Tempo (Backshifting)",
+          "accepts": []
+        },
+        {
+          "id": "reported_questions",
+          "english": "\"Are you coming?\" → She asked if I was coming.",
+          "portuguese": "\"Você vem?\" → Ela perguntou se eu vinha.",
+          "note": "Yes/No questions: asked + if/whether. Wh- questions: asked + wh-word. No inversion in reported questions!",
+          "cue": "Relatando Perguntas",
+          "accepts": []
+        },
+        {
+          "id": "reported_commands",
+          "english": "\"Wait here.\" → She told me to wait there.",
+          "portuguese": "\"Espere aqui.\" → Ela me disse para esperar lá.",
+          "note": "told/asked/ordered + object + (not) to + infinitive. \"Dont wait\" → She told me not to wait.",
+          "cue": "Relatando Comandos",
+          "accepts": []
+        },
+        {
+          "id": "reported_time_place",
+          "english": "\"Im leaving today.\" → He said he was leaving that day.",
+          "portuguese": "\"Estou saindo hoje.\" → Ele disse que estava saindo naquele dia.",
+          "note": "Time/place words change: today → that day, now → then, here → there, this → that, yesterday → the day before.",
+          "cue": "Mudanças de Tempo e Lugar",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-23-job-interview": {
+      "title": "Lição 23: Habilidades de Entrevista de Emprego",
+      "skill": "Apresentar-se profissionalmente",
+      "items": [
+        {
+          "id": "interview_intro",
+          "english": "Im a marketing professional with 3 years of experience in digital advertising.",
+          "portuguese": "Sou um profissional de marketing com 3 anos de experiência em publicidade digital.",
+          "note": "Structure: Present role + Years of experience + Key skills + Career goal.",
+          "cue": "Apresentação Profissional",
+          "accepts": []
+        },
+        {
+          "id": "interview_strengths",
+          "english": "My biggest strength is my ability to communicate clearly.",
+          "portuguese": "Meu maior ponto forte é minha capacidade de me comunicar claramente.",
+          "note": "For strengths: be specific with examples. For weaknesses: show self-awareness and improvement.",
+          "cue": "Pontos Fortes e Fracos",
+          "accepts": []
+        },
+        {
+          "id": "interview_experience",
+          "english": "I was responsible for managing client relationships.",
+          "portuguese": "Eu era responsável por gerenciar relacionamentos com clientes.",
+          "note": "Use past simple for completed actions. Include quantifiable achievements (numbers, percentages).",
+          "cue": "Descrevendo Experiência",
+          "accepts": []
+        },
+        {
+          "id": "interview_why",
+          "english": "Ive followed your companys work in sustainability.",
+          "portuguese": "Tenho acompanhado o trabalho da empresa em sustentabilidade.",
+          "note": "Research the company! Mention specific things: products, values, recent news, culture.",
+          "cue": "Por Que Esta Empresa?",
+          "accepts": []
+        },
+        {
+          "id": "interview_questions",
+          "english": "What qualities are you looking for in an ideal candidate?",
+          "portuguese": "Que qualidades vocês procuram em um candidato ideal?",
+          "note": "Always have 2-3 questions ready. Show genuine interest in the role and company.",
+          "cue": "Fazendo Perguntas Inteligentes",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-24-advanced-travel": {
+      "title": "Lição 24: Inglês Avançado para Viagens",
+      "skill": "Lidar com problemas e reclamações de viagem",
+      "items": [
+        {
+          "id": "travel_problems",
+          "english": "My suitcase didnt arrive. Can you help me track it?",
+          "portuguese": "Minha mala não chegou. Pode me ajudar a rastreá-la?",
+          "note": "Stay calm and polite but assertive. Use \"I would like to...\" and \"Could you please...\"",
+          "cue": "Lidando com Problemas de Viagem",
+          "accepts": []
+        },
+        {
+          "id": "travel_emergencies",
+          "english": "Help! I need a doctor!",
+          "portuguese": "Socorro! Preciso de um médico!",
+          "note": "Use imperative for urgency. Be clear and direct in emergencies.",
+          "cue": "Situações de Emergência",
+          "accepts": []
+        },
+        {
+          "id": "travel_culture",
+          "english": "In Brazil, we usually greet with a kiss on the cheek.",
+          "portuguese": "No Brasil, geralmente cumprimentamos com um beijo no rosto.",
+          "note": "Use comparative structures to discuss cultural differences respectfully.",
+          "cue": "Conversas Culturais",
+          "accepts": []
+        },
+        {
+          "id": "travel_negotiate",
+          "english": "Would you be able to offer a discount?",
+          "portuguese": "Você poderia oferecer um desconto?",
+          "note": "Use conditional forms for polite negotiation. \"Would you be able to...\" \"Could you possibly...\"",
+          "cue": "Negociação Educada",
+          "accepts": []
+        },
+        {
+          "id": "travel_local",
+          "english": "What hidden gems would you recommend?",
+          "portuguese": "Quais lugares secretos você recomendaria?",
+          "note": "Ask open-ended questions to encourage longer responses and deeper conversations.",
+          "cue": "Conectando com Locais",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-25-present-perfect-continuous": {
+      "title": "Lição 25: Present Perfect Continuous",
+      "skill": "Formar frases no present perfect continuous com have/has been + -ing",
+      "items": [
+        {
+          "id": "ppc_topic1",
+          "english": "I have been working on this project for three months.",
+          "portuguese": "Tenho trabalhado neste projeto por três meses.",
+          "note": "Present perfect continuous is formed with have/has + been + present participle (-ing form). Subject + have/has + been + verb-ing + for/since + time.",
+          "cue": "Formação e Estrutura",
+          "accepts": []
+        },
+        {
+          "id": "ppc_topic2",
+          "english": "I have been learning Portuguese for six months.",
+          "portuguese": "Tenho aprendido português por seis meses.",
+          "note": "Use \"for\" followed by a period of time (hours, days, years). Use \"since\" followed by a specific point in time (date, day, year, or event). Both show how long an action has been happening.",
+          "cue": "Usando \"For\" e \"Since\"",
+          "accepts": []
+        },
+        {
+          "id": "ppc_topic3",
+          "english": "I have completed my homework. (result)",
+          "portuguese": "Terminei meu dever de casa. (resultado)",
+          "note": "Present perfect emphasizes the completion of an action (result). Present perfect continuous emphasizes the duration and ongoing nature of an action. Use continuous to show effort, activity, or process",
+          "cue": "Present Perfect vs. Present Perfect Continuous",
+          "accepts": []
+        },
+        {
+          "id": "ppc_topic4",
+          "english": "I have been teaching English for twelve years.",
+          "portuguese": "Tenho ensinado inglês por doze anos.",
+          "note": "Use present perfect continuous to discuss ongoing activities, professional projects, personal development, and situations that started before now and continue. Often shows visible effects or tiredness",
+          "cue": "Uso Contextual em Conversas",
+          "accepts": []
+        },
+        {
+          "id": "ppc_topic5",
+          "english": "Have you been waiting long?",
+          "portuguese": "Você está esperando há muito tempo?",
+          "note": "Questions: Have/Has + subject + been + -ing? Negatives: Subject + have/has + not + been + -ing. Contractions: haven't been, hasn't been. Use in natural questioning about duration and ongoing activitie",
+          "cue": "Perguntas e Negativas",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-26-relative-pronouns": {
+      "title": "Lição 26: Pronomes Relativos",
+      "skill": "Identificar e usar pronomes relativos corretamente (who, which, that, where, whose)",
+      "items": [
+        {
+          "id": "rp_topic1",
+          "english": "The teacher who works here is very experienced.",
+          "portuguese": "O professor que trabalha aqui é muito experiente.",
+          "note": "\"Who\" refers to people. \"Which\" refers to things (non-human). \"That\" can refer to both people and things, especially in defining clauses. All three connect a relative clause to a noun.",
+          "cue": "Who, Which e That",
+          "accepts": []
+        },
+        {
+          "id": "rp_topic2",
+          "english": "The city where I grew up is beautiful in spring.",
+          "portuguese": "A cidade onde cresci é linda na primavera.",
+          "note": "\"Where\" is used for locations and places. It replaces prepositional phrases like \"in which\" or \"at which.\" \"Whose\" shows possession and ownership, answering the question \"whose is it?\"",
+          "cue": "Where e Whose",
+          "accepts": []
+        },
+        {
+          "id": "rp_topic3",
+          "english": "The laptop that has the broken screen is being repaired.",
+          "portuguese": "O laptop que tem a tela quebrada está sendo reparado.",
+          "note": "Defining clauses give essential information to identify the noun; no commas used. Non-defining clauses add extra information; commas are required. Example: \"The book that is on the table\" (defining) v",
+          "cue": "Orações Definidoras vs. Não-Definidoras",
+          "accepts": []
+        },
+        {
+          "id": "rp_topic4",
+          "english": "The manager whose team won the award works in the department that I lead.",
+          "portuguese": "O gerente cujo time ganhou o prêmio trabalha no departamento que dirijo.",
+          "note": "You can combine multiple relative clauses in one sentence to provide detailed information. Ensure clarity by using appropriate punctuation and pronouns. Keep sentences readable by avoiding excessive n",
+          "cue": "Frases Complexas com Múltiplas Orações Relativas",
+          "accepts": []
+        },
+        {
+          "id": "rp_topic5",
+          "english": "Who was the person that you were talking to?",
+          "portuguese": "Quem era a pessoa com quem você estava falando?",
+          "note": "In formal or written English, you can use \"which,\" \"who,\" and \"that\" in questions and relative clauses. Formal writing often prefers \"which\" over \"that\" for non-defining clauses. Professional communic",
+          "cue": "Pronomes Relativos em Perguntas e Escrita Formal",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-27-gerunds-infinitives": {
+      "title": "Lição 27: Gerúndios e Infinitivos",
+      "skill": "Distinguir entre gerúndios e infinitivos e suas funções",
+      "items": [
+        {
+          "id": "gi_topic1",
+          "english": "Swimming is my favorite exercise.",
+          "portuguese": "Nadar é meu exercício favorito.",
+          "note": "Gerunds are the -ing form of verbs used as nouns. They can function as subjects (\"Running is healthy\"), objects (\"I enjoy reading\"), or objects of prepositions (\"before leaving\"). Gerunds refer to act",
+          "cue": "Gerúndios: Definição e Função",
+          "accepts": []
+        },
+        {
+          "id": "gi_topic2",
+          "english": "I enjoy cooking Brazilian dishes.",
+          "portuguese": "Gosto de cozinhar pratos brasileiros.",
+          "note": "Many verbs naturally take gerunds as their objects. Common ones include: enjoy, avoid, consider, finish, practice, suggest, admit, deny, risk, delay, postpone, and keep. The pattern is: verb + gerund ",
+          "cue": "Verbos Seguidos de Gerúndios",
+          "accepts": []
+        },
+        {
+          "id": "gi_topic3",
+          "english": "To improve your English, you must practice daily.",
+          "portuguese": "Para melhorar seu inglês, você deve praticar diariamente.",
+          "note": "Infinitives are the base form of verbs with \"to.\" They express purposes, goals, or future intentions. Pattern: verb + to + base verb. Infinitives can function as subjects (\"To learn is to grow\") or ob",
+          "cue": "Infinitivos: Definição e Função",
+          "accepts": []
+        },
+        {
+          "id": "gi_topic4",
+          "english": "I want to learn Portuguese fluently.",
+          "portuguese": "Quero aprender português fluentemente.",
+          "note": "Many verbs take infinitive objects. Common verbs include: want, need, plan, decide, choose, hope, attempt, fail, manage, forget, remember, promise, offer, and refuse. The pattern is: verb + to + base ",
+          "cue": "Verbos Seguidos de Infinitivos",
+          "accepts": []
+        },
+        {
+          "id": "gi_topic5",
+          "english": "I stopped smoking two years ago.",
+          "portuguese": "Parei de fumar há dois anos.",
+          "note": "Some verbs take both gerunds and infinitives with different meanings: stop + -ing (cease an activity) vs. stop + to (stop in order to do something). Like, try, and begin can take both with slight vari",
+          "cue": "Gerúndios vs. Infinitivos e Casos Especiais",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-28-advanced-prepositions": {
+      "title": "Lição 28: Preposições Avançadas",
+      "skill": "Entender preposições de tempo, lugar e movimento com nuance",
+      "items": [
+        {
+          "id": "ap_topic1",
+          "english": "During the conference, I met many international colleagues.",
+          "portuguese": "Durante a conferência, conheci muitos colegas internacionais.",
+          "note": "During (at some point within a period), throughout (for the whole duration), within (before a deadline), by (not later than), until (up to a specific time), since (from a point to now). Each has speci",
+          "cue": "Preposições de Tempo: During, Throughout, Within",
+          "accepts": []
+        },
+        {
+          "id": "ap_topic2",
+          "english": "The park is across the street from the library.",
+          "portuguese": "O parque fica do outro lado da rua da biblioteca.",
+          "note": "Across (from one side to the other), behind (at the back), beyond (further than), among (within a group), along (following a line), beneath (under). These specify exact spatial relationships and are e",
+          "cue": "Preposições de Lugar e Direção",
+          "accepts": []
+        },
+        {
+          "id": "ap_topic3",
+          "english": "Please sit in front of the camera for the photo.",
+          "portuguese": "Por favor, sente-se em frente à câmera para a foto.",
+          "note": "Phrasal prepositions are two or more words functioning as single prepositions. Examples: \"in front of\" (facing), \"according to\" (as stated by), \"instead of\" (in place of), \"in spite of\" (despite), \"du",
+          "cue": "Preposições Fraseais",
+          "accepts": []
+        },
+        {
+          "id": "ap_topic4",
+          "english": "Getting a refund is out of the question at this point.",
+          "portuguese": "Obter um reembolso está fora de questão neste momento.",
+          "note": "Many English idioms depend on specific prepositions. Changing the preposition changes the meaning entirely. Examples: \"out of the question\" (impossible), \"in the long run\" (eventually), \"under the wea",
+          "cue": "Preposições em Expressões Idiomáticas",
+          "accepts": []
+        },
+        {
+          "id": "ap_topic5",
+          "english": "The books are in the drawer.",
+          "portuguese": "Os livros estão na gaveta.",
+          "note": "\"In\" suggests enclosure or interior space. \"On\" suggests contact with a surface. \"At\" indicates a specific point. \"Near\" or \"by\" indicate proximity without contact. These distinctions affect clarity a",
+          "cue": "Distinguindo Entre Preposições Semelhantes",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-29-making-complaints": {
+      "title": "Lição 29: Fazendo Reclamações",
+      "skill": "Fazer reclamações educadas e eficazes em vários contextos",
+      "items": [
+        {
+          "id": "comp_topic1",
+          "english": "I am afraid there has been a misunderstanding regarding my order.",
+          "portuguese": "Tenho medo de que tenha havido um mal-entendido sobre meu pedido.",
+          "note": "Use softening phrases: \"I am sorry to say,\" \"I hate to mention,\" \"I was wondering if.\" Avoid direct accusations; use \"There seems to be\" instead of \"You did.\" Use conditional forms: \"Could you\" and \"W",
+          "cue": "Formas Educadas de Reclamar",
+          "accepts": []
+        },
+        {
+          "id": "comp_topic2",
+          "english": "I ordered the steak well-done, but it arrived rare.",
+          "portuguese": "Pedi o bife bem passado, mas chegou mal passado.",
+          "note": "In customer service situations, be specific about the problem. Use past tense to describe what happened. Use present perfect to show ongoing issues. Include specific details: dates, times, order numbe",
+          "cue": "Reclamações em Situações de Atendimento ao Cliente",
+          "accepts": []
+        },
+        {
+          "id": "comp_topic3",
+          "english": "I would like to discuss my workload, as I have been working late every day this month.",
+          "portuguese": "Gostaria de discutir meu trabalho, pois tenho trabalhado até tarde todos os dias este mês.",
+          "note": "Use professional language: \"I appreciate your work, but...\" Use \"I\" statements to avoid blame. Ask for clarification rather than making accusations. Offer to discuss solutions. Show respect for the pe",
+          "cue": "Reclamações no Trabalho e Profissionais",
+          "accepts": []
+        },
+        {
+          "id": "comp_topic4",
+          "english": "Would you be willing to replace the item or offer a refund?",
+          "portuguese": "Você estaria disposto a substituir o item ou oferecer um reembolso?",
+          "note": "Use polite conditionals: \"Would you be willing...\" Use conditional clauses: \"If you could replace...\" Use modal verbs expressing possibility: \"might,\" \"could,\" \"may.\" Present solutions as collaborativ",
+          "cue": "Sugerindo Soluções e Propondo Resoluções",
+          "accepts": []
+        },
+        {
+          "id": "comp_topic5",
+          "english": "I have documented the issue and will expect resolution within five business days.",
+          "portuguese": "Documentei o problema e espero uma resolução em cinco dias úteis.",
+          "note": "Use past tense for what has happened. Use future tense for expected actions. Use polite interrogatives for follow-up. Express appreciation and recognition of positive steps. Keep a record of communica",
+          "cue": "Respondendo a Problemas e Acompanhando",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-30-health-wellness": {
+      "title": "Lição 30: Saúde e Bem-Estar",
+      "skill": "Descrever sintomas e condições de saúde com precisão",
+      "items": [
+        {
+          "id": "hw_topic1",
+          "english": "I have a severe headache that started this morning.",
+          "portuguese": "Tenho uma dor de cabeça severa que começou esta manhã.",
+          "note": "Use \"I have a + noun\" for general symptoms (headache, fever). Use \"My + body part + hurts/aches\" for pain. Use \"I feel + adjective\" for sensations (dizzy, weak). Be specific about location, duration, ",
+          "cue": "Sintomas e Reclamações Físicas",
+          "accepts": []
+        },
+        {
+          "id": "hw_topic2",
+          "english": "I would like to schedule an appointment with the doctor.",
+          "portuguese": "Gostaria de agendar uma consulta com o médico.",
+          "note": "Use imperatives for medical advice: \"Take this twice daily.\" Use passive voice for prescriptions: \"You have been prescribed.\" Use \"should\" for recommendations: \"You should rest.\" Use past participle w",
+          "cue": "Visitas ao Médico e Consultas Médicas",
+          "accepts": []
+        },
+        {
+          "id": "hw_topic3",
+          "english": "Regular exercise is essential for maintaining good health.",
+          "portuguese": "Exercício regular é essencial para manter a boa saúde.",
+          "note": "Use imperatives for recommendations: \"Exercise regularly.\" Use present perfect to show habits: \"I have started eating healthier.\" Use \"should\" for suggestions: \"You should drink more water.\" Use gerun",
+          "cue": "Hábitos Saudáveis e Escolhas de Estilo de Vida",
+          "accepts": []
+        },
+        {
+          "id": "hw_topic4",
+          "english": "I have been feeling stressed due to work pressures.",
+          "portuguese": "Tenho me sentido estressado devido às pressões do trabalho.",
+          "note": "Use present continuous for current feelings: \"I am feeling stressed.\" Use \"have been\" for ongoing mental health concerns. Use passive voice for therapy: \"I have been referred to a counselor.\" Use cond",
+          "cue": "Saúde Mental e Bem-Estar Emocional",
+          "accepts": []
+        },
+        {
+          "id": "hw_topic5",
+          "english": "This medication may cause drowsiness as a side effect.",
+          "portuguese": "Este medicamento pode causar sonolência como efeito colateral.",
+          "note": "Use passive voice for medical instructions: \"This medication should be taken twice daily.\" Use \"may\" for possible side effects: \"This may cause drowsiness.\" Use imperatives for warnings: \"Do not drink",
+          "cue": "Medicamentos e Tratamentos Médicos",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-31-entertainment-media": {
+      "title": "Lição 31: Entretenimento e Mídia",
+      "skill": "Usar vocabulário de entretenimento e mídia com confiança",
+      "items": [
+        {
+          "id": "em_topic1",
+          "english": "I really enjoyed the action movie we watched last night.",
+          "portuguese": "Realmente gostei do filme de ação que assistimos ontem à noite.",
+          "note": "Use present simple for general statements about films: \"This movie stars Jennifer Lawrence.\" Use past simple for reviews: \"I watched an amazing documentary last week.\" Use present perfect to share vie",
+          "cue": "Discutindo Filmes e Gêneros",
+          "accepts": []
+        },
+        {
+          "id": "em_topic2",
+          "english": "I attended a wonderful live concert featuring a Brazilian music band.",
+          "portuguese": "Assisti a um excelente concerto ao vivo com uma banda de música brasileira.",
+          "note": "Use present perfect for recent albums: \"The artist has just released a new album.\" Use past simple for concert experiences: \"I went to an amazing concert last month.\" Use gerunds with music: \"I love l",
+          "cue": "Música, Artistas e Concertos",
+          "accepts": []
+        },
+        {
+          "id": "em_topic3",
+          "english": "I am currently reading a mystery novel that keeps me guessing.",
+          "portuguese": "Estou lendo atualmente um romance de mistério que me deixa adivinhando.",
+          "note": "Use past simple for reading experiences: \"I read an excellent historical novel.\" Use present perfect continuous: \"I have been reading this book for two weeks.\" Use passive voice for book descriptions:",
+          "cue": "Livros, Literatura e Leitura",
+          "accepts": []
+        },
+        {
+          "id": "em_topic4",
+          "english": "I love binge-watching this TV series on weekends.",
+          "portuguese": "Adoro maratonar esta série de TV nos finais de semana.",
+          "note": "Use present simple for habitual watching: \"I watch this series every Wednesday.\" Use present perfect to show completeness: \"I have watched all five seasons.\" Use past simple for reactions: \"The season",
+          "cue": "Programas de TV e Séries",
+          "accepts": []
+        },
+        {
+          "id": "em_topic5",
+          "english": "I would highly recommend this film to anyone who enjoys drama.",
+          "portuguese": "Recomendo altamente este filme para qualquer pessoa que goste de drama.",
+          "note": "Use conditionals for recommendations: \"If you like action films, you would enjoy this movie.\" Use superlatives: \"This is the best book I have read.\" Use opinion phrases: \"In my opinion,\" \"I believe,\" ",
+          "cue": "Resenhas, Recomendações e Avaliações",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-32-technology-internet": {
+      "title": "Lição 32: Tecnologia e Internet",
+      "skill": "Usar vocabulário de tecnologia com confiança em conversas",
+      "items": [
+        {
+          "id": "ti_topic1",
+          "english": "I recently upgraded my laptop to improve its processing speed.",
+          "portuguese": "Atualizei recentemente meu laptop para melhorar sua velocidade de processamento.",
+          "note": "Use present simple to describe device features: \"This phone has a 5G processor.\" Use past simple for what happened: \"The laptop stopped working yesterday.\" Use present perfect to describe experiences:",
+          "cue": "Dispositivos Digitais e Hardware",
+          "accepts": []
+        },
+        {
+          "id": "ti_topic2",
+          "english": "I use a productivity app to manage my daily tasks and projects.",
+          "portuguese": "Uso um aplicativo de produtividade para gerenciar minhas tarefas e projetos diários.",
+          "note": "Use present simple for how things work: \"This app helps me organize my schedule.\" Use present perfect for experience: \"I have used this software for years.\" Use passive voice: \"The file was uploaded t",
+          "cue": "Aplicativos, Software e Serviços Online",
+          "accepts": []
+        },
+        {
+          "id": "ti_topic3",
+          "english": "My computer seems to have a virus that is slowing it down.",
+          "portuguese": "Meu computador parece ter um vírus que está deixando lento.",
+          "note": "Use past simple to describe what happened: \"The system crashed yesterday.\" Use passive voice: \"The file was corrupted.\" Use \"have/has been\" for ongoing problems: \"My computer has been running slowly.\"",
+          "cue": "Problemas Técnicos e Soluções",
+          "accepts": []
+        },
+        {
+          "id": "ti_topic4",
+          "english": "I prefer instant messaging to email for quick communication.",
+          "portuguese": "Prefiro mensagens instantâneas para comunicação rápida ao invés de e-mail.",
+          "note": "Use present simple for habitual use: \"I check social media every morning.\" Use present continuous for current actions: \"I am texting my friends.\" Use present perfect: \"I have posted several photos thi",
+          "cue": "Mídia Social e Comunicação Online",
+          "accepts": []
+        },
+        {
+          "id": "ti_topic5",
+          "english": "I always create strong passwords with a combination of letters, numbers, and symbols.",
+          "portuguese": "Sempre crio senhas fortes com uma combinação de letras, números e símbolos.",
+          "note": "Use imperatives for safety advice: \"Create a strong password.\" Use conditional: \"If you click suspicious links, you risk malware.\" Use passive voice: \"Your data should be protected with encryption.\"",
+          "cue": "Segurança na Internet e Privacidade Digital",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-33-environment-sustainability": {
+      "title": "Lição 33: Ambiente e Sustentabilidade",
+      "skill": "Usar vocabulário ambiental em discussões significativas",
+      "items": [
+        {
+          "id": "env_topic1",
+          "english": "Climate change is causing extreme weather patterns around the world.",
+          "portuguese": "Mudanças climáticas estão causando padrões climáticos extremos em todo o mundo.",
+          "note": "Use present simple for general facts: \"Climate change affects ecosystems.\" Use present perfect to show impacts: \"Temperatures have risen significantly.\" Use passive voice: \"Greenhouse gases are releas",
+          "cue": "Questões Ambientais e Mudanças Climáticas",
+          "accepts": []
+        },
+        {
+          "id": "env_topic2",
+          "english": "Nature reserves protect endangered species from extinction.",
+          "portuguese": "As reservas naturais protegem espécies ameaçadas de extinção.",
+          "note": "Use passive voice for conservation efforts: \"Species are being protected in reserves.\" Use present continuous: \"Scientists are working to restore ecosystems.\" Use should/must: \"We must preserve natura",
+          "cue": "Conservação e Biodiversidade",
+          "accepts": []
+        },
+        {
+          "id": "env_topic3",
+          "english": "Renewable energy sources like solar and wind power reduce carbon emissions.",
+          "portuguese": "Fontes de energia renovável como solar e eólica reduzem emissões de carbono.",
+          "note": "Use imperatives for actions: \"Recycle your plastic bottles.\" Use present perfect for habits: \"I have been using renewable energy.\" Use conditionals: \"If everyone recycled, we would reduce landfill was",
+          "cue": "Práticas Ecológicas e Vida Sustentável",
+          "accepts": []
+        },
+        {
+          "id": "env_topic4",
+          "english": "Water scarcity affects millions of people in developing countries.",
+          "portuguese": "A escassez de água afeta milhões de pessoas em países em desenvolvimento.",
+          "note": "Use present simple for facts: \"Water is essential for all life.\" Use present continuous: \"Water sources are being depleted.\" Use passive voice: \"Soil is being eroded by deforestation.\"",
+          "cue": "Conservação de Água e Solo",
+          "accepts": []
+        },
+        {
+          "id": "env_topic5",
+          "english": "Environmental awareness campaigns help educate people about climate issues.",
+          "portuguese": "Campanhas de conscientização ambiental ajudam a educar as pessoas sobre questões climáticas.",
+          "note": "Use can/could for possibilities: \"We can reduce our carbon footprint.\" Use should/must for importance: \"We must act now.\" Use conditional: \"If individuals change their habits, we can impact climate ch",
+          "cue": "Ativismo Ambiental e Ações Individuais",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-34-education-learning": {
+      "title": "Lição 34: Educação e Aprendizado",
+      "skill": "Usar vocabulário de educação em contextos acadêmicos",
+      "items": [
+        {
+          "id": "el_topic1",
+          "english": "I attended a prestigious university in São Paulo to pursue my degree.",
+          "portuguese": "Frequentei uma universidade prestigiada em São Paulo para obter meu diploma.",
+          "note": "Use past simple for school experiences: \"I attended university for four years.\" Use present simple for current education: \"I study engineering at university.\" Use present perfect: \"I have completed my",
+          "cue": "Escola, Universidade e Instituições Acadêmicas",
+          "accepts": []
+        },
+        {
+          "id": "el_topic2",
+          "english": "My major is computer science, and my minor is mathematics.",
+          "portuguese": "Minha especialização é ciência da computação, e minha segunda especialização é matemática.",
+          "note": "Use present simple for current courses: \"I take courses in biology and chemistry.\" Use present perfect: \"I have completed most of my required courses.\" Use conditional: \"If I pass this course, I will ",
+          "cue": "Disciplinas, Cursos e Currículo",
+          "accepts": []
+        },
+        {
+          "id": "el_topic3",
+          "english": "I studied hard for the final exam, and I passed it successfully.",
+          "portuguese": "Estudei muito para o exame final e o passei com sucesso.",
+          "note": "Use past simple for exams taken: \"I took my final exam last week.\" Use present perfect: \"I have submitted all my assignments.\" Use present simple for general statements: \"Exams test knowledge and unde",
+          "cue": "Exames, Tarefas e Avaliação Acadêmica",
+          "accepts": []
+        },
+        {
+          "id": "el_topic4",
+          "english": "I find that studying in a study group is more effective than studying alone.",
+          "portuguese": "Acho que estudar em um grupo de estudo é mais eficaz do que estudar sozinho.",
+          "note": "Use present simple for study methods: \"I use flashcards to memorize vocabulary.\" Use gerunds: \"Studying in groups helps me understand difficult concepts.\" Use present continuous: \"I am working on my t",
+          "cue": "Métodos de Estudo e Estratégias de Aprendizado",
+          "accepts": []
+        },
+        {
+          "id": "el_topic5",
+          "english": "After graduation, I plan to pursue a master's degree in environmental science.",
+          "portuguese": "Depois da formatura, planejo fazer um mestrado em ciência ambiental.",
+          "note": "Use future simple: \"I will pursue a master's degree next year.\" Use present perfect: \"I have decided to continue my education.\" Use present continuous: \"I am preparing for my graduate school applicati",
+          "cue": "Objetivos Acadêmicos e Planos Educacionais Futuros",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-35-advice-suggestions": {
+      "title": "Lição 35: Dando Conselhos e Sugestões",
+      "skill": "Usar verbos modais para oferecer conselhos e sugestões",
+      "items": [
+        {
+          "id": "as_topic1",
+          "english": "You should exercise regularly to maintain good health.",
+          "portuguese": "Você deveria se exercitar regularmente para manter a boa saúde.",
+          "note": "Should and ought to are used similarly to give advice. \"You should exercise regularly.\" They can be used with not: \"You should not skip meals.\" Ought to is slightly more formal. Both express what is a",
+          "cue": "Usando Should e Ought To",
+          "accepts": []
+        },
+        {
+          "id": "as_topic2",
+          "english": "You had better finish your homework before playing video games.",
+          "portuguese": "Você é melhor terminar sua lição de casa antes de jogar videogame.",
+          "note": "Had better is stronger than should and implies a warning or consequence if the advice is not followed. It is informal. Contraction: \"you'd better.\" Use: \"You'd better hurry or you'll miss the bus.\"",
+          "cue": "Had Better para Conselhos Fortes",
+          "accepts": []
+        },
+        {
+          "id": "as_topic3",
+          "english": "Why don't you talk to your manager about a salary increase?",
+          "portuguese": "Por que você não fala com seu gerente sobre um aumento de salário?",
+          "note": "Questions and conditionals are less direct: \"Why don't you try a different approach?\" Use \"What if...\": \"What if you studied harder?\" Use \"Would you consider...\": \"Would you consider moving to a large",
+          "cue": "Sugestões Educadas com Condicionais",
+          "accepts": []
+        },
+        {
+          "id": "as_topic4",
+          "english": "I would recommend visiting Rio de Janeiro; it is an amazing city.",
+          "portuguese": "Recomendo visitar Rio de Janeiro; é uma cidade incrível.",
+          "note": "Use \"I recommend\" or \"I suggest\" with gerunds or to-infinitives: \"I recommend visiting the museum.\" Use \"My advice is to...\": \"My advice is to save money.\" Use \"It would be good to...\": \"It would be g",
+          "cue": "Fazendo Recomendações e Sugestões",
+          "accepts": []
+        },
+        {
+          "id": "as_topic5",
+          "english": "What would you do if you were offered a job in another country?",
+          "portuguese": "O que você faria se fosse oferecido um emprego em outro país?",
+          "note": "Ask for advice: \"What would you do in my situation?\" or \"Could you advise me?\" Respond positively: \"That's good advice,\" \"I appreciate your suggestion.\" Respond reluctantly: \"I'll think about it,\" \"I ",
+          "cue": "Pedindo e Respondendo a Conselhos",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-36-plans-arrangements": {
+      "title": "Lição 36: Fazendo Planos e Arranjando",
+      "skill": "Use present continuous para expressar planos futuros",
+      "items": [
+        {
+          "id": "pa_topic1",
+          "english": "I am going to São Paulo next month for a business conference.",
+          "portuguese": "Vou a São Paulo no próximo mês para uma conferência de negócios.",
+          "note": "Present continuous can express future plans: \"I am flying to Rio next week.\" It shows plans that are already decided or arranged. Different from \"I will go,\" which is less definite. Use: \"Are you doin",
+          "cue": "Expressando Planos Futuros com Present Continuous",
+          "accepts": []
+        },
+        {
+          "id": "pa_topic2",
+          "english": "Would Tuesday afternoon work for you for our meeting?",
+          "portuguese": "Terça-feira à tarde funcionaria para você para nossa reunião?",
+          "note": "Use questions to suggest times: \"Would Tuesday work for you?\" Use \"I am free on...\": \"I am free on Monday afternoon.\" Use \"How about...\": \"How about next Wednesday?\" Use conditional: \"Could we meet if",
+          "cue": "Sugerindo Horários e Datas",
+          "accepts": []
+        },
+        {
+          "id": "pa_topic3",
+          "english": "Just to confirm, we are meeting at the office on Thursday at 10 AM?",
+          "portuguese": "Só para confirmar, estamos nos encontrando no escritório na quinta-feira às 10h?",
+          "note": "Confirm plans: \"Just to confirm, we are meeting at 2 PM, right?\" Suggest changes: \"I need to reschedule; could we meet later?\" Use \"I have to\" or \"I need to\": \"I need to change the appointment.\" Use p",
+          "cue": "Confirmando e Mudando Planos",
+          "accepts": []
+        },
+        {
+          "id": "pa_topic4",
+          "english": "Shall we meet for coffee after work?",
+          "portuguese": "Devemos nos encontrar para café depois do trabalho?",
+          "note": "\"Shall we...?\" is a polite way to suggest joint action: \"Shall we have lunch together?\" \"Shall I...?\" offers to do something: \"Shall I book the restaurant?\" This is more formal and is common in Britis",
+          "cue": "Usando Shall We e Shall I",
+          "accepts": []
+        },
+        {
+          "id": "pa_topic5",
+          "english": "The conference venue is located near the downtown area.",
+          "portuguese": "O local da conferência fica perto da área do centro.",
+          "note": "Use present simple to state facts: \"The meeting is at the hotel.\" Use passive voice: \"Transportation will be provided.\" Use present perfect to discuss arrangements: \"I have booked the hotel room.\" Ask",
+          "cue": "Discutindo Detalhes do Evento e Logística",
+          "accepts": []
+        }
+      ]
+    },
+    "intermediate-37-review-integration": {
+      "title": "Lição 37: Revisão Intermediária e Integração",
+      "skill": "Integrar todas as estruturas gramaticais intermediárias em conversas autênticas",
+      "items": [
+        {
+          "id": "ir_topic1",
+          "english": "I have worked in this company for five years, and I have achieved many goals during this time.",
+          "portuguese": "Trabalhei nesta empresa por cinco anos, e realizei muitos objetivos durante este tempo.",
+          "note": "Combine tenses naturally: \"I have worked here for three years, and I will continue working here.\" Use past continuous with past simple: \"I was working when he called.\" Use future perfect: \"I will have",
+          "cue": "Integração de Gramática: Tempos em Contexto",
+          "accepts": []
+        },
+        {
+          "id": "ir_topic2",
+          "english": "Professional development and environmental responsibility are both important in modern companies.",
+          "portuguese": "Desenvolvimento profissional e responsabilidade ambiental são ambos importantes em empresas modernas.",
+          "note": "Use advanced vocabulary structures: \"We need to prioritize environmental sustainability in our workplace.\" Combine ideas: \"Health and wellness affect productivity at work.\" Mix topics naturally in dis",
+          "cue": "Integração de Vocabulário Entre Domínios",
+          "accepts": []
+        },
+        {
+          "id": "ir_topic3",
+          "english": "I have been thinking about our discussion yesterday, and I would like to propose a new idea that could improve our project.",
+          "portuguese": "Tenho pensado sobre nossa discussão ontem, e gostaria de propor uma nova ideia que poderia melhorar nosso projeto.",
+          "note": "Use connectors and transitions: \"Furthermore, we should consider...\" Use relative clauses naturally: \"The person who suggested this idea is unavailable.\" Mix polite requests with direct statements app",
+          "cue": "Cenários Conversacionais Complexos",
+          "accepts": []
+        },
+        {
+          "id": "ir_topic4",
+          "english": "I understand your concern about the budget constraints, and I would like to propose an alternative solution.",
+          "portuguese": "Entendo sua preocupação com as limitações de orçamento, e gostaria de propor uma solução alternativa.",
+          "note": "Use conditional structures: \"What if we adjusted the timeline?\" Use modal verbs for negotiation: \"Would you consider an alternative?\" Use understanding phrases: \"I appreciate your point of view.\" Comb",
+          "cue": "Resolução de Problemas e Negociação",
+          "accepts": []
+        },
+        {
+          "id": "ir_topic5",
+          "english": "Based on my experience in this field, I am confident that we can achieve our goals if we plan carefully and allocate resources wisely.",
+          "portuguese": "Com base na minha experiência neste campo, tenho confiança de que podemos alcançar nossos objetivos se planejarmos cuidadosamente e alocarmos recursos com sabed",
+          "note": "Use complex sentence structures with confidence. Combine past, present, and future tenses naturally. Use a variety of cohesive devices. Express opinions with supporting evidence. Demonstrate command o",
+          "cue": "Construindo Fluência e Confiança",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-25-advanced-conditionals": {
+      "title": "Lição 25: Condicionais Avançados",
+      "skill": "Formar e usar o Third Conditional naturalmente",
+      "items": [
+        {
+          "id": "third_conditional_form",
+          "english": "If I had known about the sale, I would have bought it.",
+          "portuguese": "Se eu soubesse da promoção, teria comprado.",
+          "note": "If + had + past participle, would/could/might + have + past participle. Used for unreal past situations.",
+          "cue": "Estrutura do Third Conditional",
+          "accepts": []
+        },
+        {
+          "id": "third_conditional_practice",
+          "english": "I wish I had started learning English earlier.",
+          "portuguese": "Eu gostaria de ter começado a aprender inglês mais cedo.",
+          "note": "\"I wish I had...\" and \"If only I had...\" express strong regret about the past. \"Should have\" expresses what was the right thing to do.",
+          "cue": "Expressando Arrependimento",
+          "accepts": []
+        },
+        {
+          "id": "mixed_conditional_past_present",
+          "english": "If I had moved to the US, I would speak English fluently now.",
+          "portuguese": "Se eu tivesse me mudado para os EUA, falaria inglês fluentemente agora.",
+          "note": "If + past perfect, would + base verb (present result). The IF clause is about the past, but the result is about NOW.",
+          "cue": "Condicional Misto: Passado → Presente",
+          "accepts": []
+        },
+        {
+          "id": "mixed_conditional_present_past",
+          "english": "If I were braver, I would have spoken up at the meeting.",
+          "portuguese": "Se eu fosse mais corajoso, teria falado na reunião.",
+          "note": "If + past simple (present meaning), would have + past participle (past result). The IF clause is about a permanent trait, the result is about a past event.",
+          "cue": "Condicional Misto: Presente → Passado",
+          "accepts": []
+        },
+        {
+          "id": "conditionals_comparison",
+          "english": "If I see her (1st), I will tell her. If I saw her (2nd), I would tell her.",
+          "portuguese": "Se eu a vir (1st), direi a ela. Se eu a visse (2nd), diria a ela.",
+          "note": "Choose based on reality and time: Zero = facts, 1st = real future possibility, 2nd = unreal present/future, 3rd = unreal past, Mixed = combining times.",
+          "cue": "Todos os Condicionais Comparados",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-26-relative-clauses": {
+      "title": "Lição 26: Orações Relativas",
+      "skill": "Distinguir orações relativas restritivas de explicativas",
+      "items": [
+        {
+          "id": "defining_clauses",
+          "english": "The woman who lives next door is a doctor.",
+          "portuguese": "A mulher que mora ao lado é médica.",
+          "note": "Defining clauses identify WHICH person/thing we mean. No commas. You can use \"that\" instead of \"who/which\".",
+          "cue": "Orações Relativas Restritivas",
+          "accepts": []
+        },
+        {
+          "id": "non_defining_clauses",
+          "english": "My manager, who has 20 years of experience, approved the project.",
+          "portuguese": "Meu gerente, que tem 20 anos de experiência, aprovou o projeto.",
+          "note": "Non-defining clauses add EXTRA information about something already identified. Use commas. CANNOT use \"that\" — only who/which/whose/where.",
+          "cue": "Orações Relativas Explicativas",
+          "accepts": []
+        },
+        {
+          "id": "whose_clauses",
+          "english": "Thats the colleague whose idea saved the project.",
+          "portuguese": "Esse é o colega cuja ideia salvou o projeto.",
+          "note": "\"Whose\" shows possession. It replaces his/her/their/its in relative clauses. Works for people AND things.",
+          "cue": "Usando Whose",
+          "accepts": []
+        },
+        {
+          "id": "reduced_clauses",
+          "english": "The people waiting in line looked impatient. (= who were waiting)",
+          "portuguese": "As pessoas esperando na fila pareciam impacientes.",
+          "note": "Remove who/which/that + be verb. Active: use -ing (the woman speaking). Passive: use past participle (the report written).",
+          "cue": "Orações Relativas Reduzidas",
+          "accepts": []
+        },
+        {
+          "id": "relative_clauses_practice",
+          "english": "The project that we started last year, which was funded by investors, is almost complete.",
+          "portuguese": "O projeto que começamos ano passado, que foi financiado por investidores, está quase completo.",
+          "note": "Practice combining defining and non-defining clauses in natural speech. Pay attention to comma placement and pronoun choice.",
+          "cue": "Prática com Frases Complexas",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-27-advanced-tenses": {
+      "title": "Lição 27: Tempos Verbais Avançados",
+      "skill": "Usar o Present Perfect Continuous para ações contínuas",
+      "items": [
+        {
+          "id": "present_perfect_continuous",
+          "english": "I have been learning Portuguese for six months.",
+          "portuguese": "Estou aprendendo português há seis meses.",
+          "note": "have/has + been + verb-ing. Emphasizes DURATION of an ongoing action. Often with \"for\" (period) and \"since\" (starting point).",
+          "cue": "Present Perfect Continuous",
+          "accepts": []
+        },
+        {
+          "id": "past_perfect_continuous",
+          "english": "I had been driving for five hours when I finally stopped to rest.",
+          "portuguese": "Eu estava dirigindo há cinco horas quando finalmente parei para descansar.",
+          "note": "had + been + verb-ing. For actions that were ongoing BEFORE another past action. Shows duration up to a past point.",
+          "cue": "Past Perfect Continuous",
+          "accepts": []
+        },
+        {
+          "id": "future_perfect",
+          "english": "By December, I will have saved enough for a trip.",
+          "portuguese": "Até dezembro, terei economizado o suficiente para uma viagem.",
+          "note": "will + have + past participle. For actions that WILL BE COMPLETED by a specific future time. Key phrase: \"by + future time\".",
+          "cue": "Futuro Perfeito",
+          "accepts": []
+        },
+        {
+          "id": "future_perfect_continuous",
+          "english": "Next week, I will have been studying English for exactly one year.",
+          "portuguese": "Na próxima semana, estarei estudando inglês há exatamente um ano.",
+          "note": "will + have + been + verb-ing. Emphasizes the DURATION of an ongoing action up to a future point.",
+          "cue": "Futuro Perfeito Contínuo",
+          "accepts": []
+        },
+        {
+          "id": "tense_selection",
+          "english": "I have read 3 books. (result) vs I have been reading a lot. (activity)",
+          "portuguese": "Eu li 3 livros. (resultado) vs Eu tenho lido muito. (atividade)",
+          "note": "Perfect = result/completion. Perfect Continuous = duration/process. Choose based on whether you want to emphasize the result or the ongoing nature of the action.",
+          "cue": "Escolhendo o Tempo Certo",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-28-formal-register": {
+      "title": "Lição 28: Registro Formal",
+      "skill": "Identificar a diferença entre registro formal e informal",
+      "items": [
+        {
+          "id": "formal_vs_informal",
+          "english": "Informal: \"Can you help me out?\" → Formal: \"Would you be able to assist me?\"",
+          "portuguese": "Informal: \"Pode me ajudar?\" → Formal: \"Seria possível me auxiliar?\"",
+          "note": "Formal English avoids contractions, slang, and phrasal verbs. It uses complete sentences, passive voice, and Latin-origin words.",
+          "cue": "Inglês Formal vs Informal",
+          "accepts": []
+        },
+        {
+          "id": "formal_connectors",
+          "english": "The project was successful. Furthermore, it was completed under budget.",
+          "portuguese": "O projeto foi bem-sucedido. Além disso, foi concluído abaixo do orçamento.",
+          "note": "Formal connectors organize ideas clearly: Addition (Furthermore, Moreover), Contrast (Nevertheless, However), Result (Consequently, Therefore), Reference (With regard to, Concerning).",
+          "cue": "Conectores Avançados",
+          "accepts": []
+        },
+        {
+          "id": "formal_emails",
+          "english": "Dear Mr. Silva, I am writing to follow up on our previous conversation.",
+          "portuguese": "Caro Sr. Silva, estou escrevendo para dar continuidade à nossa conversa anterior.",
+          "note": "Professional emails have clear structure: greeting, purpose, body, closing. Use formal phrases and avoid abbreviations.",
+          "cue": "Escrita de Emails Profissionais",
+          "accepts": []
+        },
+        {
+          "id": "formal_hedging",
+          "english": "It would appear that there has been a misunderstanding.",
+          "portuguese": "Parece que houve um mal-entendido.",
+          "note": "Hedging makes statements less direct and more polite. Use: seem, appear, tend, might, could, would, perhaps, somewhat, slightly.",
+          "cue": "Hedging e Linguagem Diplomática",
+          "accepts": []
+        },
+        {
+          "id": "formal_presentations",
+          "english": "I would like to begin by outlining our main objectives.",
+          "portuguese": "Gostaria de começar delineando nossos principais objetivos.",
+          "note": "Structure: Introduction (I would like to present...), Signposting (Firstly, Moving on to...), Evidence (The data shows...), Conclusion (In summary, To conclude...).",
+          "cue": "Apresentando Ideias Formalmente",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-29-idiomatic-english": {
+      "title": "Lição 29: Inglês Idiomático",
+      "skill": "Entender e usar 20+ expressões idiomáticas comuns",
+      "items": [
+        {
+          "id": "body_idioms",
+          "english": "Could you keep an eye on my bag while I go to the restroom?",
+          "portuguese": "Você pode ficar de olho na minha bolsa enquanto eu vou ao banheiro?",
+          "note": "Idioms are fixed expressions — the words cannot be changed or rearranged. Learn them as complete units, not word by word.",
+          "cue": "Expressões com Partes do Corpo",
+          "accepts": []
+        },
+        {
+          "id": "work_idioms",
+          "english": "Lets get the ball rolling on this project.",
+          "portuguese": "Vamos dar início a este projeto.",
+          "note": "Business idioms are very common in meetings and emails. Using them naturally shows fluency and cultural awareness.",
+          "cue": "Expressões de Negócios e Trabalho",
+          "accepts": []
+        },
+        {
+          "id": "collocations",
+          "english": "We need to make a decision by tomorrow. (NOT do a decision)",
+          "portuguese": "Precisamos tomar uma decisão até amanhã.",
+          "note": "Collocations are words that naturally go together. Using the right combination sounds natural; the wrong one sounds off. Learn collocations as pairs.",
+          "cue": "Colocações Naturais",
+          "accepts": []
+        },
+        {
+          "id": "emotion_idioms",
+          "english": "She was over the moon when she got the promotion.",
+          "portuguese": "Ela ficou nas nuvens quando conseguiu a promoção.",
+          "note": "Emotional idioms add color and naturalness to speech. They show fluency and help you express feelings more vividly than simple adjectives.",
+          "cue": "Expressões para Emoções e Situações",
+          "accepts": []
+        },
+        {
+          "id": "idioms_in_context",
+          "english": "In a nutshell, the project was a success but it took longer than expected.",
+          "portuguese": "Resumindo, o projeto foi um sucesso mas levou mais tempo que o esperado.",
+          "note": "Dont overuse idioms — one or two per conversation sounds natural. Too many sounds forced. Match the idiom to the formality of the situation.",
+          "cue": "Usando Expressões em Conversas",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-30-debate-opinion": {
+      "title": "Lição 30: Debate e Opinião",
+      "skill": "Expressar opiniões com diferentes graus de intensidade",
+      "items": [
+        {
+          "id": "expressing_opinions",
+          "english": "In my opinion, remote work increases productivity.",
+          "portuguese": "Na minha opinião, trabalho remoto aumenta a produtividade.",
+          "note": "Mild: \"I think...\", \"It seems to me...\". Medium: \"I believe...\", \"In my view...\". Strong: \"I strongly believe...\", \"I am convinced that...\".",
+          "cue": "Expressando Opiniões",
+          "accepts": []
+        },
+        {
+          "id": "agreeing_disagreeing",
+          "english": "I couldnt agree more — technology is transforming education.",
+          "portuguese": "Concordo plenamente — tecnologia está transformando a educação.",
+          "note": "Agree: \"Absolutely!\", \"I couldnt agree more\", \"Thats a great point\". Disagree politely: \"I see your point, but...\", \"I respectfully disagree\", \"Thats one way to look at it, however...\".",
+          "cue": "Concordando e Discordando",
+          "accepts": []
+        },
+        {
+          "id": "building_arguments",
+          "english": "Research shows that bilingual people have better cognitive flexibility.",
+          "portuguese": "Pesquisas mostram que pessoas bilíngues têm melhor flexibilidade cognitiva.",
+          "note": "Strong arguments have: 1) A clear position, 2) Evidence (data, examples, expert opinion), 3) Logical reasoning, 4) Acknowledgment of counterarguments.",
+          "cue": "Construindo Argumentos",
+          "accepts": []
+        },
+        {
+          "id": "conceding_counterarguments",
+          "english": "Admittedly, AI has some risks. However, the benefits far outweigh them.",
+          "portuguese": "Reconhecidamente, IA tem alguns riscos. No entanto, os benefícios superam em muito.",
+          "note": "Concede first, then counter: \"While X is true, Y is more important.\" This shows you are open-minded but still have a strong position.",
+          "cue": "Concedendo e Contra-argumentando",
+          "accepts": []
+        },
+        {
+          "id": "debate_practice",
+          "english": "Let me start by stating that I am in favor of renewable energy.",
+          "portuguese": "Deixe-me começar dizendo que sou a favor da energia renovável.",
+          "note": "Debate structure: 1) State position, 2) Give reasons + evidence, 3) Address counterarguments, 4) Restate position with conclusion.",
+          "cue": "Prática de Debate Completo",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-31-narrative-skills": {
+      "title": "Lição 31: Habilidades Narrativas",
+      "skill": "Usar tempos narrativos fluentemente",
+      "items": [
+        {
+          "id": "narrative_tenses",
+          "english": "I was having dinner when suddenly the lights went out.",
+          "portuguese": "Eu estava jantando quando de repente as luzes apagaram.",
+          "note": "Past Simple = main events. Past Continuous = background/setting. Past Perfect = earlier event (before the main story). Combine them for rich narratives.",
+          "cue": "Tempos Narrativos",
+          "accepts": []
+        },
+        {
+          "id": "vivid_descriptions",
+          "english": "The old library was eerily quiet, with dust floating in the golden light.",
+          "portuguese": "A velha biblioteca estava assustadoramente silenciosa, com poeira flutuando na luz dourada.",
+          "note": "Use sensory details: sight, sound, smell, touch, taste. Combine adjectives with adverbs for richer descriptions: \"absolutely stunning\", \"eerily quiet\".",
+          "cue": "Descrições Vívidas",
+          "accepts": []
+        },
+        {
+          "id": "story_structure",
+          "english": "It all started on a rainy Tuesday morning in November.",
+          "portuguese": "Tudo começou numa manhã chuvosa de terça-feira em novembro.",
+          "note": "Good stories have: 1) Setting (where, when), 2) Characters, 3) Complication (what went wrong), 4) Climax (turning point), 5) Resolution (how it ended).",
+          "cue": "Estrutura da História",
+          "accepts": []
+        },
+        {
+          "id": "dialogue_in_stories",
+          "english": "\"I cant believe this is happening,\" she whispered, her eyes wide with shock.",
+          "portuguese": "\"Não acredito que isso está acontecendo,\" ela sussurrou, com os olhos arregalados de choque.",
+          "note": "Direct speech adds drama: \"Stop!\" he yelled. Indirect speech is smoother: He told me to stop. Mix both for natural storytelling.",
+          "cue": "Diálogo em Histórias",
+          "accepts": []
+        },
+        {
+          "id": "engaging_storytelling",
+          "english": "You wont believe what happened next — the CEO walked in!",
+          "portuguese": "Você não vai acreditar no que aconteceu depois — o CEO entrou!",
+          "note": "Engage listeners with: rhetorical questions (\"Can you guess?\"), suspense (\"Little did I know...\"), dramatic pauses, and strong endings.",
+          "cue": "Engajando seu Ouvinte",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-32-nuances": {
+      "title": "Lição 32: Nuances do Inglês",
+      "skill": "Distinguir palavras comumente confundidas (affect/effect, lay/lie, etc.)",
+      "items": [
+        {
+          "id": "confusing_words",
+          "english": "The weather affected (verb) our plans. The effect (noun) was disappointing.",
+          "portuguese": "O clima afetou (verbo) nossos planos. O efeito (substantivo) foi decepcionante.",
+          "note": "Many confusing word pairs follow patterns: verb ending in -ise/-ize vs noun ending in -ice/-ce (advise/advice, practice/practise). Learn the part of speech to choose correctly.",
+          "cue": "Palavras Comumente Confundidas",
+          "accepts": []
+        },
+        {
+          "id": "fewer_less_much_many",
+          "english": "There are fewer cars on the road today. (countable)",
+          "portuguese": "Há menos carros na estrada hoje. (contável)",
+          "note": "Countable → fewer, many, a few, each. Uncountable → less, much, a little. \"Each\" = individual focus. \"Every\" = group/all focus.",
+          "cue": "Fewer/Less, Much/Many, Each/Every",
+          "accepts": []
+        },
+        {
+          "id": "tricky_prepositions",
+          "english": "It depends on the weather. (NOT \"depends of\")",
+          "portuguese": "Depende do clima. (NOT \"depends of\")",
+          "note": "Many English prepositions dont match Portuguese translations. Learn verb + preposition as a unit: interested IN, depend ON, good AT, married TO, consist OF.",
+          "cue": "Preposições Complicadas",
+          "accepts": []
+        },
+        {
+          "id": "say_tell_speak_talk",
+          "english": "She said (that) she was tired. (NOT \"she said me\")",
+          "portuguese": "Ela disse que estava cansada.",
+          "note": "SAY + words/sentences (no indirect object needed). TELL + person + information (indirect object required). SPEAK = formal, languages. TALK = informal, conversations.",
+          "cue": "Say, Tell, Speak, Talk",
+          "accepts": []
+        },
+        {
+          "id": "brazilian_common_mistakes",
+          "english": "I am 30 years old. (NOT \"I have 30 years\")",
+          "portuguese": "Tenho 30 anos. (Em inglês: I AM 30)",
+          "note": "Common Brazilian mistakes: age (have → be), false friends (pretend ≠ pretender), word order in questions, missing \"it\" as subject (It is raining, NOT Is raining).",
+          "cue": "Erros Comuns de Brasileiros",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-33-business-english": {
+      "title": "Lição 33: Inglês para Negócios",
+      "skill": "Liderar e participar de reuniões profissionais",
+      "items": [
+        {
+          "id": "leading_meetings",
+          "english": "Thank you all for joining. Lets get started — the agenda is on your screens.",
+          "portuguese": "Obrigado a todos por participarem. Vamos começar — a pauta está nas telas de vocês.",
+          "note": "Meeting language: Opening (The purpose/objective of this meeting...), Agenda management (Moving on..., Lets get back to...), Closing (To summarize..., The next steps are...).",
+          "cue": "Liderando Reuniões",
+          "accepts": []
+        },
+        {
+          "id": "negotiation_language",
+          "english": "We would like to propose a revised timeline that accommodates both parties.",
+          "portuguese": "Gostaríamos de propor um cronograma revisado que acomode ambas as partes.",
+          "note": "Negotiation uses conditional and hedging: \"We would be willing to...\" \"If you could meet us halfway...\" \"Perhaps we could consider...\"",
+          "cue": "Linguagem de Negociação",
+          "accepts": []
+        },
+        {
+          "id": "presentations",
+          "english": "Good morning, everyone. Today I would like to present our quarterly results.",
+          "portuguese": "Bom dia a todos. Hoje gostaria de apresentar nossos resultados trimestrais.",
+          "note": "Signpost language guides the audience: \"Firstly... Secondly... Finally...\", \"Moving on to...\", \"This leads us to...\", \"To conclude...\"",
+          "cue": "Fazendo Apresentações",
+          "accepts": []
+        },
+        {
+          "id": "email_mastery",
+          "english": "I am writing to follow up on the proposal we discussed last Tuesday.",
+          "portuguese": "Escrevo para dar continuidade à proposta que discutimos terça passada.",
+          "note": "Email structure: Subject line (clear + concise), Greeting (Dear...), Purpose (first sentence), Body (details), Action needed (clear request), Closing (professional sign-off).",
+          "cue": "Domínio de Emails",
+          "accepts": []
+        },
+        {
+          "id": "cross_cultural_business",
+          "english": "I want to make sure we are on the same page regarding the timeline.",
+          "portuguese": "Quero garantir que estamos alinhados em relação ao cronograma.",
+          "note": "Cross-cultural tips: Be explicit (avoid assumptions), use clear language (avoid idioms with unfamiliar audiences), and show respect for different communication styles.",
+          "cue": "Comunicação Intercultural",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-34-academic-english": {
+      "title": "Lição 34: Inglês Acadêmico",
+      "skill": "Escrever declarações de tese e frases-tema claras",
+      "items": [
+        {
+          "id": "thesis_statements",
+          "english": "This essay argues that social media has fundamentally altered political discourse.",
+          "portuguese": "Este ensaio argumenta que a mídia social alterou fundamentalmente o discurso político.",
+          "note": "A strong thesis: 1) Takes a clear position, 2) Is specific (not vague), 3) Is arguable (others could disagree), 4) Previews the structure of your argument.",
+          "cue": "Declarações de Tese e Argumentos",
+          "accepts": []
+        },
+        {
+          "id": "academic_vocabulary",
+          "english": "The findings indicate a strong correlation between exercise and mental health.",
+          "portuguese": "Os achados indicam uma forte correlação entre exercício e saúde mental.",
+          "note": "Academic writing prefers: formal verbs (examine vs look at), nominalization (investigation vs investigating), hedging (suggests vs proves), and passive voice (was observed vs I observed).",
+          "cue": "Vocabulário Acadêmico",
+          "accepts": []
+        },
+        {
+          "id": "citing_sources",
+          "english": "According to recent research by Harvard, meditation reduces stress by 30%.",
+          "portuguese": "De acordo com pesquisa recente de Harvard, meditação reduz estresse em 30%.",
+          "note": "Reporting verbs vary in strength: suggest/indicate (neutral), argue/claim (opinion), demonstrate/prove (strong evidence), reveal/show (discovery).",
+          "cue": "Citações e Referências",
+          "accepts": []
+        },
+        {
+          "id": "critical_analysis",
+          "english": "While the study provides valuable insights, a significant limitation is the small sample size.",
+          "portuguese": "Embora o estudo forneça insights valiosos, uma limitação significativa é o pequeno tamanho da amostra.",
+          "note": "Critical analysis requires: evaluation (effective/ineffective, valid/flawed), comparison (whereas, in contrast), and qualification (to some extent, largely, arguably).",
+          "cue": "Análise Crítica",
+          "accepts": []
+        },
+        {
+          "id": "academic_discussion",
+          "english": "Building on your analysis, I would argue that cultural factors also play a role.",
+          "portuguese": "Expandindo sua análise, eu argumentaria que fatores culturais também desempenham um papel.",
+          "note": "Academic discussion skills: building on others ideas, respectfully challenging assumptions, asking for clarification, and synthesizing different viewpoints.",
+          "cue": "Discussão e Debate Acadêmico",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-35-cultural-fluency": {
+      "title": "Lição 35: Fluência Cultural",
+      "skill": "Entender e usar humor e sarcasmo em inglês",
+      "items": [
+        {
+          "id": "english_humor",
+          "english": "\"Nice weather, isnt it?\" (said during a storm — sarcasm)",
+          "portuguese": "\"Bom tempo, né?\" (dito durante uma tempestade — sarcasmo)",
+          "note": "English humor often relies on: saying the opposite (sarcasm/irony), understatement (saying less than you mean), wordplay (double meanings), and self-deprecation (joking about yourself).",
+          "cue": "Entendendo o Humor em Inglês",
+          "accepts": []
+        },
+        {
+          "id": "understatement_overstatement",
+          "english": "\"Its a bit chilly, isnt it?\" (British understatement — its actually freezing)",
+          "portuguese": "\"Está um pouquinho frio, né?\" (understatement britânico — está congelando)",
+          "note": "British English favors understatement (saying less). American English uses more overstatement and hyperbole. Recognizing these helps you understand the real meaning.",
+          "cue": "Understatement e Exagero",
+          "accepts": []
+        },
+        {
+          "id": "social_english",
+          "english": "\"How are you?\" \"Good, thanks! And you?\" (Standard exchange — keep it brief)",
+          "portuguese": "\"Como vai?\" \"Bem, obrigado! E você?\" (Troca padrão — mantenha breve)",
+          "note": "Social English has hidden meanings. \"Lets do lunch\" rarely leads to lunch. \"Ill let you know\" often means no. Context and tone reveal the true meaning.",
+          "cue": "Inglês Social e Small Talk",
+          "accepts": []
+        },
+        {
+          "id": "tone_register",
+          "english": "Casual: \"Hey, can you send me that file?\" → Formal: \"Would you mind forwarding the document?\"",
+          "portuguese": "Casual: \"Ei, pode me mandar aquele arquivo?\" → Formal: \"Importaria-se de encaminhar o documento?\"",
+          "note": "Same message, different register: Casual (contractions, slang, short), Neutral (standard grammar), Formal (no contractions, polite forms), Academic (impersonal, passive voice).",
+          "cue": "Tom e Registro no Contexto",
+          "accepts": []
+        },
+        {
+          "id": "cultural_references",
+          "english": "Its a Catch-22 — you need experience to get a job, but you need a job to get experience.",
+          "portuguese": "É um paradoxo — você precisa de experiência para conseguir um emprego, mas precisa de um emprego para ter experiência.",
+          "note": "Cultural references and common expressions come from literature, movies, history, and everyday life. Knowing them helps you understand conversations and connect with speakers.",
+          "cue": "Referências Culturais Comuns",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-36-mastery-fluency": {
+      "title": "Lição 36: Maestria e Fluência",
+      "skill": "Integrar todas as estruturas gramaticais em conversa fluente",
+      "items": [
+        {
+          "id": "complex_scenarios",
+          "english": "If we had anticipated this change, we could have prepared better. Nevertheless, the team has been adapting remarkably well.",
+          "portuguese": "Se tivéssemos antecipado essa mudança, poderíamos ter nos preparado melhor. No entanto, a equipe tem se adaptado notavelmente bem.",
+          "note": "Real fluency means combining multiple structures naturally: conditionals + reported speech + passive voice + connectors — all in one coherent message.",
+          "cue": "Cenários Complexos do Mundo Real",
+          "accepts": []
+        },
+        {
+          "id": "register_switching",
+          "english": "In a meeting: \"I believe we should reconsider our approach.\" At lunch: \"Yeah, I think the whole plan is kinda off.\"",
+          "portuguese": "Na reunião: \"Acredito que devemos reconsiderar nossa abordagem.\" No almoço: \"É, acho que o plano todo está meio errado.\"",
+          "note": "Fluent speakers adjust their register unconsciously. Practice recognizing when to shift: who is your audience, what is the context, and what tone is appropriate?",
+          "cue": "Alternando Registros Fluidamente",
+          "accepts": []
+        },
+        {
+          "id": "spontaneous_speaking",
+          "english": "Off the top of my head, I would say the main issue is communication.",
+          "portuguese": "De cabeça, eu diria que a questão principal é comunicação.",
+          "note": "Fillers and thinking phrases buy you time: \"Well...\", \"Let me think...\", \"Thats interesting...\", \"How shall I put this...\". They are natural and expected in fluent speech.",
+          "cue": "Fala Espontânea",
+          "accepts": []
+        },
+        {
+          "id": "error_self_correction",
+          "english": "We need to invest more in mark— sorry, I mean in research and development.",
+          "portuguese": "Precisamos investir mais em mark— desculpe, quero dizer em pesquisa e desenvolvimento.",
+          "note": "Even native speakers make mistakes. The skill is correcting smoothly: \"I mean...\", \"Or rather...\", \"Let me rephrase...\", \"What I meant to say was...\".",
+          "cue": "Autocorreção e Reformulação",
+          "accepts": []
+        },
+        {
+          "id": "lifelong_learning",
+          "english": "The key to fluency is consistent practice — even 15 minutes a day makes a difference.",
+          "portuguese": "A chave para fluência é prática consistente — mesmo 15 minutos por dia faz diferença.",
+          "note": "Language learning never stops. The best advanced learners: read widely, listen to varied accents, speak regularly, write often, and embrace mistakes as learning opportunities.",
+          "cue": "Sua Jornada de Aprendizado Continua",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-37-subjunctive-mood": {
+      "title": "Lição 37: O Modo Subjuntivo",
+      "skill": "Entender o modo subjuntivo e suas funções",
+      "items": [
+        {
+          "id": "subj_wishes_demands",
+          "english": "I wish you were here with me.",
+          "portuguese": "Eu gostaria que você estivesse aqui comigo.",
+          "note": "After wish/demand/suggest/require/insist/propose that, use the base form of the verb (infinitive without \"to\"): I wish he WERE (not \"was\"), It is essential that she ARRIVE (not \"arrives\").",
+          "cue": "Desejos, Exigências e Sugestões",
+          "accepts": []
+        },
+        {
+          "id": "subj_contrary_fact",
+          "english": "If I were President, I would change many policies.",
+          "portuguese": "Se eu fosse Presidente, eu mudaria muitas políticas.",
+          "note": "In present contrary-to-fact: \"If I WERE...\" (not \"was\"). In past: \"If she HAD known...\" Use would/could/might + infinitive in the main clause. Inverted form: \"Were I in your position...\" or \"Had I kno",
+          "cue": "Condicionais Contrárias aos Fatos",
+          "accepts": []
+        },
+        {
+          "id": "subj_formality",
+          "english": "It is hereby ordered that the defendant be sentenced to probation.",
+          "portuguese": "Fica por este meio ordenado que o réu seja condenado a liberdade condicional.",
+          "note": "In formal/legal writing, subjunctive is more common. Use \"be\" instead of \"is/are\", and base verb forms after certain expressions. Archaic expressions also use subjunctive: \"God save...\", \"Damn it!\", \"",
+          "cue": "Subjuntivo em Contextos Formais",
+          "accepts": []
+        },
+        {
+          "id": "subj_literary",
+          "english": "Though death take me from this world, my love shall endure forever.",
+          "portuguese": "Ainda que a morte me tire deste mundo, meu amor durará para sempre.",
+          "note": "Literary subjunctive often appears in introductory clauses or with archaic phrasing: \"Though he be...\", \"Lest we...\", \"Would that...\". Modern readers recognize these as stylistically elevated and emot",
+          "cue": "Subjuntivo em Literatura e Poesia",
+          "accepts": []
+        },
+        {
+          "id": "subj_modern_patterns",
+          "english": "I wish I were a better listener.",
+          "portuguese": "Eu gostaria de ser um melhor ouvinte.",
+          "note": "Modern conversational English uses fewer subjunctive forms, but certain phrases remain standard: \"I wish I were...\", \"as if/though...\", \"what if...\", and \"far be it from me to...\". These are recognize",
+          "cue": "Padrões Subjuntivos Modernos",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-38-inversion-emphasis": {
+      "title": "Lição 38: Inversão e Ênfase",
+      "skill": "Entender posicionamento frontal e inversão para ênfase",
+      "items": [
+        {
+          "id": "inv_negative_fronting",
+          "english": "Never have I experienced such kindness.",
+          "portuguese": "Nunca experimentei tal gentileza.",
+          "note": "When negative/semi-negative adverbials (Never, Not only, Nowhere, Seldom, Hardly, Barely, No sooner) move to the front, invert the subject and auxiliary verb. Example: \"Never have I seen\" (not \"Never ",
+          "cue": "Inversão Negativa",
+          "accepts": []
+        },
+        {
+          "id": "inv_conditional_inversion",
+          "english": "Were I in your position, I would accept immediately.",
+          "portuguese": "Se eu estivesse na sua posição, eu aceitaria imediatamente.",
+          "note": "In conditionals, omit \"if\" and invert the verb and subject for formality: \"Were I to accept...\" (instead of \"If I were to accept...\"), \"Had she known...\" (instead of \"If she had known...\").",
+          "cue": "Inversão Condicional",
+          "accepts": []
+        },
+        {
+          "id": "inv_cleft_sentences",
+          "english": "It is your dedication that will lead to success.",
+          "portuguese": "É sua dedicação que levará ao sucesso.",
+          "note": "Cleft sentences split a sentence into two parts: \"It + verb + focused element + relative clause\" or \"What-clause + verb + comment\". Example: \"It is the QUALITY that matters\" emphasizes quality vs \"The",
+          "cue": "Orações Cleft",
+          "accepts": []
+        },
+        {
+          "id": "inv_fronting",
+          "english": "Talented he certainly was, but arrogant too.",
+          "portuguese": "Talentoso ele certamente era, mas também arrogante.",
+          "note": "Fronting moves elements from their normal position for emphasis: Object to front: \"This job I will complete.\" Adjective to front: \"Beautiful the landscape was.\" Adverbial to front: \"Here we must stand",
+          "cue": "Posicionamento Frontal para Ênfase",
+          "accepts": []
+        },
+        {
+          "id": "inv_rhetorical_devices",
+          "english": "Ask not what your country can do for you; ask what you can do for your country.",
+          "portuguese": "Não pergunte o que seu país pode fazer por você; pergunte o que você pode fazer por seu país.",
+          "note": "Literary and rhetorical inversion creates memorable phrases, emphasizes values, and builds emotional impact. Common in speeches, poetry, and persuasive writing. Not required in everyday speech but rec",
+          "cue": "Inversão em Retórica e Literatura",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-39-advanced-connectors": {
+      "title": "Lição 39: Conectores Avançados",
+      "skill": "Domine conectores de contraste avançados (nevertheless, notwithstanding, however)",
+      "items": [
+        {
+          "id": "adv_conn_contrast",
+          "english": "The project faced numerous obstacles. Nevertheless, the team completed it on schedule.",
+          "portuguese": "O projeto enfrentou numerosos obstáculos. Apesar disso, a equipe o completou no prazo.",
+          "note": "Advanced contrast connectors include: nevertheless (formal), notwithstanding (very formal), conversely (logical contrast), conversely (opposite), yet (conjunctive), all the same (despite). Position va",
+          "cue": "Contraste e Concessão",
+          "accepts": []
+        },
+        {
+          "id": "adv_conn_addition",
+          "english": "The policy is cost-effective. Furthermore, it addresses environmental concerns.",
+          "portuguese": "A política é custo-efetiva. Além disso, ela aborda preocupações ambientais.",
+          "note": "Addition/emphasis connectors: furthermore (formal addition), moreover (strong addition), what is more (conversational emphasis), in addition to (introduces secondary point), additionally (formal addit",
+          "cue": "Adição e Ênfase",
+          "accepts": []
+        },
+        {
+          "id": "adv_conn_cause_effect",
+          "english": "The demand exceeded supply dramatically. Consequently, prices rose sharply.",
+          "portuguese": "A demanda excedeu a oferta dramaticamente. Consequentemente, os preços subiram drasticamente.",
+          "note": "Cause/effect connectors: consequently, as a result, therefore, for this reason, in view of, hence, thus, so (informal). Some introduce independent clauses (consequently, therefore), others subordinate",
+          "cue": "Causa, Efeito e Consequência",
+          "accepts": []
+        },
+        {
+          "id": "adv_conn_comparison",
+          "english": "Portugal expanded its tourism industry. Similarly, Spain developed comparable infrastructure.",
+          "portuguese": "Portugal expandiu sua indústria de turismo. Similarmente, a Espanha desenvolveu infraestrutura comparável.",
+          "note": "Comparison: similarly, likewise, in the same way. Contrast: whereas, on the other hand, by contrast, conversely. \"Whereas\" can also introduce dependent clauses showing comparison or contrast. Placemen",
+          "cue": "Comparação e Contraste",
+          "accepts": []
+        },
+        {
+          "id": "adv_conn_logical_flow",
+          "english": "To begin with, we must establish clear objectives. Subsequently, we allocate resources. Finally, we implement and monitor.",
+          "portuguese": "Para começar, devemos estabelecer objetivos claros. Subsequentemente, alocamos recursos. Finalmente, implementamos e monitoramos.",
+          "note": "Logical flow connectors guide argument progression: To begin with, To continue, To conclude. Clarification: that is to say, in other words, put differently. Examples/illustration: for instance, for ex",
+          "cue": "Fluxo Lógico e Desenvolvimento",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-40-persuasion-influence": {
+      "title": "Lição 40: Persuasão e Influência",
+      "skill": "Entenda apelos retóricos (ethos, pathos, logos)",
+      "items": [
+        {
+          "id": "pers_ethos_credibility",
+          "english": "As a board-certified financial advisor with 25 years of experience, I recommend this investment strategy.",
+          "portuguese": "Como consultor financeiro certificado com 25 anos de experiência, recomendo esta estratégia de investimento.",
+          "note": "Ethos language emphasizes authority, experience, and trustworthiness. Use credentials, institutional affiliations, accomplishments. Examples: \"As a medical doctor,\" \"Our peer-reviewed research,\" \"The ",
+          "cue": "Construindo Credibilidade (Ethos)",
+          "accepts": []
+        },
+        {
+          "id": "pers_pathos_emotion",
+          "english": "Every child deserves a safe place to sleep, clean water to drink, and hope for the future.",
+          "portuguese": "Toda criança merece um lugar seguro para dormir, água limpa para beber e esperança para o futuro.",
+          "note": "Pathos uses vivid imagery, personal stories, emotional language, and values. Imperative forms (Imagine, Picture, Feel) engage readers. Sensory details and relatable scenarios create emotional connecti",
+          "cue": "Apelo Emocional (Pathos)",
+          "accepts": []
+        },
+        {
+          "id": "pers_logos_logic",
+          "english": "Ninety-seven percent of climate scientists agree on human-caused climate change - a consensus greater than for most medical treatments.",
+          "portuguese": "Noventa e sete por cento dos climatologistas concordam com a mudança climática causada pelo ser humano - um consenso maior que para a maioria dos tratamentos mé",
+          "note": "Logos uses concrete data, citations, logical structure, and cause-effect reasoning. Present information neutrally but strategically. Use hedging language carefully (may, suggests, indicates) or strong",
+          "cue": "Apelo Lógico (Logos)",
+          "accepts": []
+        },
+        {
+          "id": "pers_argumentation",
+          "english": "Admittedly, this solution requires upfront investment; however, long-term savings far exceed initial costs.",
+          "portuguese": "Admitidamente, esta solução requer investimento inicial; porém, as economias a longo prazo excedem bastante os custos iniciais.",
+          "note": "Strong arguments acknowledge counterarguments (concession) then refute them (refutation). Use contrast structures (However, Yet, Nevertheless). Build from weaker to stronger points (climactic order). ",
+          "cue": "Técnicas de Argumentação",
+          "accepts": []
+        },
+        {
+          "id": "pers_marketing_language",
+          "english": "Join over 2 million satisfied customers who have transformed their lives with our product.",
+          "portuguese": "Junte-se a mais de 2 milhões de clientes satisfeitos que transformaram suas vidas com nosso produto.",
+          "note": "Marketing language uses urgency (Limited time, Now, Today), social proof (Thousands choose, Awards), superlatives (Best, Premium, Exclusive), and guarantees. Questions engage readers: \"Why wait?\" \"Are",
+          "cue": "Linguagem de Marketing e Publicidade",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-41-diplomacy-conflict": {
+      "title": "Lição 41: Diplomacia e Resolução de Conflitos",
+      "skill": "Use linguagem tátil para abordar questões sensíveis",
+      "items": [
+        {
+          "id": "dipl_tactful_language",
+          "english": "I appreciate your dedication, and I've noticed some concerns that might be worth addressing together.",
+          "portuguese": "Eu aprecio sua dedicação e notei algumas preocupações que poderiam valer a pena ser abordadas juntos.",
+          "note": "Diplomatic language uses: hedging (may, might, could, perhaps, arguably), softeners (I think, in my view, arguably), acknowledgment before disagreement (Your point is valid, AND...), and questions rat",
+          "cue": "Linguagem Tátil e Neutralidade",
+          "accepts": []
+        },
+        {
+          "id": "dipl_validation_empathy",
+          "english": "Your frustration is completely understandable - you've invested significant effort in this project.",
+          "portuguese": "Sua frustração é completamente compreensível - você investiu esforço significativo neste projeto.",
+          "note": "Validation uses: acknowledging feelings directly (Your feelings are valid), reflective listening (So what I hear is...), empathetic statements (I can imagine...), and open questions (Tell me more abou",
+          "cue": "Validação e Escuta Empática",
+          "accepts": []
+        },
+        {
+          "id": "dipl_de_escalation",
+          "english": "Let's pause this conversation for a moment. I think we both want to find a solution here.",
+          "portuguese": "Vamos pausar esta conversa por um momento. Eu acho que nós dois queremos encontrar uma solução aqui.",
+          "note": "De-escalation language: pauses/reframes (Let's pause, Let's reconsider), acknowledges shared goals (We both want...), invites collaboration (Could we...?), and uses \"I\" statements to avoid blame (I fe",
+          "cue": "Técnicas de Desescalação",
+          "accepts": []
+        },
+        {
+          "id": "dipl_finding_common_ground",
+          "english": "We may disagree on the method, but we're aligned on the goal - improving customer satisfaction.",
+          "portuguese": "Nós podemos discordar sobre o método, mas estamos alinhados no objetivo - melhorar a satisfação do cliente.",
+          "note": "Common ground language: contrasts differences with shared values (different methods, same goal), uses inclusive pronouns (we, us, our), emphasizes alignment (agree on, share, common), and frames disag",
+          "cue": "Encontrando Terreno Comum",
+          "accepts": []
+        },
+        {
+          "id": "dipl_bridge_building",
+          "english": "What if we took the best elements of your approach and combined them with the strengths we see in this alternative?",
+          "portuguese": "E se pegássemos os melhores elementos de sua abordagem e os combinássemos com os pontos fortes que vemos nesta alternativa?",
+          "note": "Bridge-building uses questions (What if...? Could we...?), collaborative language (together, both, we could), forward-looking framing (moving ahead, next steps), and concrete suggestions that validate",
+          "cue": "Construindo Pontes e Propondo Soluções",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-42-media-literacy": {
+      "title": "Lição 42: Alfabetismo de Mídia e Análise",
+      "skill": "Identifique viés e técnicas de propaganda na mídia",
+      "items": [
+        {
+          "id": "media_bias_identification",
+          "english": "This news outlet frequently reports stories that support its political viewpoint - a clear example of confirmation bias.",
+          "portuguese": "Esta emissora de notícias frequentemente relata histórias que apoiam seu ponto de vista político - um claro exemplo de viés de confirmação.",
+          "note": "Bias language uses terms like: confirmation bias (seeking supporting information), selection bias (choosing only certain stories), framing bias (how the story is presented), corporate bias (favoring b",
+          "cue": "Identificando Viés em Cobertura de Notícias",
+          "accepts": []
+        },
+        {
+          "id": "media_framing_narrative",
+          "english": "By framing refugees as a \"threat,\" the media activates fear rather than encouraging empathy.",
+          "portuguese": "Ao enquadrar refugiados como uma \"ameaça\", a mídia ativa o medo em vez de encorajar empatia.",
+          "note": "Framing analysis uses language like: \"The frame/narrative constructs...\", \"This presents X as...\", \"Alternative framing would...\", \"The dominant narrative suggests...\", \"This language choice emphasize",
+          "cue": "Entendendo Enquadramento e Narrativa",
+          "accepts": []
+        },
+        {
+          "id": "media_propaganda_techniques",
+          "english": "This advertisement uses appeal to authority, with celebrities endorsing a product they may not actually use.",
+          "portuguese": "Este anúncio usa apelo à autoridade, com celebridades endossando um produto que podem não usar realmente.",
+          "note": "Propaganda analysis identifies fallacies: ad hominem (attacking person, not argument), appeal to authority (famous person says so), bandwagon (everyone believes), false dichotomy (only two choices), l",
+          "cue": "Técnicas de Propaganda e Manipulação",
+          "accepts": []
+        },
+        {
+          "id": "media_source_evaluation",
+          "english": "Before trusting a source, check its funding: outlets financed by special interests may show bias.",
+          "portuguese": "Antes de confiar em uma fonte, verifique seu financiamento: emissoras financiadas por interesses especiais podem mostrar viés.",
+          "note": "Credibility evaluation uses: \"This source demonstrates...\", \"The track record shows...\", \"Evidence of credibility includes...\", \"Concerns about reliability involve...\", \"Corroboration from multiple so",
+          "cue": "Avaliando Credibilidade de Fonte",
+          "accepts": []
+        },
+        {
+          "id": "media_fact_checking",
+          "english": "When you see a sensational claim, fact-check it against multiple independent sources before accepting it.",
+          "portuguese": "Quando você vê uma afirmação sensacional, verifique-a contra múltiplas fontes independentes antes de aceitá-la.",
+          "note": "Fact-checking language: \"The claim is [verified/disputed/misleading] because...\", \"This conflates...\", \"The evidence [supports/contradicts]...\", \"Context matters: ...\". Distinguish: fact (verifiable),",
+          "cue": "Verificação de Fatos",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-43-science-innovation": {
+      "title": "Lição 43: Ciência e Inovação",
+      "skill": "Discuta metodologia científica e processos de pesquisa",
+      "items": [
+        {
+          "id": "sci_methodology",
+          "english": "The hypothesis predicts that increased carbon dioxide will raise global temperatures - a prediction now confirmed by decades of data.",
+          "portuguese": "A hipótese prediz que o dióxido de carbono aumentado elevará as temperaturas globais - uma previsão agora confirmada por décadas de dados.",
+          "note": "Scientific language uses passive voice (The data were analyzed), hedging (may, suggest, indicate), and precise terminology. Use: hypothesis/theory/law, methodology/procedure, data/results, significanc",
+          "cue": "Metodologia Científica e Pesquisa",
+          "accepts": []
+        },
+        {
+          "id": "sci_emerging_tech",
+          "english": "Artificial intelligence is revolutionizing medical imaging, with algorithms detecting cancers as accurately as radiologists.",
+          "portuguese": "Inteligência artificial está revolucionando imagem médica, com algoritmos detectando cânceres tão precisamente quanto radiologistas.",
+          "note": "Technology language uses: \"X is [advancing/emerging/accelerating]\", \"X offers potential to...\", \"X could/may [accomplish]\", \"X has applications in...\". Use hedging for emerging tech: \"may,\" \"could,\" \"",
+          "cue": "Tecnologias Emergentes",
+          "accepts": []
+        },
+        {
+          "id": "sci_uncertainty_debates",
+          "english": "While the majority of climate scientists agree on anthropogenic climate change, a small number of dissenting researchers present alternative hypotheses.",
+          "portuguese": "Enquanto a maioria dos cientistas climáticos concorda sobre mudança climática antropogênica, um pequeno número de pesquisadores dissidentes apresentam hipóteses",
+          "note": "Uncertainty language: \"suggests\" (not proves), \"indicates\" (not confirms), \"may/might/could\" (not will), \"appears to,\" \"is consistent with,\" \"warrants further investigation.\" Express disagreement scie",
+          "cue": "Incerteza Científica e Debate",
+          "accepts": []
+        },
+        {
+          "id": "sci_implications_impact",
+          "english": "Gene editing technology offers tremendous medical potential, but raises profound ethical questions about enhancement versus treatment.",
+          "portuguese": "A tecnologia de edição gênica oferece tremendo potencial médico, mas levanta questões éticas profundas sobre aprimoramento versus tratamento.",
+          "note": "Impact language: \"raises concerns,\" \"has implications for,\" \"could exacerbate/alleviate,\" \"may lead to,\" \"offers both benefits and risks,\" \"requires careful consideration.\" Use modal verbs to express ",
+          "cue": "Implicações e Impacto Societário",
+          "accepts": []
+        },
+        {
+          "id": "sci_future_vision",
+          "english": "If current computational trends continue, we could see artificial general intelligence within several decades - though significant technical obstacles remain.",
+          "portuguese": "Se as tendências computacionais atuais continuarem, poderíamos ver inteligência artificial geral em várias décadas - embora obstáculos técnicos significativos p",
+          "note": "Speculative language carefully distinguishes possibility from certainty: \"could theoretically,\" \"might eventually,\" \"if trends continue,\" \"potentially,\" \"possibly,\" \"speculative.\" Distinguish: baselin",
+          "cue": "Possibilidades Futuras e Especulação",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-44-philosophy-ethics": {
+      "title": "Lição 44: Filosofia e Ética",
+      "skill": "Domine terminologia e estruturas filosóficas",
+      "items": [
+        {
+          "id": "phil_ethical_frameworks",
+          "english": "A utilitarian approach to this dilemma would maximize overall happiness, potentially sacrificing individual rights.",
+          "portuguese": "Uma abordagem utilitarista para este dilema maximizaria a felicidade geral, potencialmente sacrificando direitos individuais.",
+          "note": "Philosophical language uses: \"An X approach/perspective/framework maintains that...\", \"From the perspective of X...\", \"X ethics emphasizes/prioritizes/values...\". Present different frameworks neutrall",
+          "cue": "Estruturas e Teorias Éticas",
+          "accepts": []
+        },
+        {
+          "id": "phil_moral_dilemmas",
+          "english": "The trolley problem illustrates our conflicting intuitions: most people would divert a trolley to kill one instead of five, yet most would not push someone off ",
+          "portuguese": "O problema do bonde ilustra nossas intuições conflitantes: a maioria das pessoas desviaria um bonde para matar um em vez de cinco, mas a maioria não empurraria ",
+          "note": "Dilemma language: \"The scenario raises the question of...\", \"This illustrates...\", \"One could argue...\", \"The tension between X and Y suggests...\", \"This paradox reveals...\", \"The intuition that X con",
+          "cue": "Dilemas Morais e Experimentos de Pensamento",
+          "accepts": []
+        },
+        {
+          "id": "phil_abstract_reasoning",
+          "english": "The problem of free will asks: if the universe is deterministic, can we truly make free choices, or is choice merely an illusion?",
+          "portuguese": "O problema do livre arbítrio pergunta: se o universo é determinístico, podemos verdadeiramente fazer escolhas livres, ou a escolha é meramente uma ilusão?",
+          "note": "Abstract language uses: \"The concept of X raises...\", \"X remains...\", \"The problem of X asks...\", \"Ontological/epistemological questions examine...\", \"One might contend that...\". Use modal verbs to ex",
+          "cue": "Raciocínio Abstrato e Metafísica",
+          "accepts": []
+        },
+        {
+          "id": "phil_values_conflict",
+          "english": "Freedom and security often tension with each other: maximizing security through surveillance may diminish individual freedom.",
+          "portuguese": "Liberdade e segurança frequentemente entram em tensão com cada outro: maximizar segurança através de vigilância pode diminuir liberdade individual.",
+          "note": "Values language: \"X and Y often tension/conflict with each other\", \"X requires/prioritizes...\", \"The tension between X and Y suggests...\", \"From the perspective of X-focused ethics...\". Present multip",
+          "cue": "Valores Concorrentes e Filosofia Social",
+          "accepts": []
+        },
+        {
+          "id": "phil_applied_ethics",
+          "english": "Bioethics requires balancing patient autonomy with beneficence: respecting someone's right to refuse life-saving treatment even though it leads to death.",
+          "portuguese": "A bioética requer equilibrar autonomia do paciente com beneficência: respeitar o direito de alguém de recusar tratamento que salva vidas mesmo que leve à morte.",
+          "note": "Applied ethics uses: \"X raises questions about...\", \"This requires balancing...\", \"We must consider...\", \"The ethical dimensions of X include...\". Connect theory to practice: \"From a utilitarian persp",
+          "cue": "Ética Aplicada e Dilemas do Mundo Real",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-45-advanced-humor": {
+      "title": "Lição 45: Humor Avançado e Trocadilho",
+      "skill": "Entenda mecanismos de humor linguístico",
+      "items": [
+        {
+          "id": "humor_puns_wordplay",
+          "english": "A baker's bread jokes are always well-done. (pun on \"well-done\" = both successful and cooked properly)",
+          "portuguese": "As piadas de pão de um padeiro são sempre bem-feitas. (trocadilho em \"well-done\" = tanto bem-sucedido quanto cozido corretamente)",
+          "note": "Puns work through homonyms (words with same sound but different meaning: \"bat\" the animal vs. sports equipment), heteronyms (same spelling, different pronunciation: \"read\" present vs. past), or clever",
+          "cue": "Trocadilhos e Trocadilhos",
+          "accepts": []
+        },
+        {
+          "id": "humor_irony_sarcasm",
+          "english": "Oh, wonderful! Another meeting about productivity. Because that's how we become productive. (sarcastic irony)",
+          "portuguese": "Oh, maravilhoso! Outra reunião sobre produtividade. Porque é assim que nos tornamos produtivos. (ironia sarcástica)",
+          "note": "Irony occurs when what is said differs from what is meant - often the opposite. Verbal irony: \"You're really smart\" when someone makes a foolish mistake. Situational irony: when expectations are contr",
+          "cue": "Ironia e Sarcasmo",
+          "accepts": []
+        },
+        {
+          "id": "humor_cultural_references",
+          "english": "His attempt to fix the situation was a total Titanic moment - everyone went down. (reference to the famous shipwreck and movie)",
+          "portuguese": "Sua tentativa de consertar a situação foi um total momento Titanic - todos afundaram. (referência ao navio famoso que naufragou)",
+          "note": "Cultural humor requires knowledge of: celebrities, historical events, movies/literature, memes, current events, internet culture, and generational references. Often used with \"very [reference]\", \"tota",
+          "cue": "Referências Culturais e Contexto",
+          "accepts": []
+        },
+        {
+          "id": "humor_observational",
+          "english": "Have you noticed how everyone becomes a parking expert when watching someone else park? Suddenly they're a valet.",
+          "portuguese": "Você notou como todos se tornam especialistas em estacionamento ao assistir alguém estacionar? De repente são um manobrista.",
+          "note": "Observational humor finds the absurd or ridiculous in normal things. Uses rhetorical questions: \"Why...?\", \"Have you noticed...?\", \"Isn't it weird...?\". Often reveals shared human experiences. Structu",
+          "cue": "Humor Observacional",
+          "accepts": []
+        },
+        {
+          "id": "humor_exaggeration_absurdity",
+          "english": "I've told you a million times - don't exaggerate. (ironic exaggeration about exaggeration)",
+          "portuguese": "Eu te disse um milhão de vezes - não exagere. (exageração irônica sobre exageração)",
+          "note": "Exaggeration uses hyperbole - extreme overstatement for effect. \"I'm dying of hunger\" is hyperbole, not literal. Absurdist humor presents logically impossible or extremely unlikely scenarios as if the",
+          "cue": "Exageração e Humor Absurdista",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-46-legal-english": {
+      "title": "Lição 46: Inglês Legal e de Contrato",
+      "skill": "Entenda linguagem e terminologia de contrato",
+      "items": [
+        {
+          "id": "legal_contract_structure",
+          "english": "The parties to this agreement (the \"Company\" and the \"Employee\") hereby enter into this contract effective January 1, 2024.",
+          "portuguese": "As partes neste acordo (a \"Empresa\" e o \"Funcionário\") por este instrumento entram neste contrato efetivo a partir de 1º de janeiro de 2024.",
+          "note": "Legal language uses formal registers: \"herein,\" \"aforementioned,\" \"whereas,\" \"notwithstanding.\" Uses \"shall\" for obligations (not \"will\"). Employs \"party/parties\" for signatories. Includes specific cl",
+          "cue": "Estrutura e Cláusulas de Contrato",
+          "accepts": []
+        },
+        {
+          "id": "legal_rights_obligations",
+          "english": "The Company warrants that it has the right to license the intellectual property and that such licensing does not infringe third-party rights.",
+          "portuguese": "A Empresa garante que tem o direito de licenciar a propriedade intelectual e que tal licenciamento não infringe direitos de terceiros.",
+          "note": "Rights language: \"is entitled to,\" \"has the right to,\" \"shall have the right to.\" Obligations: \"shall,\" \"is obligated to,\" \"must,\" \"shall not.\" Legal English uses \"disclaim\" (deny), \"warrant\" (guarant",
+          "cue": "Direitos e Obrigações",
+          "accepts": []
+        },
+        {
+          "id": "legal_regulatory_compliance",
+          "english": "This Agreement shall be governed by and construed in accordance with the laws of the State of California, without regard to conflict of law principles.",
+          "portuguese": "Este Acordo será regido e interpretado de acordo com as leis do Estado da Califórnia, sem consideração aos princípios de conflito de lei.",
+          "note": "Compliance language: \"governed by,\" \"in accordance with,\" \"subject to,\" \"shall comply with.\" References specific laws: \"GDPR,\" \"HIPAA,\" \"securities law.\" Uses \"representations\" (statements claimed to ",
+          "cue": "Linguagem Regulatória e de Conformidade",
+          "accepts": []
+        },
+        {
+          "id": "legal_dispute_remedies",
+          "english": "Upon material breach of this Agreement, the non-breaching party shall have the right to seek damages equal to the actual losses incurred.",
+          "portuguese": "Mediante violação material deste Acordo, a parte que não violou terá o direito de buscar indenização igual às perdas reais sofridas.",
+          "note": "Remedies language: \"damages\" (monetary compensation), \"specific performance\" (court order to perform), \"injunction/injunctive relief\" (order to stop action), \"liquidated damages\" (predetermined amount",
+          "cue": "Resolução de Disputas e Soluções",
+          "accepts": []
+        },
+        {
+          "id": "legal_key_terms",
+          "english": "Non-Disclosure Agreement: The Employee agrees to maintain the confidentiality of all trade secrets and proprietary information of the Company.",
+          "portuguese": "Acordo de Não Divulgação: O Funcionário concorda em manter a confidencialidade de todos os segredos comerciais e informações proprietárias da Empresa.",
+          "note": "Legal definitions are precise and often include parenthetical explanations: \"Non-Disclosure Agreement (NDA) means an agreement...\" Legal terms may be capitalized when formally defined. Terms use \"mean",
+          "cue": "Conceitos Legais Chave e Terminologia",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-47-public-speaking": {
+      "title": "Lição 47: Discursos Públicos e Retórica",
+      "skill": "Estruture apresentações para máximo impacto e clareza",
+      "items": [
+        {
+          "id": "speak_opening_hook",
+          "english": "Did you know that 90% of startups fail within the first five years? Today I'll show you the strategies that help the other 10% succeed.",
+          "portuguese": "Você sabia que 90% das startups falham nos primeiros cinco anos? Hoje vou mostrar as estratégias que ajudam os outros 10% a ter sucesso.",
+          "note": "Opening language uses: questions (rhetorical or genuine), imperatives (urgent or compelling), striking statistics (grabbing attention), narrative setup (drawing people in), bold claims (establishing s",
+          "cue": "Abrindo com Impacto",
+          "accepts": []
+        },
+        {
+          "id": "speak_structure_flow",
+          "english": "I'll cover three essential areas: first, the current landscape; second, emerging opportunities; and third, practical strategies you can implement today.",
+          "portuguese": "Vou cobrir três áreas essenciais: primeiro, o cenário atual; segundo, oportunidades emergentes; e terceiro, estratégias práticas que você pode implementar hoje.",
+          "note": "Structure language uses: signposting (\"First...\", \"Second...\", \"Finally...\"), transitions (\"Moving on to...\", \"This leads us to...\"), preview statements (\"You'll learn three things today...\"), and sum",
+          "cue": "Estrutura e Ritmo",
+          "accepts": []
+        },
+        {
+          "id": "speak_rhetorical_devices",
+          "english": "Through repetition and emphasis: We will not retreat. We will not surrender. We will move forward, together, with purpose and determination.",
+          "portuguese": "Através de repetição e ênfase: Não recuaremos. Não nos renderemos. Avançaremos juntos, com propósito e determinação.",
+          "note": "Rhetorical devices include: repetition (strength through frequency), parallel structure (balanced clauses), metaphor (comparison revealing insight), rhetorical questions (engaging without requiring an",
+          "cue": "Dispositivos Retóricos e Persuasão",
+          "accepts": []
+        },
+        {
+          "id": "speak_vocal_nonverbal",
+          "english": "Effective speakers vary their pace: speaking quickly to convey energy and excitement, then slowing down to emphasize crucial points. [Pause for effect.]",
+          "portuguese": "Palestrantes eficazes variam seu ritmo: falando rapidamente para transmitir energia e entusiasmo, então desacelerando para enfatizar pontos cruciais. [Pausa par",
+          "note": "Vocal techniques: pace (speed of delivery), tone (emotional color), volume (loudness), pitch (high/low), pause (strategic silence). Non-verbal: posture (standing confident), gestures (reinforcing mess",
+          "cue": "Comunicação Vocal e Não-Verbal",
+          "accepts": []
+        },
+        {
+          "id": "speak_engagement_qa",
+          "english": "Rather than waiting until the end, I'd love to hear your thoughts right now. What questions are coming up for you as we discuss this?",
+          "portuguese": "Em vez de esperar até o fim, adoraria ouvir seus pensamentos agora. Que perguntas surgem para você enquanto discutimos isso?",
+          "note": "Engagement language: invitational (\"What are your thoughts on...?\"), affirming (\"That's a excellent question...\"), bridging (\"I appreciate that concern; here's my perspective...\"), honest (\"I don't ha",
+          "cue": "Engajamento de Audiência e P&R",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-48-cross-cultural": {
+      "title": "Lição 48: Comunicação Intercultural",
+      "skill": "Entenda como cultura molda comunicação e expectativas",
+      "items": [
+        {
+          "id": "culture_communication_styles",
+          "english": "In direct communication cultures like the United States, people value frankness and explicit statements. \"No\" means no, and criticism is given directly.",
+          "portuguese": "Em culturas de comunicação direta como os Estados Unidos, as pessoas valorizam franqueza e declarações explícitas. \"Não\" significa não, e crítica é dada diretam",
+          "note": "Cultural communication discussion uses: \"In [culture], it's typical to...\", \"High-context cultures tend to...\", \"Direct communication is valued in...\", \"[Culture] emphasizes...\", \"The norm is...\". Avo",
+          "cue": "Estilos de Comunicação Cultural",
+          "accepts": []
+        },
+        {
+          "id": "culture_values_misunderstandings",
+          "english": "Direct eye contact is a sign of respect and honesty in Western cultures, yet in some Asian and African cultures, it can seem disrespectful or confrontational to",
+          "portuguese": "Contato visual direto é um sinal de respeito e honestidade em culturas ocidentais, mas em algumas culturas asiáticas e africanas, pode parecer desrespeitoso ou ",
+          "note": "Values discussion uses: \"In [culture], X is considered...\", \"This differs from [other culture] where...\", \"What might be seen as... in one culture could be interpreted as... in another.\" Acknowledges ",
+          "cue": "Valores Culturais e Evitando Mal-Entendidos",
+          "accepts": []
+        },
+        {
+          "id": "culture_bridging_differences",
+          "english": "Rather than assuming, I might say: \"I notice we approach this differently. Can you help me understand your perspective and why that approach works in your conte",
+          "portuguese": "Em vez de assumir, eu posso dizer: \"Noto que abordamos isto diferentemente. Você pode me ajudar a entender sua perspectiva e por que essa abordagem funciona em ",
+          "note": "Bridging language uses: \"I'm not familiar with... could you explain?\", \"I appreciate how... is done in your culture\", \"In my experience/culture, we...\", \"Help me understand why this is important to yo",
+          "cue": "Fechar Diferenças Culturais",
+          "accepts": []
+        },
+        {
+          "id": "culture_business_practices",
+          "english": "In many Asian business cultures, hierarchy matters greatly, and decisions flow from top leadership. In Scandinavian cultures, consensus and employee input are v",
+          "portuguese": "Em muitas culturas comerciais asiáticas, hierarquia importa muito e decisões fluem da liderança superior. Em culturas escandinavas, consenso e entrada de funcio",
+          "note": "Business culture discussion uses: \"In [culture], decisions are typically made by...\", \"When negotiating with [group], expect...\", \"Gift-giving is appropriate in... but inappropriate in...\". Provides p",
+          "cue": "Diferenças Culturais em Práticas Comerciais",
+          "accepts": []
+        },
+        {
+          "id": "culture_language_learning",
+          "english": "Learning a few phrases in someone's language demonstrates respect and effort, even if your pronunciation isn't perfect: \"Obrigado,\" \"Merci,\" \"Gracias\" go a long",
+          "portuguese": "Aprender algumas frases no idioma de alguém demonstra respeito e esforço, mesmo que sua pronúncia não seja perfeita: \"Obrigado,\" \"Merci,\" \"Gracias\" vão longe.",
+          "note": "Language adaptation uses: \"In your language, how would you say...?\", \"I'm still learning the cultural norms here...\", \"That joke might not translate well across cultures...\" Demonstrates humility and ",
+          "cue": "Linguagem, Humor e Adaptação Cultural",
+          "accepts": []
+        }
+      ]
+    },
+    "advanced-49-mastery-review": {
+      "title": "Lição 49: Revisão de Maestria Avançada e Síntese",
+      "skill": "Sintetize habilidades gramáticais e retóricas avançadas em contextos complexos",
+      "items": [
+        {
+          "id": "review_complex_scenarios",
+          "english": "While the Q3 results disappointed investors, we can position this as a necessary correction that strengthens our foundation for long-term growth.",
+          "portuguese": "Embora os resultados do Q3 decepcionassem investidores, podemos posicionar isto como uma correção necessária que fortalece nossa base para crescimento a longo p",
+          "note": "Complex scenarios use: conditional structures (If we don't...), modal verbs expressing nuance (might, could, should), subordinate clauses showing relationship, sophisticated connectors, and contextual",
+          "cue": "Cenários Profissionais Complexos",
+          "accepts": []
+        },
+        {
+          "id": "review_nuance_subtlety",
+          "english": "Rather than \"That won't work,\" try: \"I appreciate the creativity, and I wonder if we've considered these potential obstacles...\"",
+          "portuguese": "Em vez de \"That won't work,\" tente: \"I appreciate the creativity, and I wonder if we've considered these potential obstacles...\"",
+          "note": "Nuance uses: hedging language (somewhat, arguably, in some ways), softening modifiers (rather, quite, relatively), acknowledging complexity (on one hand...on the other), using conditional (if we were ",
+          "cue": "Nuance e Sutileza em Expressão",
+          "accepts": []
+        },
+        {
+          "id": "review_integration_synthesis",
+          "english": "Philosophically, we might argue that profit and purpose are not mutually exclusive - organizations that serve genuine needs tend to be most sustainable long-ter",
+          "portuguese": "Filosoficamente, poderíamos argumentar que lucro e propósito não são mutuamente exclusivos - organizações que servem necessidades genuínas tendem a ser mais sus",
+          "note": "Integration requires flexibility to shift registers: from academic to conversational, from formal to warm, from technical to accessible. Uses transitional phrases that honor both domains: \"While scien",
+          "cue": "Integração e Síntese Entre Domínios",
+          "accepts": []
+        },
+        {
+          "id": "review_authentic_voice",
+          "english": "Rather than \"The implementation paradigm necessitates strategic realignment...\" just say what you mean: \"We need to change how we're doing this.\"",
+          "portuguese": "Em vez de \"The implementation paradigm necessitates strategic realignment...\" apenas diga o que você quer dizer: \"We need to change how we're doing this.\"",
+          "note": "Authentic voice emerges from conscious choice of what structures to use when, rather than forcing everything advanced. Uses sophisticated language where it naturally serves the idea, but also knows wh",
+          "cue": "Desenvolvendo Sua Voz Autêntica",
+          "accepts": []
+        },
+        {
+          "id": "review_continuous_growth",
+          "english": "Language mastery isn't a destination - it's a practice. The advanced learners read constantly, engage in challenging conversations, and remain curious about nua",
+          "portuguese": "Maestria de linguagem não é um destino - é uma prática. Os aprendizes avançados leem constantemente, engajam em conversas desafiadoras e permanecem curiosos sob",
+          "note": "Growth language uses: commitment statements (\"I'm committed to...\"), reflection (\"I've noticed...\", \"I've learned...\"), future projection (\"I'll continue to...\"), and openness (\"I'm curious about...\",",
+          "cue": "Crescimento Contínuo e Aprendizado ao Longo da Vida",
+          "accepts": []
+        }
+      ]
+    }
+  }
+}
