@@ -8,6 +8,9 @@ LESSON = "fund-u1-l2"
 OTHER = "fund-u1-l1"
 # Three other lessons: an account that took them has used all of its trials.
 TAKEN = ["fund-u1-l1", "fund-u1-l3", "fund-u1-l4"]
+USER_ID = "00000000-0000-0000-0000-000000000001"  # conftest.make_token's default subject
+# Trials of other accounts, in the same table: a read that does not filter by account sees them.
+OTHER_ACCOUNTS_TRIALS = [{"lesson_id": "fund-u2-l1"}, {"lesson_id": "fund-u2-l2"}]
 
 PLAN = {
     "title": "Apresentações",
@@ -55,7 +58,14 @@ def _backend(*, plan_level=None, role="student", trial_lessons=(), claim_result=
         if "guided_lesson_trials" in path:
             if trial_read_fails:
                 return httpx.Response(500, json={"message": "down"})
-            return httpx.Response(200, json=[{"lesson_id": lesson} for lesson in trial_lessons])
+            # Like the table: filtered only when the query asks for this account, oldest first only
+            # when the query orders by start.
+            rows = [{"lesson_id": lesson} for lesson in trial_lessons]
+            if request.url.params.get("user_id") != f"eq.{USER_ID}":
+                rows += OTHER_ACCOUNTS_TRIALS
+            if request.url.params.get("order") != "started_at.asc,lesson_id.asc":
+                rows.reverse()
+            return httpx.Response(200, json=rows)
         if "lesson_time_usage" in path:
             return httpx.Response(200, json=[{"id": "row-1", "consumed_seconds": consumed}] if consumed else [])
         return httpx.Response(200, json=[])
@@ -97,7 +107,7 @@ def test_non_subscriber_takes_a_trial_on_their_first_lesson(client, auth_headers
     assert res.status_code == 200
     assert _kinds(calls) == ["claim", "openai"]
     claim = calls[0][1]
-    assert claim == {"p_user_id": "00000000-0000-0000-0000-000000000001", "p_lesson_id": LESSON, "p_limit": 3}
+    assert claim == {"p_user_id": USER_ID, "p_lesson_id": LESSON, "p_limit": 3}
 
 
 def test_non_subscriber_takes_a_third_lesson(client, auth_headers, mock_transport):
