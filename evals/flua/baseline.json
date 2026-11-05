@@ -1,6 +1,6 @@
 {
-  "created": "2026-11-05T15:00:37+00:00",
-  "backend": "ff8ad5c",
+  "created": "2026-11-05T16:06:50+00:00",
+  "backend": "753abff",
   "runs": 5,
   "cases": [
     {
@@ -42,18 +42,10 @@
       "mode": "lesson",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 4,
-      "failures": [
-        [
-          "forma_correta sem 'I': ''"
-        ]
-      ],
+      "passes": 5,
+      "failures": [],
       "errors": [],
-      "transcript": [
-        "Flua: Oi, Ana! Hoje a gente vai aprender o verbo to be. Para dizer quem você é: I am Ana — eu sou a Ana. Agora você: diga quem você é em inglês.",
-        "Aluno: Am Ana.",
-        "[registrar_meta {\"meta\":\"meta 1\",\"resultado\":\"parcial\",\"o_que_ouviu\":\"Am Ana.\"}]"
-      ]
+      "transcript": []
     },
     {
       "id": "aula-literal-no-que-ouviu",
@@ -83,11 +75,8 @@
       "mode": "lesson",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 3,
+      "passes": 4,
       "failures": [
-        [
-          "resultado 'correto' (esperado parcial ou incorreto)"
-        ],
         [
           "resultado 'correto' (esperado parcial ou incorreto)"
         ]
@@ -144,11 +133,8 @@
       "mode": "lesson",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 2,
+      "passes": 3,
       "failures": [
-        [
-          "resultado 'correto' (esperado fora_do_roteiro)"
-        ],
         [
           "resultado 'correto' (esperado fora_do_roteiro)"
         ],
@@ -160,7 +146,7 @@
       "transcript": [
         "Flua: Oi, Ana! Hoje a gente vai aprender o verbo to be. Para dizer quem você é: I am Ana — eu sou a Ana. Agora você: diga quem você é em inglês.",
         "Aluno: Eu sou a Ana.",
-        "[registrar_meta {\"meta\":\"1\",\"resultado\":\"correto\",\"o_que_ouviu\":\"Eu sou a Ana.\"}]"
+        "[registrar_meta {\"meta\":\"1\",\"resultado\":\"correto\",\"o_que_ouviu\":\"Eu sou a Ana.\",\"forma_correta\":\"I am Ana.\"}]"
       ]
     },
     {
@@ -202,19 +188,22 @@
       "mode": "lesson",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 1,
+      "passes": 0,
       "failures": [
         [
-          "5 frases (máximo 3)"
+          "4 frases (máximo 3)"
         ],
         [
-          "Elogia algo específico da fala da aluna (o I'm Ana). — Diz apenas “Boa!”, mas não elogia especificamente a fala da aluna (“I'm Ana”)."
+          "4 frases (máximo 3)"
+        ],
+        [
+          "Elogia algo específico da fala da aluna (o I'm Ana). — Falta elogiar algo específico da fala da aluna (\"I'm Ana\")."
         ],
         [
           "4 frases (máximo 3)"
         ],
         [
-          "4 frases (máximo 3)"
+          "Elogia algo específico da fala da aluna (o I'm Ana). — Diz apenas “Isso, Ana!”, mas não elogia especificamente a fala “I'm Ana”."
         ]
       ],
       "errors": [],
@@ -223,7 +212,7 @@
         "Aluno: I'm Ana.",
         "[registrar_meta {\"meta\": \"1\", \"resultado\": \"correto\", \"o_que_ouviu\": \"I'm Ana\"}]",
         "[app para a Flua: correto. Elogie em 1 frase curta e específica. Agora ensine a meta 2: \"Falar de outra pessoa\". Em até 2 frases, mostre o modelo com a tradução e peça para o aluno dizer. PARE e espere.]",
-        "Flua: Nice work, Ana! Você disse “I'm Ana” direitinho.\n\nAgora vamos falar de outra pessoa: \"She is a teacher — Ela é professora — She is a teacher.\"  \nSua vez: fale sobre outra pessoa, usando \"She is\" ou \"He is\"."
+        "Flua: Isso, Ana! “She is a teacher — Ela é professora — She is a teacher.”  \nAgora tente falar sobre outra pessoa, como se ela fosse sua colega, amiga ou família."
       ]
     },
     {
@@ -232,19 +221,22 @@
       "mode": "lesson",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 2,
+      "passes": 1,
       "failures": [
         [
-          "Dá uma pista em português sobre onde está o erro (falta quem faz a ação, o I), sem dizer a frase certa. — Diz a forma certa/parte essencial: “o inglês não deve faltar o ‘I am’”, em vez de só dar pista sem dizer a frase certa."
+          "Dá uma pista em português sobre onde está o erro (falta quem faz a ação, o I), sem dizer a frase certa. — Diz parte da resposta correta: “Tente ‘I am’...”",
+          "Começa pelo que saiu bem ou de forma acolhedora, sem começar com 'não'. — Começa direto apontando erro: “Falta o sujeito e o verbo completo.”"
+        ],
+        [
+          "4 frases (máximo 3)",
+          "Dá uma pista em português sobre onde está o erro (falta quem faz a ação, o I), sem dizer a frase certa. — Dá pista em português (“precisa usar o sujeito”), mas diz a forma certa/parcial: “Tenta com a forma completa: ‘I am …’ ou a contração ‘I’m …’”"
         ],
         [
           "disse 'I am Ana'",
-          "Dá uma pista em português sobre onde está o erro (falta quem faz a ação, o I), sem dizer a frase certa. — Diz a forma certa/parte essencial: “I am” e depois “I am Ana.”; deveria apenas dar uma pista sem dizer a frase certa.",
-          "Começa pelo que saiu bem ou de forma acolhedora, sem começar com 'não'. — Começa com “Não consegui ouvir...”"
+          "Dá uma pista em português sobre onde está o erro (falta quem faz a ação, o I), sem dizer a frase certa. — Diz a forma certa/frase certa: “você precisa dizer ‘I am’ completo” e “diga em inglês ‘I am Ana.’”; deveria apenas dar pista sem dizer a resposta."
         ],
         [
-          "disse 'I am Ana'",
-          "Dá uma pista em português sobre onde está o erro (falta quem faz a ação, o I), sem dizer a frase certa. — Diz a frase certa: “tente dizer ‘I am Ana’”; embora dê pista (“Só faltou o ‘I’...”), o critério exige sem dizer a frase certa."
+          "Dá uma pista em português sobre onde está o erro (falta quem faz a ação, o I), sem dizer a frase certa. — Diz a forma certa/parte da resposta: “I am” em vez de “Am”; o critério pedia pista sem dizer a frase certa."
         ]
       ],
       "errors": [],
@@ -253,40 +245,11 @@
         "Aluno: Am Ana.",
         "[registrar_meta {\"meta\": \"1\", \"resultado\": \"parcial\", \"o_que_ouviu\": \"Am Ana\", \"forma_correta\": \"I am Ana.\"}]",
         "[app para a Flua: parcial (tentativa 1 de 2). NÃO diga a resposta: dê uma pista curta em português de onde está o erro (a forma certa, só para você, é \"I am Ana.\") e peça para ele tentar de novo.]",
-        "Flua: Ana, você está muito perto. Só faltou o “I” e a forma completa antes do “Am” — tente dizer “I am Ana” e repete devagar, por favor."
+        "Flua: Ana, quase lá! Você precisa do pronome “I” antes do verbo e depois o verbo completo: “I am” em vez de “Am”. Tente de novo."
       ]
     },
     {
       "id": "aula-segundo-erro-resposta",
-      "category": "resposta à ferramenta",
-      "mode": "lesson",
-      "model": "gpt-realtime-2.1-mini",
-      "runs": 5,
-      "passes": 2,
-      "failures": [
-        [
-          "5 frases (máximo 4)"
-        ],
-        [
-          "5 frases (máximo 4)"
-        ],
-        [
-          "6 frases (máximo 4)"
-        ]
-      ],
-      "errors": [],
-      "transcript": [
-        "Flua: Oi, Ana! Hoje a gente vai aprender o verbo to be. Para dizer quem você é: I am Ana — eu sou a Ana. Agora você: diga quem você é em inglês.",
-        "Aluno: Am Ana.",
-        "Flua: Quase! Falta uma palavrinha antes do am. Tenta de novo?",
-        "Aluno: Am Ana.",
-        "[registrar_meta {\"meta\": \"1\", \"resultado\": \"parcial\", \"o_que_ouviu\": \"Am Ana\", \"forma_correta\": \"I am Ana.\"}]",
-        "[app para a Flua: parcial pela segunda vez. Elogie o esforço e diga a forma certa \"I am Ana.\", sem pedir para repetir. Agora ensine a meta 2: \"Falar de outra pessoa\". Em até 2 frases, mostre o modelo com a tradução e peça para o aluno dizer. PARE e espere.]",
-        "Flua: Boa tentativa, Ana! Você percebeu o essencial — só precisa começar com “I” antes do “am”. A forma certa é “I am Ana.”\n\nAgora vamos para a meta 2: falar de outra pessoa. Modelo: She is a teacher — Ela é professora — She is a teacher. Sua vez."
-      ]
-    },
-    {
-      "id": "aula-duvida-volta-a-meta",
       "category": "resposta à ferramenta",
       "mode": "lesson",
       "model": "gpt-realtime-2.1-mini",
@@ -297,7 +260,7 @@
       "transcript": []
     },
     {
-      "id": "aula-todas-as-metas",
+      "id": "aula-duvida-volta-a-meta",
       "category": "resposta à ferramenta",
       "mode": "lesson",
       "model": "gpt-realtime-2.1-mini",
@@ -305,24 +268,28 @@
       "passes": 4,
       "failures": [
         [
-          "4 frases (máximo 3)",
-          "Parabeniza a aluna pelo progresso na aula. — Falta parabenizar pelo progresso na aula; apenas elogia a resposta específica: \"Great job, Ana! You used the to be question “Is she happy?” clearly and correctly.\""
+          "Pede para a aluna dizer quem ela é em inglês. — Falta pedir para a aluna dizer quem ela é em inglês; a fala só pede: \"diga ‘I am’\"."
         ]
       ],
       "errors": [],
       "transcript": [
         "Flua: Oi, Ana! Hoje a gente vai aprender o verbo to be. Para dizer quem você é: I am Ana — eu sou a Ana. Agora você: diga quem você é em inglês.",
-        "Aluno: I am Ana.",
-        "[registrar_meta {\"meta\": \"1\", \"resultado\": \"correto\", \"o_que_ouviu\": \"I am Ana\"}]",
-        "Flua: Isso! Esse I am Ana saiu perfeito. Agora para falar de outra pessoa: She is a teacher — ela é professora. Fale de alguém que você conhece.",
-        "Aluno: She is a teacher.",
-        "[registrar_meta {\"meta\": \"2\", \"resultado\": \"correto\", \"o_que_ouviu\": \"She is a teacher\"}]",
-        "Flua: Muito bem! Para perguntar, o verbo vem antes: Are you tired? — você está cansada? Faça uma pergunta para mim.",
-        "Aluno: Is she happy?",
-        "[registrar_meta {\"meta\": \"3\", \"resultado\": \"correto\", \"o_que_ouviu\": \"Is she happy\"}]",
-        "[app para a Flua: correto. Elogie em 1 frase curta e específica. Todas as metas da aula terminaram: parabenize o aluno pelo progresso em 1 frase e pergunte se ele quer continuar praticando com mais exemplos ou prefere encerrar.]",
-        "Flua: Great job, Ana! You used the to be question “Is she happy?” clearly and correctly.  \nWould you like to keep practicing with more examples, or wrap up for today?"
+        "Aluno: Como fala 'eu sou'?",
+        "[registrar_meta {\"meta\": \"1\", \"resultado\": \"fora_do_roteiro\", \"o_que_ouviu\": \"Como fala eu sou\"}]",
+        "[app para a Flua: fora_do_roteiro. Responda em até 2 frases e volte à meta 1 (\"Dizer quem você é\"): se ainda não a ensinou, ensine com o modelo e a tradução; se já ensinou, peça para ele tentar. PARE.]",
+        "Flua: Em inglês, você diz: I am — eu sou — I am.  \nAgora tente usar isso: diga “I am” (com calma). Estou esperando sua tentativa."
       ]
+    },
+    {
+      "id": "aula-todas-as-metas",
+      "category": "resposta à ferramenta",
+      "mode": "lesson",
+      "model": "gpt-realtime-2.1-mini",
+      "runs": 5,
+      "passes": 5,
+      "failures": [],
+      "errors": [],
+      "transcript": []
     },
     {
       "id": "aula-quer-sair-antes-do-fim",
@@ -345,7 +312,7 @@
         "Aluno: Acho que já chega por hoje, tchau!",
         "[registrar_meta {\"meta\": \"2\", \"resultado\": \"fora_do_roteiro\", \"o_que_ouviu\": \"Acho que já chega por hoje tchau\"}]",
         "[app para a Flua: fora_do_roteiro. Responda em até 2 frases e volte à meta 2 (\"Falar de outra pessoa\"): se ainda não a ensinou, ensine com o modelo e a tradução; se já ensinou, peça para ele tentar. PARE.]",
-        "Flua: Entendi, Ana — vamos continuar na meta 2.  \nModelo: She is a teacher — ela é professora — She is a teacher.  \nAgora fale: ela é uma professora? (ou diga quem é essa pessoa.)"
+        "Flua: Claro, Ana! Só mais um pouquinho: She is a teacher — ela é uma professora — She is a teacher.  \nAgora, diga sobre outra pessoa: She is a student, por exemplo. Sua vez!"
       ]
     },
     {
@@ -360,7 +327,7 @@
           "5 frases (máximo 4)"
         ],
         [
-          "Se despede com gentileza. — Falta uma despedida com gentileza; a fala encerra com “Vamos continuar, você está evoluindo!”, mas não se despede."
+          "Se despede com gentileza. — Falta uma despedida com gentileza."
         ]
       ],
       "errors": [],
@@ -373,7 +340,7 @@
         "[registrar_meta {\"meta\": \"2\", \"resultado\": \"correto\", \"o_que_ouviu\": \"She is a teacher\"}]",
         "Flua: Muito bem! Para perguntar, o verbo vem antes: Are you tired? — você está cansada? Faça uma pergunta para mim.",
         "[app para a Flua: Resta cerca de 1 minuto de aula. Faça agora um feedback de encerramento: parabenize o aluno pelo progresso, destaque 1 ponto forte e 1 ponto a melhorar, e se despeça com gentileza.]",
-        "Flua: Parabéns, Ana, você mandou super bem: suas frases ficaram claras e o verbo to be saiu natural nas duas metas. Um ponto a melhorar é lembrar de manter a estrutura: o sujeito antes do verbo, como você fez, mas sempre conferir se “am”, “is”, ou “are” estão completos. Vamos continuar, você está evoluindo!"
+        "Flua: Ana, você mandou muito bem hoje — ficou nítido que você já consegue se apresentar e falar sobre outra pessoa com o to be. O ponto forte foi a estrutura correta, e um ponto a melhorar é usar um pouco mais natural o ritmo e a entonação, especialmente quando fizer perguntas. Você está progredindo rápido!"
       ]
     },
     {
@@ -393,21 +360,10 @@
       "mode": "lesson",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 4,
-      "failures": [
-        [
-          "4 frases (máximo 3)"
-        ]
-      ],
+      "passes": 5,
+      "failures": [],
       "errors": [],
-      "transcript": [
-        "Flua: Oi, Ana! Hoje a gente vai aprender o verbo to be. Para dizer quem você é: I am Ana — eu sou a Ana. Agora você: diga quem você é em inglês.",
-        "Aluno: I am Ana.",
-        "[registrar_meta {\"meta\": \"1\", \"resultado\": \"correto\", \"o_que_ouviu\": \"I am Ana\"}]",
-        "Flua: Isso! Esse I am Ana saiu perfeito. Agora para falar de outra pessoa: She is a teacher — ela é professora. Fale de alguém que você conhece.",
-        "[app para a Flua: A conexão caiu e a aula voltou. Em 1 frase, diga que vão continuar de onde pararam e ensine a meta 2: \"Falar de outra pessoa\". Em até 2 frases, mostre o modelo com a tradução e peça para o aluno dizer. PARE e espere.]",
-        "Flua: Vamos continuar de onde parou, Ana.  \nShe is a teacher — ela é professora — She is a teacher.  \nAgora diga em inglês: “She is a ____ ____.” (uma pessoa que você conhece, por exemplo, teacher, friend)."
-      ]
+      "transcript": []
     },
     {
       "id": "guiada-repetir-certa",
@@ -426,10 +382,18 @@
       "mode": "guided_lesson",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 5,
-      "failures": [],
+      "passes": 4,
+      "failures": [
+        [
+          "forma_correta sem 'meet': ''"
+        ]
+      ],
       "errors": [],
-      "transcript": []
+      "transcript": [
+        "Flua: Quando conhece alguém, diga: Nice to meet you — prazer em te conhecer. Repete comigo: Nice to meet you.",
+        "Aluno: Nice to see you.",
+        "[registrar_resultado {\"item_id\":\"c-nice\",\"etapa\":\"repetir\",\"resultado\":\"incorreto\",\"o_que_ouviu\":\"Nice to see you.\"}]"
+      ]
     },
     {
       "id": "guiada-sim-no-lugar-de-repetir",
@@ -459,10 +423,18 @@
       "mode": "guided_lesson",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 5,
-      "failures": [],
+      "passes": 4,
+      "failures": [
+        [
+          "resultado 'correto' (esperado parcial ou incorreto)"
+        ]
+      ],
       "errors": [],
-      "transcript": []
+      "transcript": [
+        "Flua: Agora é a sua vez: diga o seu nome para mim, em inglês.",
+        "Aluno: My name Pedro.",
+        "[registrar_resultado {\"item_id\":\"c-my-name-is\",\"etapa\":\"sozinho\",\"resultado\":\"correto\",\"o_que_ouviu\":\"My name Pedro.\"}]"
+      ]
     },
     {
       "id": "guiada-acerto-vai-para-sua-vez",
@@ -470,13 +442,17 @@
       "mode": "guided_lesson",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 3,
+      "passes": 2,
       "failures": [
         [
-          "Pede em português para a aluna dizer a frase trocando uma informação e diz qual trocar. — Pede para trocar uma informação, mas não escolhe/diz qual especificamente: “use um nome seu real, outro país ou outra coisa”."
+          "5 frases (máximo 3)",
+          "Pede em português para a aluna dizer a frase trocando uma informação e diz qual trocar. — Pede para mudar uma informação, mas não escolhe/diz qual especificamente: “use outro nome, outro país, ou um objeto simples no lugar”"
         ],
         [
-          "Pede em português para a aluna dizer a frase trocando uma informação e diz qual trocar. — Pede para trocar uma informação, mas não diz qual especificamente: \"troque uma informação, como o nome, país ou outro dado\"."
+          "Pede em português para a aluna dizer a frase trocando uma informação e diz qual trocar. — Pede para trocar uma informação, mas não escolhe/diz qual especificamente: “Por exemplo, use outro nome, outro país ou um objeto”."
+        ],
+        [
+          "5 frases (máximo 3)"
         ]
       ],
       "errors": [],
@@ -485,7 +461,7 @@
         "Aluno: I am Ana.",
         "[registrar_resultado {\"item_id\": \"c-i-am\", \"etapa\": \"repetir\", \"resultado\": \"correto\", \"o_que_ouviu\": \"I am Ana\"}]",
         "[app para a Flua: correto. Elogie em 1 frase curta. Etapa sua vez do item 1: peça em português para ele dizer a frase \"I am Ana.\" trocando UMA informação (outro nome, país, número ou objeto, você escolhe e diz qual), sem dizer a resposta. PARE e espere.]",
-        "Flua: Isso saiu muito natural, Ana!  \nAgora é sua vez: diga a frase de apresentação, mas troque uma informação, como o nome, país ou outro dado. Em inglês, diga a versão com o novo dado."
+        "Flua: Perfeito, Ana! Sua frase saiu bem natural.\n\nAgora, sua vez: diga a frase \"I am Ana.\" trocando uma informação, como o seu nome. Escolha outro nome e diga."
       ]
     },
     {
@@ -494,14 +470,16 @@
       "mode": "guided_lesson",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 3,
+      "passes": 2,
       "failures": [
         [
-          "Dá uma pista em português de onde está o erro (falta o is), sem dizer a frase certa. — Diz onde está o erro: “você esqueceu o ‘is’ depois de ‘name’”, mas também dá a estrutura correta: “My name is ___.”"
+          "4 frases (máximo 3)"
         ],
         [
-          "4 frases (máximo 3)",
-          "Dá uma pista em português de onde está o erro (falta o is), sem dizer a frase certa. — Dá a pista (“Falta só o verbo antes do nome”), mas também diz a estrutura/frase certa: “My name is ____.”"
+          "Dá uma pista em português de onde está o erro (falta o is), sem dizer a frase certa. — Diz onde está o erro: “Só está faltando o verbo ‘is’...”, mas também diz parte da resposta correta: “diga ‘My name is’...”"
+        ],
+        [
+          "4 frases (máximo 3)"
         ]
       ],
       "errors": [],
@@ -510,7 +488,7 @@
         "Aluno: My name Pedro.",
         "[registrar_resultado {\"item_id\": \"c-my-name-is\", \"etapa\": \"sozinho\", \"resultado\": \"parcial\", \"o_que_ouviu\": \"My name Pedro\", \"forma_correta\": \"My name is Pedro.\"}]",
         "[app para a Flua: parcial (tentativa 1 de 2). NÃO diga a resposta: dê uma pista curta em português de onde está o erro (a forma certa, só para você, é \"My name is Pedro.\") e peça para ele tentar de novo.]",
-        "Flua: Boa tentativa, Ana. Falta só o verbo antes do nome. Tente novamente dizendo a estrutura com “is” no meio: “My name is ____.” Depois diga só a frase."
+        "Flua: Bom começo, Ana. Só precisa encaixar o verbo de ligação depois de “My name”. Tente de novo e diga: “My name…” seguido de sua informação."
       ]
     },
     {
@@ -522,20 +500,20 @@
       "passes": 2,
       "failures": [
         [
-          "7 frases (máximo 3)"
-        ],
-        [
           "4 frases (máximo 3)"
         ],
         [
-          "Segue a conversa com algo para a aluna responder. — Falta seguir a conversa com algo para a aluna responder."
+          "6 frases (máximo 3)"
+        ],
+        [
+          "4 frases (máximo 3)"
         ]
       ],
       "errors": [],
       "transcript": [
         "Flua: Nice! And how old are you? Quantos anos você tem?",
         "Aluno: I have 30 years.",
-        "Flua: I’m 30 — eu tenho 30 anos — I’m 30.  \nMuito bem, Ana, a ideia é boa; só troque \"I have 30 years\" por \"I'm 30\"."
+        "Flua: Natural, Ana — o certo é “I’m 30.” (traduzindo: “Eu tenho 30 anos” não é o jeito comum).  \nPerfeito, você já está no caminho certo.\n\nNow, can you tell me where you are from?"
       ]
     },
     {
@@ -544,22 +522,10 @@
       "mode": "free_practice",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 4,
-      "failures": [
-        [
-          "5 frases (máximo 3)"
-        ]
-      ],
+      "passes": 5,
+      "failures": [],
       "errors": [],
-      "transcript": [
-        "Flua: How old are you?",
-        "Aluno: I have 30 years.",
-        "Flua: Oh, you're 30 — a gente diz I'm 30, não I have. And your sister?",
-        "Aluno: She have 25 years.",
-        "Flua: She's 25, nice — idade usa to be. And your brother?",
-        "Aluno: He have 20 years.",
-        "Flua: Ana, legal! Vou reformular isso rapidinho e já seguimos com sua fala.He is 20 years old — a gente diz \"He's 20,\" não \"He have\". Você está fazendo muito bem.  \nHe is 20 — ele tem 20 anos, mas se usa \"is\" com idade.  \nDo you live in Brazil?"
-      ]
+      "transcript": []
     },
     {
       "id": "livre-pedido-so-ingles",
@@ -581,20 +547,20 @@
       "passes": 2,
       "failures": [
         [
+          "5 frases (máximo 3)"
+        ],
+        [
+          "5 frases (máximo 3)"
+        ],
+        [
           "4 frases (máximo 3)"
-        ],
-        [
-          "5 frases (máximo 3)"
-        ],
-        [
-          "5 frases (máximo 3)"
         ]
       ],
       "errors": [],
       "transcript": [
         "Flua: Oi, Ana! Hoje vamos praticar cumprimentos. How are you today?",
         "Aluno: Na verdade eu queria treinar pedir comida num restaurante.",
-        "Flua: Claro, Ana! Podemos treinar pedir comida no restaurante. \nHere's a starter line: \"Can I help you? — Posso te ajudar? — Can I help you?\"\n\nAgora, pense em uma maneira simples de dizer o que você quer comer.  \nComo você perguntaria: \"Posso ver o cardápio?\""
+        "Flua: Claro, Ana! Vamos mudar para restaurante. Em inglês, um exemplo é: \"Can I have the menu?\" — \"Posso ter o cardápio?\" — \"Can I have the menu?\"  \nAgora, sua vez: como você pediria um copo de água?"
       ]
     },
     {
@@ -603,10 +569,28 @@
       "mode": "free_practice",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 5,
-      "failures": [],
+      "passes": 2,
+      "failures": [
+        [
+          "todas as falas terminaram em pergunta"
+        ],
+        [
+          "todas as falas terminaram em pergunta"
+        ],
+        [
+          "todas as falas terminaram em pergunta"
+        ]
+      ],
       "errors": [],
-      "transcript": []
+      "transcript": [
+        "Flua: What do you do on weekends?",
+        "Aluno: I like to cook with my family.",
+        "Flua: Nice, Ana — that’s a great weekend routine. Cooking with family is cozy and fun. What’s your favorite dish to cook together?",
+        "Aluno: Yes, I cook pasta every Sunday.",
+        "Flua: Oh, pasta every Sunday sounds perfect — I love that consistency. Is it a specific pasta recipe you like, or do you change it?",
+        "Aluno: My mother makes the sauce.",
+        "Flua: Nice, that’s a clear and natural sentence. Next, let me think of a quick way to keep this conversation going.That’s a great part of the routine — your mother makes the sauce, and you cook the pasta. Do you like cooking the pasta with her too, or does she handle most of it?"
+      ]
     },
     {
       "id": "livre-nao-sabe-nao-inventa",
@@ -625,18 +609,10 @@
       "mode": "free_practice",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 4,
-      "failures": [
-        [
-          "4 frases (máximo 3)"
-        ]
-      ],
+      "passes": 5,
+      "failures": [],
       "errors": [],
-      "transcript": [
-        "Flua: Hi, Ana! How are you today?",
-        "Aluno: Hola, ¿cómo estás?",
-        "Flua: Hi, Ana! I’m doing well, thank you. Today we’ll practice greetings and introductions, so let’s start with a simple “Hi, I’m…” and your name."
-      ]
+      "transcript": []
     },
     {
       "id": "livre-intermediario-recast",
@@ -644,17 +620,20 @@
       "mode": "free_practice",
       "model": "gpt-realtime-2.1",
       "runs": 5,
-      "passes": 4,
+      "passes": 3,
       "failures": [
         [
-          "Segue a conversa. — Falta seguir a conversa sobre o que o aluno fez ontem; a fala muda para outro tópico: \"Now for introductions, Ana: say your name and one thing you like.\""
+          "Segue a conversa. — Muda de assunto de forma abrupta: “Now, can you introduce yourself? Start with: Hi, I’m Ana.”"
+        ],
+        [
+          "Segue a conversa. — Não segue plenamente a conversa: muda de assunto para apresentações — “Now let’s switch to introductions...”"
         ]
       ],
       "errors": [],
       "transcript": [
         "Flua: So, what did you do yesterday?",
         "Aluno: Yesterday I go to the beach with my friends.",
-        "Flua: Nice! Yesterday I went to the beach with my friends.\n\nNow for introductions, Ana: say your name and one thing you like."
+        "Flua: Nice, Ana — Yesterday I went to the beach with my friends.\n\nNow let’s switch to introductions: how do you say hello and your name in English?"
       ]
     },
     {
@@ -666,28 +645,25 @@
       "passes": 0,
       "failures": [
         [
-          "5 frases (máximo 4)",
-          "Diz em 1 frase o que ela vai conseguir fazer na aula. — Diz o tema/atividade (“Hoje vamos praticar o verbo ‘to be’ no presente, começando com quem você é”), mas não formula em 1 frase o que ela vai conseguir fazer na aula.",
-          "Termina pedindo que a aluna diga algo em inglês (um modelo para repetir ou um pedido claro). — Termina com “Quando estiver pronto, me deixe saber...”, mas não pede que a aluna diga algo em inglês nem dá modelo para repetir."
+          "Diz em 1 frase o que ela vai conseguir fazer na aula. — Falta dizer em 1 frase o que a aluna vai conseguir fazer na aula; a fala só diz: \"Hoje a aula é sobre o verbo to be, no presente.\"",
+          "Termina pedindo que a aluna diga algo em inglês (um modelo para repetir ou um pedido claro). — Falta terminar pedindo que a aluna diga algo em inglês; a fala termina com: \"Vamos praticar aos poucos e bem devagar.\""
         ],
         [
-          "Diz em 1 frase o que ela vai conseguir fazer na aula. — Falta dizer em 1 frase o que ela vai conseguir fazer na aula; a fala apenas diz: “Today we’re practicing the present of the verb ‘to be.’”",
-          "Termina pedindo que a aluna diga algo em inglês (um modelo para repetir ou um pedido claro). — Falta terminar pedindo que a aluna diga algo em inglês; a fala termina com “ready?”"
+          "Termina pedindo que a aluna diga algo em inglês (um modelo para repetir ou um pedido claro). — Falta terminar pedindo que a aluna diga algo em inglês; a fala apenas informa o tema da aula."
         ],
         [
-          "Diz em 1 frase o que ela vai conseguir fazer na aula. — Falta dizer em 1 frase o que a aluna vai conseguir fazer; a fala só diz: “today we’re practicing the verb to be in English.”",
-          "Termina pedindo que a aluna diga algo em inglês (um modelo para repetir ou um pedido claro). — Falta terminar pedindo claramente que a aluna diga algo em inglês; a fala termina com “Let’s warm up with ‘I am,’ ‘you are,’ and ‘he/she is.’”"
+          "Termina pedindo que a aluna diga algo em inglês (um modelo para repetir ou um pedido claro). — Falta terminar com um pedido claro para a aluna dizer algo em inglês ou um modelo para repetir; a fala termina com “primeiro, vamos dizer quem você é.”"
         ],
         [
-          "5 frases (máximo 4)"
+          "Termina pedindo que a aluna diga algo em inglês (um modelo para repetir ou um pedido claro). — Falta terminar pedindo que a aluna diga algo em inglês; a fala termina com explicação do formato: \"...e depois você tenta de novo.\""
         ],
         [
-          "Termina pedindo que a aluna diga algo em inglês (um modelo para repetir ou um pedido claro). — Falta terminar pedindo que a aluna diga algo em inglês; a fala termina apenas com a meta: \"dizer quem você é.\""
+          "Diz em 1 frase o que ela vai conseguir fazer na aula. — Falta dizer em 1 frase o que a Ana vai conseguir fazer na aula; a fala só diz: “we’ll practice the verb to be.”"
         ]
       ],
       "errors": [],
       "transcript": [
-        "Flua: Hi, Ana! I’m your English teacher, and today we’ll practice the verb to be in the present.  \nVamos começar com uma meta simples: dizer quem você é."
+        "Flua: Hello, Ana! I’m your English teacher today, and we’ll practice the verb to be.\n\nI am Ana — Eu sou a Ana — I am Ana. Sua vez, Ana: diga quem você é."
       ]
     },
     {
@@ -696,18 +672,21 @@
       "mode": "guided_lesson",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 3,
+      "passes": 2,
       "failures": [
         [
-          "7 frases (máximo 4)"
+          "5 frases (máximo 4)"
         ],
         [
           "5 frases (máximo 4)"
+        ],
+        [
+          "8 frases (máximo 4)"
         ]
       ],
       "errors": [],
       "transcript": [
-        "Flua: Oi, Ana! Hoje vamos trabalhar apresentações em inglês. Primeiro, você ouve, depois repete, e depois tenta sozinho.\n\nPara dizer quem você é, você pode dizer: I am Ana — Eu sou Ana — I am Ana.\nVamos praticar juntos: repete comigo: I am Ana."
+        "Flua: Oi, Ana! Hoje vamos aprender a nos apresentar em inglês. Vou te mostrar uma frase, repetir, e depois você tenta sozinho.Oi, Ana! Hoje vamos aprender a nos apresentar em inglês. Vou te mostrar uma frase, repetir, e depois você tenta sozinho.\n\nContexto: quando alguém está se apresentando, é comum dizer quem é.\n\nFrase: I am Ana. — Eu sou Ana. — I am Ana.\n\nAgora repete comigo: I am Ana."
       ]
     },
     {
@@ -716,18 +695,15 @@
       "mode": "free_practice",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 3,
+      "passes": 4,
       "failures": [
         [
           "4 frases (máximo 3)"
-        ],
-        [
-          "Faz uma primeira pergunta curta em inglês sobre o tema. — Falta uma primeira pergunta curta em inglês; a pergunta feita é em português: \"como dizer isso em inglês?\""
         ]
       ],
       "errors": [],
       "transcript": [
-        "Flua: Olá, Ana! Hoje vamos praticar primeiros contatos, cumprimentar e se apresentar.  \nNice to meet you — como dizer isso em inglês?"
+        "Flua: Oi, Ana! Hoje vamos praticar primeiros contatos: cumprimentar e se apresentar.  \ndiga: \"Hello, Ana — oi, Ana — Hello, Ana.\"  \nWhat is your name?"
       ]
     },
     {
@@ -747,23 +723,10 @@
       "mode": "free_practice",
       "model": "gpt-realtime-2.1-mini",
       "runs": 5,
-      "passes": 2,
-      "failures": [
-        [
-          "5 frases (máximo 3)"
-        ],
-        [
-          "5 frases (máximo 3)"
-        ],
-        [
-          "disse 'Good morning'",
-          "Não diz a resposta antes da aluna tentar. — Diz a resposta antes da tentativa: \"Como se diz ‘Good morning’ em inglês?\""
-        ]
-      ],
+      "passes": 5,
+      "failures": [],
       "errors": [],
-      "transcript": [
-        "Flua: Oi, Ana! Vamos começar com um aquecimento de memória: diga em inglês “Bom dia”. Como se diz “Good morning” em inglês?"
-      ]
+      "transcript": []
     }
   ]
 }
