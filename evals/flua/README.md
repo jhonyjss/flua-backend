@@ -41,7 +41,10 @@ Antes de gastar com a voz, `run` confere se o juiz responde.
   Claude, que seria melhor por ser de outra família; vale também no `.env`). O juiz recebe a
   conversa com as instruções do app entre colchetes e cita o trecho da fala.
 - Cada rodada termina com os tokens gastos por modelo.
-- Cada caso roda 3 vezes. Regra para aceitar um prompt novo: nenhuma categoria passa menos
-  rodadas que o baseline e nenhum caso que passava 3 de 3 cai para menos de 2 de 3.
+- Regra para aceitar um prompt novo: nenhuma categoria passa menos rodadas que o baseline e
+  nenhum caso que passava todas cai abaixo de 2/3 delas. As rodadas variam de um dia para o outro
+  (a abertura foi de 5/15 a 2/15 sem mudar o prompt): rode o prompt antigo e o novo na mesma
+  sessão, com `--runs 5`, e compare com `--against <resultado do antigo>`. O `baseline.json` é o
+  prompt atual (desde a 2c, 5 rodadas).
 - Os casos de abertura descrevem o alvo da etapa 2d (D1 = B). O baseline falha em parte deles de
   propósito.

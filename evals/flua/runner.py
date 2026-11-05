@@ -149,9 +149,15 @@ async def run_all(cases: list[dict], *, runs: int, connect: Connect, judge: Judg
 
 
 def backend_commit() -> str:
+    """HEAD, marked "+dirty" when the prompt or the eval differ from it: a result measured on uncommitted code
+    must not pass for the commit it started from."""
     try:
-        return subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True,
+        head = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True,
                               check=True).stdout.strip()
+        dirty = subprocess.run(["git", "status", "--porcelain", "--", "app", "evals/flua/cases.py",
+                                "evals/flua/checks.py", "evals/flua/judge.py", "evals/flua/runner.py",
+                                "evals/flua/session.py"], capture_output=True, text=True, check=True).stdout.strip()
+        return f"{head}+dirty" if dirty else head
     except (OSError, subprocess.CalledProcessError):
         return "unknown"
 

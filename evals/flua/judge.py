@@ -104,7 +104,8 @@ def failures_from_verdict(verdict: dict, criteria: list[str]) -> list[str]:
 
 
 async def judge(reply: str, criteria: list[str], context: str) -> list[str]:
-    text = await ask(SYSTEM, judge_message(reply, criteria, context), max_tokens=2000, schema=VERDICT_SCHEMA)
+    # Reasoning tokens count against the limit: 2,000 cut a verdict short now and then.
+    text = await ask(SYSTEM, judge_message(reply, criteria, context), max_tokens=4000, schema=VERDICT_SCHEMA)
     try:
         verdict = anthropic_client.extract_json(text)
     except ValueError:
