@@ -3,10 +3,13 @@
 import asyncio
 import json
 import logging
+import os
 import re
+import ssl
 from time import monotonic
 from uuid import uuid4
 
+import certifi
 import websockets
 from fastapi import HTTPException
 
@@ -140,7 +143,9 @@ async def connect(user, session, body):
         return {"sdpAnswer": response.text, "connectionId": owner}
     except BaseException:
         if task:
-            task.cancel()
+            # A reported startup error means run() is already cleaning up its lease.
+            if not ready.done() or ready.cancelled() or ready.exception() is None:
+                task.cancel()
             await asyncio.gather(task, return_exceptions=True)
         else:
             if call_id:
@@ -174,6 +179,10 @@ async def run(user, session, owner, call_id, plan, ready, *, teaching_skill=""):
             },
             open_timeout=8,
             max_size=2**20,
+            ssl=ssl.create_default_context(
+                cafile=os.getenv("SSL_CERT_FILE") or certifi.where(),
+                capath=os.getenv("SSL_CERT_DIR"),
+            ),
         ) as ws:
 
             async def send(event):
@@ -520,6 +529,9 @@ async def run(user, session, owner, call_id, plan, ready, *, teaching_skill=""):
                     {**s, "status": "paused"} if s["status"] == "active" else None
                 ),
             )
+        except Exception:  # noqa: BLE001 -- a failed checkpoint must not retain the lease
+            log.warning("classroom.disconnect_checkpoint_failed session=%s", session)
+        try:
             await repo.lease(user, session, owner, "release", limit)
         except Exception:  # noqa: BLE001 -- cleanup must attempt both lease release and hangup
             log.warning("classroom.release_failed session=%s", session)

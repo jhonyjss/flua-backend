@@ -1,11 +1,15 @@
 import asyncio
 import json
+from contextlib import asynccontextmanager
 from copy import deepcopy
+from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
+from fastapi import HTTPException
 
 from app.core.config import get_settings
+from app.schemas.classroom import Connection
 from app.services.classroom import realtime_connection as transport
 from app.services.classroom.orchestrator import initial
 from app.services.classroom.teaching import GREETINGS, skill_for_lesson
@@ -21,6 +25,53 @@ PLAN = {
         }
     ]
 }
+
+
+@pytest.mark.asyncio
+async def test_failed_voice_startup_releases_lease_before_retry(monkeypatch):
+    row = {"lesson_id": "lesson", "content_version": "test", "state": initial(PLAN)}
+    released = asyncio.Event()
+
+    async def lease(_user, _session, _owner, action, _limit):
+        if action == "release":
+            await asyncio.sleep(0)
+            released.set()
+        return {"expired": False}
+
+    async def checkpoint(_user, _session, _owner, event, _update):
+        if event == "session.disconnected":
+            raise RuntimeError("Checkpoint unavailable")
+        return row
+
+    @asynccontextmanager
+    async def http_client(**_):
+        response = SimpleNamespace(status_code=201, headers={"location": "/calls/call"})
+        yield SimpleNamespace(post=AsyncMock(return_value=response))
+
+    def fail_sideband(*_, **__):
+        raise OSError("Sideband unavailable")
+
+    monkeypatch.setattr(get_settings(), "openai_api_key", "test-key")
+    monkeypatch.setattr(transport.service, "enabled", lambda _: None)
+    monkeypatch.setattr(transport.service, "authorize", AsyncMock())
+    monkeypatch.setattr(transport.service, "budget", AsyncMock(return_value=600))
+    monkeypatch.setattr(transport.service, "provider_event", checkpoint)
+    monkeypatch.setattr(transport.repo, "get", AsyncMock(return_value=row))
+    monkeypatch.setattr(transport.repo, "lease", lease)
+    monkeypatch.setattr(transport.content, "lesson", lambda *_: PLAN)
+    monkeypatch.setattr(transport, "http_client", http_client)
+    monkeypatch.setattr(transport.websockets, "connect", fail_sideband)
+    monkeypatch.setattr(transport, "hangup", AsyncMock())
+
+    body = Connection(
+        connectionAttemptId="00000000-0000-0000-0000-000000000001",
+        sdpOffer="test-sdp-offer",
+    )
+    with pytest.raises(HTTPException) as exc:
+        await transport.connect("user", "session", body)
+    assert exc.value.detail == {"code": "voice_control_unavailable"}
+    assert released.is_set()
+    transport.hangup.assert_awaited_once_with("call")
 
 
 @pytest.mark.asyncio
