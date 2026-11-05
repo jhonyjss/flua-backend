@@ -6,6 +6,8 @@ import httpx
 
 LESSON = "fund-u1-l2"
 OTHER = "fund-u1-l1"
+# Three other lessons: an account that took them has used all of its trials.
+TAKEN = ["fund-u1-l1", "fund-u1-l3", "fund-u1-l4"]
 
 PLAN = {
     "title": "Apresentações",
@@ -28,7 +30,7 @@ def _body(**patch):
     return {"mode": "guided_lesson", "lessonId": LESSON, "plan": PLAN, "studentName": "Jhony", **patch}
 
 
-def _backend(*, plan_level=None, role="student", trial_lesson=None, claim_result=None, claim_fails=False,
+def _backend(*, plan_level=None, role="student", trial_lessons=(), claim_result=None, claim_fails=False,
              consumed=0, stripe_fails=False, trial_read_fails=False, calls=None):
     """Supabase + OpenAI as seen from the backend. `calls` collects ("openai", body) and ("claim", body)."""
     log = calls if calls is not None else []
@@ -38,7 +40,7 @@ def _backend(*, plan_level=None, role="student", trial_lesson=None, claim_result
         if "client_secrets" in path:
             log.append(("openai", json.loads(request.content)))
             return httpx.Response(200, json={"value": "ek_live_abc"})
-        if path.endswith("/rpc/claim_guided_lesson_trial"):
+        if path.endswith("/rpc/claim_guided_lesson_trial_slot"):
             log.append(("claim", json.loads(request.content)))
             if claim_fails:
                 return httpx.Response(500, json={"message": "boom"})
@@ -53,7 +55,7 @@ def _backend(*, plan_level=None, role="student", trial_lesson=None, claim_result
         if "guided_lesson_trials" in path:
             if trial_read_fails:
                 return httpx.Response(500, json={"message": "down"})
-            return httpx.Response(200, json=[] if trial_lesson is None else [{"lesson_id": trial_lesson}])
+            return httpx.Response(200, json=[{"lesson_id": lesson} for lesson in trial_lessons])
         if "lesson_time_usage" in path:
             return httpx.Response(200, json=[{"id": "row-1", "consumed_seconds": consumed}] if consumed else [])
         return httpx.Response(200, json=[])
@@ -88,25 +90,61 @@ def test_admin_starts_without_a_subscription_or_the_trial(client, auth_headers, 
     assert _kinds(calls) == ["openai"]
 
 
-def test_non_subscriber_claims_the_trial_on_their_first_lesson(client, auth_headers, mock_transport):
+def test_non_subscriber_takes_a_trial_on_their_first_lesson(client, auth_headers, mock_transport):
     calls = []
-    mock_transport(_backend(claim_result=LESSON, calls=calls))
+    mock_transport(_backend(claim_result={"granted": True, "lessonIds": [LESSON]}, calls=calls))
     res = client.post("/api/realtime/session", json=_body(), headers=auth_headers)
     assert res.status_code == 200
     assert _kinds(calls) == ["claim", "openai"]
     claim = calls[0][1]
-    assert claim == {"p_user_id": "00000000-0000-0000-0000-000000000001", "p_lesson_id": LESSON}
+    assert claim == {"p_user_id": "00000000-0000-0000-0000-000000000001", "p_lesson_id": LESSON, "p_limit": 3}
 
 
-def test_non_subscriber_is_refused_a_second_lesson(client, auth_headers, mock_transport):
+def test_non_subscriber_takes_a_third_lesson(client, auth_headers, mock_transport):
     calls = []
-    # The account's trial is already another lesson: the claim answers with that one.
-    mock_transport(_backend(claim_result=OTHER, calls=calls))
+    mock_transport(_backend(claim_result={"granted": True, "lessonIds": [*TAKEN[:2], LESSON]}, calls=calls))
+    res = client.post("/api/realtime/session", json=_body(), headers=auth_headers)
+    assert res.status_code == 200
+    assert _kinds(calls) == ["claim", "openai"]
+
+
+def test_non_subscriber_resumes_a_trial_after_using_all_three(client, auth_headers, mock_transport):
+    mock_transport(_backend(claim_result={"granted": True, "lessonIds": [TAKEN[0], LESSON, TAKEN[1]]}))
+    res = client.post("/api/realtime/session", json=_body(), headers=auth_headers)
+    assert res.status_code == 200
+
+
+def test_non_subscriber_is_refused_a_fourth_lesson(client, auth_headers, mock_transport):
+    calls = []
+    mock_transport(_backend(claim_result={"granted": False, "lessonIds": TAKEN}, calls=calls))
     res = client.post("/api/realtime/session", json=_body(), headers=auth_headers)
     assert res.status_code == 403
-    assert res.json()["detail"]["code"] == "guided_trial_used"
-    assert res.json()["detail"]["trialLessonId"] == OTHER
+    assert res.json()["detail"] == {
+        "code": "guided_trial_used",
+        "message": "Aulas com a Flua são para assinantes. Suas 3 aulas de teste já foram usadas.",
+        "trialLessonId": TAKEN[-1],
+        "trialsUsed": 3,
+        "trialLimit": 3,
+    }
     assert "openai" not in _kinds(calls)  # no OpenAI money spent
+
+
+def test_a_claim_that_contradicts_itself_gives_no_lesson(client, auth_headers, mock_transport):
+    # Granted, but the lesson is not among the trials; refused while there is room; the old
+    # one-trial answer (a bare lesson id): each is malformed, and malformed fails closed.
+    for claim in (
+        {"granted": True, "lessonIds": TAKEN[:2]},
+        {"granted": False, "lessonIds": TAKEN[:2]},
+        {"granted": False, "lessonIds": [*TAKEN[:2], LESSON]},
+        LESSON,
+        {"granted": "yes", "lessonIds": [LESSON]},
+    ):
+        calls = []
+        mock_transport(_backend(claim_result=claim, calls=calls))
+        res = client.post("/api/realtime/session", json=_body(), headers=auth_headers)
+        assert res.status_code == 403, claim
+        assert res.json()["detail"]["code"] == "guided_lesson_unavailable", claim
+        assert "openai" not in _kinds(calls), claim
 
 
 def test_non_subscriber_gets_no_lesson_when_the_trial_cannot_be_recorded(client, auth_headers, mock_transport):
@@ -131,7 +169,7 @@ def test_unreadable_subscription_fails_open_like_the_other_budgets(client, auth_
 
 def test_spent_lesson_time_is_refused_before_claiming_anything(client, auth_headers, mock_transport):
     calls = []
-    mock_transport(_backend(consumed=10 * 60, claim_result=LESSON, calls=calls))  # free budget: 10 min
+    mock_transport(_backend(consumed=10 * 60, claim_result={"granted": True, "lessonIds": [LESSON]}, calls=calls))  # free budget: 10 min
     res = client.post("/api/realtime/session", json=_body(), headers=auth_headers)
     assert res.status_code == 403
     assert res.json()["detail"]["code"] == "lesson_time_expired"
@@ -289,33 +327,47 @@ def _access(client, auth_headers, lesson=LESSON):
 
 def test_access_for_a_subscriber(client, auth_headers, mock_transport):
     mock_transport(_backend(plan_level="starter_monthly"))
-    assert _access(client, auth_headers).json() == {"canStart": True, "reason": "subscriber", "trialLessonId": None}
+    assert _access(client, auth_headers).json() == {
+        "canStart": True, "reason": "subscriber", "trialLessonId": None, "trialsUsed": None, "trialLimit": 3,
+    }
 
 
-def test_access_before_and_during_the_trial(client, auth_headers, mock_transport):
+def test_access_before_and_during_the_trials(client, auth_headers, mock_transport):
     calls = []
     mock_transport(_backend(calls=calls))
     assert _access(client, auth_headers).json() == {
-        "canStart": True, "reason": "trial_available", "trialLessonId": None,
+        "canStart": True, "reason": "trial_available", "trialLessonId": None, "trialsUsed": 0, "trialLimit": 3,
     }
-    mock_transport(_backend(trial_lesson=LESSON, calls=calls))
+    mock_transport(_backend(trial_lessons=TAKEN[:2], calls=calls))
     assert _access(client, auth_headers).json() == {
-        "canStart": True, "reason": "trial_in_progress", "trialLessonId": LESSON,
+        "canStart": True, "reason": "trial_available", "trialLessonId": TAKEN[1], "trialsUsed": 2, "trialLimit": 3,
+    }
+    mock_transport(_backend(trial_lessons=[TAKEN[0], LESSON, TAKEN[1]], calls=calls))
+    assert _access(client, auth_headers).json() == {
+        "canStart": True, "reason": "trial_in_progress", "trialLessonId": LESSON, "trialsUsed": 3, "trialLimit": 3,
     }
     assert "claim" not in _kinds(calls)
 
 
-def test_access_after_the_trial(client, auth_headers, mock_transport):
-    mock_transport(_backend(trial_lesson=OTHER))
+def test_access_after_the_three_trials(client, auth_headers, mock_transport):
+    mock_transport(_backend(trial_lessons=TAKEN))
     assert _access(client, auth_headers).json() == {
-        "canStart": False, "reason": "trial_used", "trialLessonId": OTHER,
+        "canStart": False, "reason": "trial_used", "trialLessonId": TAKEN[-1], "trialsUsed": 3, "trialLimit": 3,
     }
 
 
-def test_access_fails_closed_for_a_non_subscriber_when_the_trial_is_unreadable(client, auth_headers, mock_transport):
+def test_access_for_an_account_that_used_the_old_single_trial(client, auth_headers, mock_transport):
+    # Accounts from the one-trial days keep that lesson and have two more.
+    mock_transport(_backend(trial_lessons=[OTHER]))
+    assert _access(client, auth_headers).json() == {
+        "canStart": True, "reason": "trial_available", "trialLessonId": OTHER, "trialsUsed": 1, "trialLimit": 3,
+    }
+
+
+def test_access_fails_closed_for_a_non_subscriber_when_the_trials_are_unreadable(client, auth_headers, mock_transport):
     mock_transport(_backend(trial_read_fails=True))
     assert _access(client, auth_headers).json() == {
-        "canStart": False, "reason": "unavailable", "trialLessonId": None,
+        "canStart": False, "reason": "unavailable", "trialLessonId": None, "trialsUsed": None, "trialLimit": 3,
     }
 
 

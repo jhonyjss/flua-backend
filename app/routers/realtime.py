@@ -21,8 +21,8 @@ router = APIRouter(prefix="/api/realtime", tags=["realtime"])
 
 
 async def _guard_guided_lesson(body: RealtimeSessionRequest, user: AuthUser) -> None:
-    """Guided voice lessons: subscribers, or a non-subscriber's single trial lesson, within the
-    lesson's time budget. Time is checked first so a spent lesson never claims the trial."""
+    """Guided voice lessons: subscribers, or one of a non-subscriber's trial lessons, within the
+    lesson's time budget. Time is checked first so a spent lesson never takes a trial."""
     if await conversation_credits.is_admin(user.id):
         return
     time = await lesson_timer.get_status(user.id, body.lessonId)
@@ -39,8 +39,13 @@ async def _guard_guided_lesson(body: RealtimeSessionRequest, user: AuthUser) -> 
             status_code=403,
             detail={
                 "code": "guided_trial_used",
-                "message": "Aulas com a Flua são para assinantes. Sua aula de teste já foi usada.",
+                "message": (
+                    "Aulas com a Flua são para assinantes. "
+                    f"Suas {guided_access.TRIAL_LIMIT} aulas de teste já foram usadas."
+                ),
                 "trialLessonId": access.trial_lesson_id,
+                "trialsUsed": access.trials_used,
+                "trialLimit": guided_access.TRIAL_LIMIT,
             },
         )
     raise HTTPException(
