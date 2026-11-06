@@ -1,11 +1,13 @@
 """Text tutor reply (/ai/tutor/respond): student profile + RAG + guardrails.
 
 Isolated by user_id (passed from the router). Uses the learning profile to adapt,
-RAG only for pedagogical content, and anti-hallucination rules + low temperature
+RAG only for pedagogical content, and anti-hallucination rules
 to avoid making things up. The transcript/message is never persisted here.
 """
 
 from __future__ import annotations
+
+import logging
 
 from app.core.config import get_settings
 from app.schemas.learning_intel import LearningProfile
@@ -14,13 +16,19 @@ from app.services.ai import guardrails, rag
 from app.services.ai.prompt_safety import INJECTION_GUARD
 from app.services.anthropic_client import complete
 
+log = logging.getLogger(__name__)
+
 
 def build_system_prompt(profile: LearningProfile, context: str, sufficient: bool) -> str:
     weaknesses = ", ".join(profile.weaknesses) or "—"
     rag_block = f"\n\n# Conteúdo pedagógico (RAG — use para explicar)\n{context}" if context else ""
     return (
         "Você é a Flua, tutora de inglês para brasileiros. Respostas curtas (1–3 "
-        "frases), claras, em português do Brasil, com exemplos práticos curtos em inglês.\n\n"
+        "frases), claras, em português do Brasil mesmo se o aluno escrever em inglês. "
+        "Comece pela explicação, sem elogio genérico. Use um exemplo curto em inglês "
+        "quando ajudar, ou um par quando precisar comparar duas formas. Mostre cada exemplo "
+        "uma vez e encerre sem recapitular. Priorize uma correção de cada vez. Ao explicar "
+        "conjugação, diferencie a forma conjugada do verbo.\n\n"
         "# Perfil do aluno (use para adaptar dificuldade, ritmo e exemplos)\n"
         f"Nível CEFR: {profile.level}. Idioma de explicação: {profile.preferred_explanation_language}. "
         f"Ritmo: {profile.pace}. Pontos de atenção: {weaknesses}. "
@@ -36,7 +44,11 @@ def build_system_prompt(profile: LearningProfile, context: str, sufficient: bool
 
 async def respond(user_id: str, message: str, *, language: str = "en", level: str | None = None) -> dict:
     profile = await learning_intel.get_profile(user_id)
-    chunks = await rag.search(message, level=level or profile.level, k=4)
+    try:
+        chunks = await rag.search(message, level=level or profile.level, k=4)
+    except Exception as exc:  # noqa: BLE001 — use the existing ungrounded prompt on lookup failure
+        log.warning("text_tutor.retrieval_unavailable error_type=%s", type(exc).__name__)
+        chunks = []
     assessment = guardrails.assess(chunks)
     context, sources = rag.build_context(assessment["used"])
     system = build_system_prompt(profile, context, assessment["sufficient"])
@@ -44,7 +56,11 @@ async def respond(user_id: str, message: str, *, language: str = "en", level: st
     settings = get_settings()
     try:
         reply = await complete(
-            system, message, max_tokens=400, temperature=0.2, model=settings.anthropic_model_haiku
+            system,
+            message,
+            max_tokens=640,
+            temperature=0.2,
+            model=settings.anthropic_model_text_tutor,
         )
     except Exception:  # noqa: BLE001 — never 500 the tutor; degrade to a safe message
         reply = "Desculpa, tive um problema agora. Pode tentar de novo?"

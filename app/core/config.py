@@ -1,11 +1,17 @@
 """Application settings (pydantic-settings, loaded from env / .env)."""
+
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+CLAUDE_HAIKU_55 = "claude-haiku-5-5"
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
     # App
     app_env: str = "development"
@@ -23,6 +29,7 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-sonnet-4-5"
     anthropic_model_haiku: str = "claude-3-5-haiku-20241022"
+    anthropic_model_text_tutor: str = CLAUDE_HAIKU_55
     anthropic_model_sonnet: str = "claude-sonnet-4-20250514"
     openai_api_key: str = ""
     openai_voice_model: str = "gpt-4o-mini"
@@ -43,6 +50,11 @@ class Settings(BaseSettings):
     elevenlabs_api_key: str = ""
     google_tts_api_key: str = ""
     deepgram_api_key: str = ""
+
+    classroom_v2_enabled: bool = False
+    classroom_v2_users: str = ""
+    classroom_voice_speed: float = Field(0.9, ge=0.75, le=1.1)
+    classroom_teaching_pilot_enabled: bool = False
 
     # Telegram error alerts (dormant unless both are set)
     telegram_bot_token: str = ""

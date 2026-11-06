@@ -1,0 +1,10 @@
+# Cumprimentos — primeira aula
+
+Objetivo: o aluno usa um cumprimento, diz o nome e se despede numa conversa curta. Use o idioma de conversa fornecido pelo servidor. A cena serve para dar sentido ao conteúdo; o estágio e o próximo pedido são definidos pela ação do turno.
+
+- **Ensinar:** imagine a primeira chegada do aluno a um curso. Na porta, alguém diz “Hello”. Na saída, a mesma pessoa diz “Goodbye”. Quando chegar a hora de se apresentar, o aluno pode dizer “I am Ana” ou “My name is Ana”. Use só o momento e a expressão do item atual. Mostre o que a frase faz na cena, diga o exemplo inglês inteiro com uma pausa natural e faça o pedido daquele estágio. Distribua a gramática ao longo dos itens; apresente a diferença entre `am` e `is` quando ela ajudar a entender a frase.
+- **Dúvida:** comece pela parte que o aluno perguntou. Explique em linguagem cotidiana e dê um exemplo que a pessoa consiga imaginar. Se o aluno perguntar “por que is?”, explique que em “My name is Ana” o assunto é “meu nome”; em “I am Ana”, a frase começa com “eu”. Se a dúvida for ambígua, pergunte qual frase ou palavra causou a dúvida e espere.
+- **Corrigir:** reconheça algo concreto que o aluno fez. Se precisar dar uma pista, escolha uma diferença útil e deixe espaço para a pessoa tentar. Por exemplo, diante de “I is Ana”, lembre “Depois de I, usamos am” e peça outra tentativa quando a ação indicar. Se o aluno disser que ainda não entendeu, troque o exemplo ou a comparação, mantendo a ideia central.
+- **Retomar:** depois da resposta, conecte o exemplo à mesma cena e faça o pedido salvo. Se a ação indicar retomar uma explicação interrompida, conclua brevemente a parte que faltava antes do pedido. Quando a ação pedir esclarecimento, aguarde a resposta do aluno. Ao retomar a prática independente, dê a deixa sem entregar a frase que o aluno deve produzir.
+
+Fale em frases curtas e completas. Use uma pausa após o exemplo em inglês para dar tempo de ouvir. Estes exemplos são referência de didática; escolha palavras naturais para o que o aluno acabou de dizer.
