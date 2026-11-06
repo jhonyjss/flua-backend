@@ -68,9 +68,10 @@ async def _run(args: argparse.Namespace) -> int:
         BASELINE.write_text(json.dumps(current, ensure_ascii=False, indent=2) + "\n")
         print(f"baseline salvo: {BASELINE}")
         return 0
-    if BASELINE.exists():
-        problems = regressions(current, json.loads(BASELINE.read_text()))
-        print("contra o baseline: " + ("sem regressão" if not problems else "REGRESSÃO"))
+    against = Path(args.against) if args.against else BASELINE
+    if against.exists():
+        problems = regressions(current, json.loads(against.read_text()))
+        print(f"contra {against.name}: " + ("sem regressão" if not problems else "REGRESSÃO"))
         for problem in problems:
             print(f"  - {problem}")
         return 1 if problems else 0
@@ -95,9 +96,12 @@ def main() -> int:
     run = sub.add_parser("run", help="roda os casos e compara com o baseline")
     run.add_argument("--mode", choices=["lesson", "guided_lesson", "free_practice"])
     run.add_argument("--case", action="append", help="id do caso (repetível)")
-    run.add_argument("--runs", type=int, default=3)
+    # The baseline's run count by default: results only compare at the same count.
+    run.add_argument("--runs", type=int, default=json.loads(BASELINE.read_text())["runs"] if BASELINE.exists() else 5)
     run.add_argument("--concurrency", type=int, default=4)
     run.add_argument("--save-baseline", action="store_true", help="grava este resultado como baseline")
+    run.add_argument("--against", help="compara com este resultado em vez do baseline.json (ex.: o prompt "
+                                       "antigo rodado na mesma sessão)")
     audit = sub.add_parser("audit", help="lista conflitos no prompt montado de cada modo")
     audit.add_argument("--mode", choices=list(audit_mod.MODES))
     args = parser.parse_args()
