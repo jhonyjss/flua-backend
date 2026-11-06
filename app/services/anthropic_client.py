@@ -4,7 +4,7 @@ import re
 
 from fastapi import HTTPException
 
-from app.core.config import get_settings
+from app.core.config import CLAUDE_HAIKU_55, get_settings
 from app.core.http import http_client
 
 API_URL = "https://api.anthropic.com/v1/messages"
@@ -25,13 +25,18 @@ async def complete(
     if not settings.anthropic_api_key:
         raise HTTPException(500, "ANTHROPIC_API_KEY not configured")
 
+    model_id = model or settings.anthropic_model
     payload = {
-        "model": model or settings.anthropic_model,
+        "model": model_id,
         "max_tokens": max_tokens,
-        "temperature": temperature,
         "system": system,
         "messages": messages or [{"role": "user", "content": user_message}],
     }
+    if model_id == CLAUDE_HAIKU_55:
+        # Haiku 5.5 uses adaptive thinking and rejects sampling parameters.
+        payload["output_config"] = {"effort": "low"}
+    else:
+        payload["temperature"] = temperature
     async with http_client(timeout=60.0) as client:
         res = await client.post(
             API_URL,
@@ -47,7 +52,10 @@ async def complete(
 
     data = res.json()
     parts = data.get("content") or []
-    return "".join(p.get("text", "") for p in parts if p.get("type") == "text")
+    text = "".join(p.get("text", "") for p in parts if p.get("type") == "text")
+    if model_id == CLAUDE_HAIKU_55 and not text.strip():
+        raise HTTPException(502, "Anthropic returned no text")
+    return text
 
 
 def extract_json(text: str) -> dict:

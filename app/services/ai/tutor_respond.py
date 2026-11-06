@@ -1,7 +1,7 @@
 """Text tutor reply (/ai/tutor/respond): student profile + RAG + guardrails.
 
 Isolated by user_id (passed from the router). Uses the learning profile to adapt,
-RAG only for pedagogical content, and anti-hallucination rules + low temperature
+RAG only for pedagogical content, and anti-hallucination rules
 to avoid making things up. The transcript/message is never persisted here.
 """
 
@@ -20,7 +20,9 @@ def build_system_prompt(profile: LearningProfile, context: str, sufficient: bool
     rag_block = f"\n\n# Conteúdo pedagógico (RAG — use para explicar)\n{context}" if context else ""
     return (
         "Você é a Flua, tutora de inglês para brasileiros. Respostas curtas (1–3 "
-        "frases), claras, em português do Brasil, com exemplos práticos curtos em inglês.\n\n"
+        "frases), claras, em português do Brasil mesmo se o aluno escrever em inglês. "
+        "Responda à dúvida logo na primeira frase. Use um exemplo prático curto em inglês "
+        "quando ajudar e priorize uma correção de cada vez. Evite recapitular o que o aluno já disse.\n\n"
         "# Perfil do aluno (use para adaptar dificuldade, ritmo e exemplos)\n"
         f"Nível CEFR: {profile.level}. Idioma de explicação: {profile.preferred_explanation_language}. "
         f"Ritmo: {profile.pace}. Pontos de atenção: {weaknesses}. "
@@ -44,7 +46,11 @@ async def respond(user_id: str, message: str, *, language: str = "en", level: st
     settings = get_settings()
     try:
         reply = await complete(
-            system, message, max_tokens=400, temperature=0.2, model=settings.anthropic_model_haiku
+            system,
+            message,
+            max_tokens=640,
+            temperature=0.2,
+            model=settings.anthropic_model_text_tutor,
         )
     except Exception:  # noqa: BLE001 — never 500 the tutor; degrade to a safe message
         reply = "Desculpa, tive um problema agora. Pode tentar de novo?"

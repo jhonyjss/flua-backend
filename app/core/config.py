@@ -5,6 +5,8 @@ from functools import lru_cache
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+CLAUDE_HAIKU_55 = "claude-haiku-5-5"
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -27,6 +29,7 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-sonnet-4-5"
     anthropic_model_haiku: str = "claude-3-5-haiku-20241022"
+    anthropic_model_text_tutor: str = CLAUDE_HAIKU_55
     anthropic_model_sonnet: str = "claude-sonnet-4-20250514"
     openai_api_key: str = ""
     openai_voice_model: str = "gpt-4o-mini"
