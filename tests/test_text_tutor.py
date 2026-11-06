@@ -8,9 +8,11 @@ from app.schemas.learning_intel import LearningProfile
 from app.services.ai import tutor_respond
 
 
-@pytest.mark.parametrize("has_answer", [True, False])
+@pytest.mark.parametrize(
+    "has_answer,retrieval_failed", [(True, False), (False, False), (True, True)]
+)
 def test_tutor_sends_compatible_haiku_55_request(
-    client, auth_headers, mock_transport, monkeypatch, has_answer
+    client, auth_headers, mock_transport, monkeypatch, has_answer, retrieval_failed
 ):
     monkeypatch.setenv("ANTHROPIC_MODEL_TEXT_TUTOR", "claude-haiku-5-5")
     monkeypatch.setattr(
@@ -18,7 +20,13 @@ def test_tutor_sends_compatible_haiku_55_request(
         "get_profile",
         AsyncMock(return_value=LearningProfile(level="A1")),
     )
-    monkeypatch.setattr(tutor_respond.rag, "search", AsyncMock(return_value=[]))
+    monkeypatch.setattr(
+        tutor_respond.rag,
+        "search",
+        AsyncMock(
+            return_value=[], side_effect=TimeoutError if retrieval_failed else None
+        ),
+    )
     message = "Why do I say I am?"
     reply = "Com I, use am. Por exemplo, I am Ana."
     requests = []

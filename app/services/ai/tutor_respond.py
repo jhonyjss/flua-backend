@@ -7,12 +7,16 @@ to avoid making things up. The transcript/message is never persisted here.
 
 from __future__ import annotations
 
+import logging
+
 from app.core.config import get_settings
 from app.schemas.learning_intel import LearningProfile
 from app.services import learning_intel
 from app.services.ai import guardrails, rag
 from app.services.ai.prompt_safety import INJECTION_GUARD
 from app.services.anthropic_client import complete
+
+log = logging.getLogger(__name__)
 
 
 def build_system_prompt(profile: LearningProfile, context: str, sufficient: bool) -> str:
@@ -40,7 +44,11 @@ def build_system_prompt(profile: LearningProfile, context: str, sufficient: bool
 
 async def respond(user_id: str, message: str, *, language: str = "en", level: str | None = None) -> dict:
     profile = await learning_intel.get_profile(user_id)
-    chunks = await rag.search(message, level=level or profile.level, k=4)
+    try:
+        chunks = await rag.search(message, level=level or profile.level, k=4)
+    except Exception as exc:  # noqa: BLE001 — use the existing ungrounded prompt on lookup failure
+        log.warning("text_tutor.retrieval_unavailable error_type=%s", type(exc).__name__)
+        chunks = []
     assessment = guardrails.assess(chunks)
     context, sources = rag.build_context(assessment["used"])
     system = build_system_prompt(profile, context, assessment["sufficient"])
