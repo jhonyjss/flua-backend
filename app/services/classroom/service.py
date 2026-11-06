@@ -7,7 +7,7 @@ from app.core.config import get_settings
 from app.schemas.classroom import Command, Start
 from app.services import conversation_credits, guided_access
 from app.services import supabase_admin as db
-from app.services.classroom import content
+from app.services.classroom import content, roleplay
 from app.services.classroom import orchestrator as machine
 from app.services.classroom import repository as repo
 from app.services.user_data import get_subscription
@@ -54,6 +54,12 @@ async def start(user, body: Start):
             raise HTTPException(409, {"code": "session_conflict"})
         return existing
     await authorize(user, body.lessonId, claim=True)
+    state = machine.initial(plan)
+    if (
+        get_settings().classroom_roleplay_pilot_enabled
+        and body.lessonId == roleplay.LESSON_ID
+    ):
+        state["roleplay"] = roleplay.initial()
     row = await db.insert(
         "classroom_sessions",
         {
@@ -61,7 +67,7 @@ async def start(user, body: Start):
             "user_id": user,
             "lesson_id": body.lessonId,
             "content_version": body.contentVersion,
-            "state": machine.initial(plan),
+            "state": state,
         },
     )
     if not row:
@@ -71,6 +77,9 @@ async def start(user, body: Start):
 
 async def command(user, session, body: Command):
     row = await repo.get(user, session)
+    payload = body.model_dump(
+        mode="json", exclude={"panelId"} if body.panelId is None else None
+    )
     # Resolve idempotent replay before applying lifecycle/version checks.
     old = await db.select_one(
         "classroom_events", {"session_id": session, "event_id": str(body.commandId)}
@@ -82,7 +91,7 @@ async def command(user, session, body: Command):
             str(body.commandId),
             "command." + body.type,
             old["state"],
-            body.model_dump(mode="json"),
+            payload,
         )
     if row["version"] != body.expectedVersion:
         raise HTTPException(409, {"code": "state_version", "version": row["version"]})
@@ -92,12 +101,25 @@ async def command(user, session, body: Command):
     plan = content.lesson(row["lesson_id"], row["content_version"])
     if body.type in ("resume", "ready"):
         await authorize(user, row["lesson_id"])
+        if s.get("roleplay") and s["status"] == "active":
+            return {"state": s, "version": row["version"]}
         s["status"] = "active"
-        s["pendingInstruction"] = s["pendingInstruction"] or (
-            machine.teach(plan, s)
-            if not s["lastDelivered"]
-            else machine.pending(plan, s)
-        )
+        if s.get("roleplay"):
+            roleplay.queue(s)
+        else:
+            s["pendingInstruction"] = s["pendingInstruction"] or (
+                machine.teach(plan, s)
+                if not s["lastDelivered"]
+                else machine.pending(plan, s)
+            )
+    elif body.type == "panel_ready":
+        panel = roleplay.panel(s)
+        if s["status"] != "active" or not panel or panel["id"] != body.panelId:
+            raise HTTPException(409, {"code": "roleplay_panel_changed"})
+        if s["roleplay"]["panelReady"]:
+            return {"state": s, "version": row["version"]}
+        s["roleplay"]["panelReady"] = True
+        roleplay.queue(s)
     elif body.type in ("pause", "stop", "disconnect"):
         s["status"] = "ended" if body.type == "stop" else "paused"
         if body.type == "disconnect":
@@ -106,21 +128,35 @@ async def command(user, session, body: Command):
         if body.scope == "session":
             s["language"] = body.language
         s["replyLanguage"] = body.language
-        s["pendingInstruction"] = "Confirme o idioma e retome. " + machine.pending(
-            plan, s
-        )
+        if s.get("roleplay"):
+            s["mode"] = "question"
+            s["pendingInstruction"] = (
+                "Confirme a mudança de idioma em uma frase. Não narre a cena."
+            )
+            s.pop("roleplayPlayback", None)
+        else:
+            s["pendingInstruction"] = "Confirme o idioma e retome. " + machine.pending(
+                plan, s
+            )
     elif body.type == "text_turn":
         s["pendingText"] = body.text
+        if s.get("roleplay"):
+            s["pendingInstruction"] = ""
+            s.pop("roleplayPlayback", None)
     elif body.type == "interrupt":
         s["pendingInstruction"] = ""
-    s["generation"] += 1
+        s.pop("roleplayPlayback", None)
+    # An image can finish loading while Flua is answering a question. Record
+    # the acknowledgement without cancelling that in-flight response.
+    if body.type != "panel_ready" or s.get("roleplayPlayback"):
+        s["generation"] += 1
     return await repo.save(
         user,
         row,
         str(body.commandId),
         "command." + body.type,
         s,
-        body.model_dump(mode="json"),
+        payload,
     )
 
 

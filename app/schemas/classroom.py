@@ -33,10 +33,12 @@ class Command(Contract):
         "ready",
         "interrupt",
         "disconnect",
+        "panel_ready",
     ]
     text: str = Field(default="", max_length=2000)
     language: Literal["pt-BR", "en-US"] | None = None
     scope: Literal["session", "turn"] = "session"
+    panelId: str | None = Field(default=None, pattern=r"^[a-z0-9-]+$", max_length=64)
 
     @model_validator(mode="after")
     def valid_payload(self):
@@ -44,6 +46,10 @@ class Command(Contract):
             raise ValueError("set_language requires language")
         if self.type == "text_turn" and not self.text.strip():
             raise ValueError("text_turn requires text")
+        if self.type == "panel_ready" and self.panelId is None:
+            raise ValueError("panel_ready requires panelId")
+        if self.panelId is not None and self.type != "panel_ready":
+            raise ValueError("panelId is only valid for panel_ready")
         return self
 
 
