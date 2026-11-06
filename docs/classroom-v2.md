@@ -27,7 +27,7 @@ Bearer authentication required; session ownership checked on every request.
 
 Backend: `python -m pytest`, `python -m ruff check app tests` (new files may be checked separately if unrelated baseline warnings exist).
 
-Real Postgres: install psycopg and set `CLASSROOM_TEST_DSN` to a disposable database whose name ends in `_test`, and `CLASSROOM_MIGRATION_PATH` to the web repository's `supabase/migrations/20261105_classroom_v2.sql`; run `pytest tests/test_classroom_postgres.py`. This test creates the minimal auth/budget dependencies and replaces ONLY classroom tables in that dedicated database.
+Real Postgres: install psycopg and set `CLASSROOM_TEST_DSN` to a disposable database whose name ends in `_test`, and `CLASSROOM_MIGRATION_PATH` to the web repository's `supabase/migrations/20261106_classroom_v2.sql`; run `pytest tests/test_classroom_postgres.py`. This test creates the minimal auth/budget dependencies and replaces ONLY classroom tables in that dedicated database.
 
 Mobile: `bun run typecheck`, `bun run lint`, `bun run test --runInBand`.
 Web: `pnpm build`, `pnpm test`.
