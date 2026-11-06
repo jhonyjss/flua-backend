@@ -130,6 +130,11 @@ class HeartbeatRequest(BaseModel):
     deltaSeconds: int = Field(default=0, ge=0, le=600)
 
 
+class LessonActivity(BaseModel):
+    """Seconds spent in one lesson in total (never reset; not the budget)."""
+    activeSeconds: int
+
+
 # ── Free-conversation credit pool (free weekly, starter daily, pro unlimited) ──
 class ConversationCreditStatus(BaseModel):
     limitSeconds: int

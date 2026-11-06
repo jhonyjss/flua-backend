@@ -109,3 +109,60 @@ def test_admin_lesson_time_is_unlimited(client, auth_headers, mock_transport):
 def test_non_admin_status_says_limited(client, auth_headers, mock_transport):
     mock_transport(_free_subscription_handler())
     assert client.get("/api/users/me/lessons/beginner-01/time", headers=auth_headers).json()["isUnlimited"] is False
+
+
+def _usage_store():
+    """A one-row lesson_time_usage double that keeps what PATCH/POST write."""
+    state = {"row": None, "writes": []}
+
+    def usage(request: httpx.Request) -> httpx.Response:
+        if request.method == "GET":
+            return httpx.Response(200, json=[state["row"]] if state["row"] else [])
+        body = json.loads(request.content or b"{}")
+        state["writes"].append((request.method, body))
+        state["row"] = {**(state["row"] or {"id": "row1", "consumed_seconds": 0, "active_seconds": 0}), **body}
+        return httpx.Response(201 if request.method == "POST" else 200, json=[state["row"]])
+
+    return state, usage
+
+
+def test_activity_records_time_without_spending_the_budget(client, auth_headers, mock_transport):
+    state, usage = _usage_store()
+    mock_transport(_free_subscription_handler(usage))
+
+    first = client.post("/api/users/me/lessons/L1/activity", json={"deltaSeconds": 15}, headers=auth_headers)
+    assert first.status_code == 200
+    assert first.json() == {"activeSeconds": 15}
+    # First beat creates the row with an untouched budget.
+    method, body = state["writes"][0]
+    assert method == "POST"
+    assert body["consumed_seconds"] == 0
+    assert body["active_seconds"] == 15
+    assert body["limit_seconds"] == 600
+
+    # A forged 200 s beat is clamped to 90, and later beats only move active_seconds.
+    second = client.post("/api/users/me/lessons/L1/activity", json={"deltaSeconds": 200}, headers=auth_headers)
+    assert second.json() == {"activeSeconds": 105}
+    method, body = state["writes"][1]
+    assert method == "PATCH"
+    assert "consumed_seconds" not in body
+    assert body["active_seconds"] == 105
+
+    budget = client.get("/api/users/me/lessons/L1/time", headers=auth_headers).json()
+    assert budget["consumedSeconds"] == 0
+    assert budget["remainingSeconds"] == 600
+
+
+def test_activity_storage_error_is_an_error_so_the_client_retries(client, auth_headers, mock_transport):
+    def usage(request: httpx.Request) -> httpx.Response:
+        if request.method == "GET":
+            return httpx.Response(200, json=[])
+        return httpx.Response(400, json={"message": 'column "active_seconds" does not exist'})
+
+    mock_transport(_free_subscription_handler(usage))
+    res = client.post("/api/users/me/lessons/L1/activity", json={"deltaSeconds": 15}, headers=auth_headers)
+    assert res.status_code == 503
+
+
+def test_activity_requires_auth(client):
+    assert client.post("/api/users/me/lessons/L1/activity", json={"deltaSeconds": 10}).status_code in (401, 403)
