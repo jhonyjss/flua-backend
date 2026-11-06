@@ -23,6 +23,12 @@ from app.services.classroom.teaching import skill_for_lesson
 
 log = logging.getLogger(__name__)
 TASKS: set[asyncio.Task] = set()
+LEARNER_VAD = {
+    "type": "semantic_vad",
+    "eagerness": "medium",
+    "create_response": False,
+    "interrupt_response": True,
+}
 TOOL = {
     "type": "function",
     "name": "classificar_turno",
@@ -57,16 +63,40 @@ def config(plan, state):
                     "model": "gpt-4o-transcribe",
                     "prompt": "Aula de inglês para brasileiros. Transcreva português e inglês sem traduzir nem completar.",
                 },
-                "turn_detection": {
-                    "type": "semantic_vad",
-                    "eagerness": "medium",
-                    "create_response": False,
-                    "interrupt_response": True,
-                },
+                "turn_detection": None if state.get("roleplay") else LEARNER_VAD,
             },
             "output": {"voice": "marin", "speed": cfg.classroom_voice_speed},
         },
     }
+
+
+def speech_response(plan, state, teaching_skill=""):
+    playback = state.get("roleplayPlayback")
+    response = {
+        "tool_choice": "none",
+        "output_modalities": ["audio"],
+        "metadata": {
+            "purpose": "classroom_speak",
+            "generation": str(state["generation"]),
+        },
+    }
+    if playback:
+        # The line is authored on the server. Exclude older speech and learner input.
+        response["metadata"]["roleplay"] = playback
+        response.update(
+            input=[],
+            tools=[],
+            max_output_tokens=192,
+            instructions=state["pendingInstruction"],
+        )
+    else:
+        response["instructions"] = machine.instructions(
+            plan,
+            state,
+            state["pendingInstruction"],
+            teaching_skill=teaching_skill,
+        )
+    return response
 
 
 async def hangup(call_id):
@@ -170,6 +200,7 @@ async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
     heartbeat = 0.0
     last_poll = 0.0
     row = None
+    demonstrating = None
     last_activity = monotonic()
     nudged = False
     started = monotonic()
@@ -224,10 +255,24 @@ async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
 
             while monotonic() - started < 55 * 60:
                 now = monotonic()
-                if row is None or now - last_poll >= 0.5:
+                poll_interval = 0.2 if demonstrating else 0.5
+                if row is None or now - last_poll >= poll_interval:
                     row = await repo.get(user, session)
                     last_poll = now
                 state = row["state"]
+                is_demo = bool(state.get("roleplay"))
+                if demonstrating and not is_demo:
+                    await send({"type": "input_audio_buffer.clear"})
+                    await send(
+                        {
+                            "type": "session.update",
+                            "session": {
+                                "type": "realtime",
+                                "audio": {"input": {"turn_detection": LEARNER_VAD}},
+                            },
+                        }
+                    )
+                demonstrating = is_demo
                 if now - heartbeat >= 10:
                     await service.authorize(user, row["lesson_id"])
                     limit = await service.budget(user)
@@ -315,25 +360,10 @@ async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
                     sent_generation = active_generation = state["generation"]
                     response_started = monotonic()
                     playback_started = False
-                    playback = state.get("roleplayPlayback")
                     await send(
                         {
                             "type": "response.create",
-                            "response": {
-                                "tool_choice": "none",
-                                "output_modalities": ["audio"],
-                                "metadata": {
-                                    "purpose": "classroom_speak",
-                                    "generation": str(active_generation),
-                                    **({"roleplay": playback} if playback else {}),
-                                },
-                                "instructions": machine.instructions(
-                                    plan,
-                                    state,
-                                    state["pendingInstruction"],
-                                    teaching_skill="" if playback else teaching_skill,
-                                ),
-                            },
+                            "response": speech_response(plan, state, teaching_skill),
                         }
                     )
                     last_activity = now
@@ -361,11 +391,13 @@ async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
                         },
                     )
                 try:
-                    event = json.loads(await asyncio.wait_for(ws.recv(), 0.5))
+                    event = json.loads(await asyncio.wait_for(ws.recv(), poll_interval))
                 except TimeoutError:
                     continue
                 kind = event.get("type")
                 if kind == "input_audio_buffer.speech_started":
+                    if demonstrating:
+                        continue
                     last_activity, nudged = now, False
                     # Preserve anchor; clear queued speech so it cannot race the learner.
                     row = await service.provider_event(
@@ -390,6 +422,7 @@ async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
                         item
                         and item not in seen_items
                         and row["state"]["status"] == "active"
+                        and not row["state"].get("roleplay")
                     ):
                         seen_items.add(item)
                         active_generation = None

@@ -234,6 +234,7 @@ def test_teaching_pilot_only_applies_to_greetings(monkeypatch):
 async def test_roleplay_advances_only_when_matching_audio_buffer_drains(monkeypatch):
     state = {**initial(PLAN), "status": "active", "roleplay": roleplay.initial()}
     roleplay.queue(state)
+    assert transport.config(PLAN, state)["audio"]["input"]["turn_detection"] is None
     row = {"lesson_id": roleplay.LESSON_ID, "state": state}
     queue = asyncio.Queue()
 
@@ -246,12 +247,16 @@ async def test_roleplay_advances_only_when_matching_audio_buffer_drains(monkeypa
         event = json.loads(raw)
         if event["type"] != "response.create":
             return
+        assert event["response"]["input"] == []
+        assert event["response"]["max_output_tokens"] == 192
         metadata = event["response"]["metadata"]
         assert metadata["roleplay"] == "intro"
         response = {"id": "opening", "metadata": metadata, "status": "completed"}
         for event in (
             {"type": "response.created", "response": response},
             {"type": "response.done", "response": response},
+            {"type": "input_audio_buffer.speech_started"},
+            {"type": "input_audio_buffer.committed", "item_id": "speaker_echo"},
             {"type": "output_audio_buffer.cleared", "response_id": "previous"},
             {"type": "output_audio_buffer.stopped", "response_id": "previous"},
             {"type": "output_audio_buffer.stopped", "response_id": "opening"},

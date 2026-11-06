@@ -138,6 +138,24 @@ async def test_resume_does_not_repeat_completed_panel_and_waits_for_image(sessio
 
 
 @pytest.mark.asyncio
+async def test_help_button_preserves_panel_and_resumes_without_listening(session):
+    row = await session(pilot=True)
+    await command(row, "ready")
+    row["state"] = machine.delivered(row["state"], PLAN)
+    await command(row, "panel_ready", panelId="greeting-1")
+    await command(row, "roleplay_help")
+    assert row["state"]["mode"] == "question"
+    assert row["state"]["replyLanguage"] == "pt-BR"
+    assert "roleplayPlayback" not in row["state"]
+    before = deepcopy(row)
+    await command(row, "roleplay_help")
+    assert row == before
+    row["state"] = machine.delivered(row["state"], PLAN)
+    assert row["state"]["roleplayPlayback"] == "greeting-1"
+    assert row["state"]["attempts"] == 0
+
+
+@pytest.mark.asyncio
 async def test_existing_session_keeps_normal_path_when_pilot_is_enabled(session):
     row = await session(pilot=False)
     get_settings().classroom_roleplay_pilot_enabled = True

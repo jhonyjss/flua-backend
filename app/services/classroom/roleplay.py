@@ -71,9 +71,14 @@ def reset_connection(state: dict) -> None:
     if not state.get("roleplay"):
         return
     state["roleplay"]["panelReady"] = False
-    if state.get("roleplayPlayback"):
-        state["pendingInstruction"] = ""
-        state.pop("roleplayPlayback", None)
+    state.update(
+        mode="lesson",
+        question="",
+        pendingInstruction="",
+        pendingText="",
+        interruptedInstruction="",
+    )
+    state.pop("roleplayPlayback", None)
 
 
 def advance(state: dict, playback: str | None) -> bool:

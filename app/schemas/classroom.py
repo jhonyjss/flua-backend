@@ -34,6 +34,7 @@ class Command(Contract):
         "interrupt",
         "disconnect",
         "panel_ready",
+        "roleplay_help",
     ]
     text: str = Field(default="", max_length=2000)
     language: Literal["pt-BR", "en-US"] | None = None

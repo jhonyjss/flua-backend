@@ -120,6 +120,18 @@ async def command(user, session, body: Command):
             return {"state": s, "version": row["version"]}
         s["roleplay"]["panelReady"] = True
         roleplay.queue(s)
+    elif body.type == "roleplay_help":
+        if s["status"] != "active" or not s.get("roleplay"):
+            raise HTTPException(409, {"code": "roleplay_panel_changed"})
+        if s["mode"] == "question":
+            return {"state": s, "version": row["version"]}
+        s.update(mode="question", question="", replyLanguage="pt-BR")
+        s["pendingInstruction"] = (
+            "Explique em português, em uma frase curta, o que acontece no quadro atual "
+            "ou o objetivo de cumprimentar se a cena ainda não começou. Termine sem perguntar "
+            "nem narrar as falas do quadrinho."
+        )
+        s.pop("roleplayPlayback", None)
     elif body.type in ("pause", "stop", "disconnect"):
         s["status"] = "ended" if body.type == "stop" else "paused"
         if body.type == "disconnect":
