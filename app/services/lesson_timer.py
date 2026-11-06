@@ -91,6 +91,35 @@ async def add_time(user_id: str, lesson_id: str, delta_seconds: int) -> dict:
         return _status(limit, 0, unlimited)  # fail open
 
 
+async def add_activity(user_id: str, lesson_id: str, delta_seconds: int) -> int:
+    """Record time spent in a lesson WITHOUT touching its budget, and return the lesson's total.
+
+    For learners the client does not count down for (Pro/Premium on the site, admins), so the admin
+    still sees how long they studied. Budget heartbeats need no call here: the database adds every
+    increase of consumed_seconds to active_seconds (migration 20261106_lesson_time_active_seconds).
+    Raises on a storage error so the client keeps the seconds and sends them again.
+    """
+    delta = max(0, min(int(delta_seconds or 0), MAX_HEARTBEAT_DELTA))
+    row = await db.select_one(_TABLE, {"user_id": user_id, "lesson_id": lesson_id})
+    active = int((row or {}).get("active_seconds") or 0) + delta
+    if delta == 0:
+        return active
+    if row:
+        await db.update(_TABLE, {"id": str(row["id"])}, {
+            "active_seconds": active,
+            "updated_at": _now_iso(),
+        })
+    else:
+        await db.insert(_TABLE, {
+            "user_id": user_id,
+            "lesson_id": lesson_id,
+            "consumed_seconds": 0,
+            "active_seconds": active,
+            "limit_seconds": await limit_for_user(user_id),
+        })
+    return active
+
+
 async def reset(user_id: str, lesson_id: str) -> None:
     """Clear the budget for a lesson (e.g. when an admin grants a retry)."""
     try:

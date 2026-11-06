@@ -14,6 +14,7 @@ from app.schemas.learning import (
     ConversationCreditStatus,
     HeartbeatRequest,
     InProgressLessons,
+    LessonActivity,
     LessonProgressRow,
     LessonTimeStatus,
     OkResponse,
@@ -65,6 +66,18 @@ async def lesson_time_heartbeat(
     lesson_id: str, body: HeartbeatRequest, user: AuthUser = Depends(get_current_user),
 ) -> LessonTimeStatus:
     return LessonTimeStatus(**await lesson_timer.add_time(user.id, lesson_id, body.deltaSeconds))
+
+
+@router.post("/lessons/{lesson_id}/activity", response_model=LessonActivity)
+async def lesson_activity(
+    lesson_id: str, body: HeartbeatRequest, user: AuthUser = Depends(get_current_user),
+) -> LessonActivity:
+    """Time spent by a learner with no lesson budget (Pro/Premium on the site, admins): recorded for
+    the admin, never counted against a budget."""
+    try:
+        return LessonActivity(activeSeconds=await lesson_timer.add_activity(user.id, lesson_id, body.deltaSeconds))
+    except Exception as err:
+        raise HTTPException(503, "Could not record lesson time") from err
 
 
 # ── Free-conversation credit pool (free weekly, starter daily, pro unlimited) ──
