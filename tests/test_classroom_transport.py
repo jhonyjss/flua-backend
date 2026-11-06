@@ -6,7 +6,6 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
-from fastapi import HTTPException
 
 from app.core.config import get_settings
 from app.schemas.classroom import Connection
@@ -28,9 +27,11 @@ PLAN = {
 
 
 @pytest.mark.asyncio
-async def test_failed_voice_startup_releases_lease_before_retry(monkeypatch):
+async def test_sdp_returns_before_sideband_and_failure_releases_lease(monkeypatch):
     row = {"lesson_id": "lesson", "content_version": "test", "state": initial(PLAN)}
     released = asyncio.Event()
+    applied_sdp = asyncio.Event()
+    errors = []
 
     async def lease(_user, _session, _owner, action, _limit):
         if action == "release":
@@ -38,18 +39,25 @@ async def test_failed_voice_startup_releases_lease_before_retry(monkeypatch):
             released.set()
         return {"expired": False}
 
-    async def checkpoint(_user, _session, _owner, event, _update):
+    async def checkpoint(_user, _session, _owner, event, update):
         if event == "session.disconnected":
             raise RuntimeError("Checkpoint unavailable")
+        if event == "session.error":
+            errors.append(update(row["state"])["failureCode"])
         return row
 
     @asynccontextmanager
     async def http_client(**_):
-        response = SimpleNamespace(status_code=201, headers={"location": "/calls/call"})
+        response = SimpleNamespace(
+            status_code=201, headers={"location": "/calls/call"}, text="sdp answer"
+        )
         yield SimpleNamespace(post=AsyncMock(return_value=response))
 
-    def fail_sideband(*_, **__):
+    @asynccontextmanager
+    async def fail_sideband(*_, **__):
+        await applied_sdp.wait()
         raise OSError("Sideband unavailable")
+        yield  # pragma: no cover -- startup never enters the context
 
     monkeypatch.setattr(get_settings(), "openai_api_key", "test-key")
     monkeypatch.setattr(transport.service, "enabled", lambda _: None)
@@ -67,9 +75,12 @@ async def test_failed_voice_startup_releases_lease_before_retry(monkeypatch):
         connectionAttemptId="00000000-0000-0000-0000-000000000001",
         sdpOffer="test-sdp-offer",
     )
-    with pytest.raises(HTTPException) as exc:
-        await transport.connect("user", "session", body)
-    assert exc.value.detail == {"code": "voice_control_unavailable"}
+    result = await asyncio.wait_for(transport.connect("user", "session", body), 1)
+    assert result["sdpAnswer"] == "sdp answer"
+    assert not released.is_set()
+    applied_sdp.set()
+    await asyncio.wait_for(asyncio.gather(*transport.TASKS), 1)
+    assert errors == ["voice_control_unavailable"]
     assert released.is_set()
     transport.hangup.assert_awaited_once_with("call")
 
@@ -191,14 +202,12 @@ async def test_sideband_classifies_before_speaking_and_waits_for_playback(monkey
     monkeypatch.setattr(transport.service, "provider_event", apply)
     monkeypatch.setattr(transport.service, "finish_if_completed", AsyncMock())
     monkeypatch.setattr(transport, "hangup", AsyncMock())
-    ready = asyncio.get_running_loop().create_future()
     await asyncio.wait_for(
         transport.run(
-            "user", "session", "owner", "call", PLAN, ready, teaching_skill=GREETINGS
+            "user", "session", "owner", "call", PLAN, teaching_skill=GREETINGS
         ),
         3,
     )
-    assert ready.result()
     replies = [e["response"] for e in sent if e["type"] == "response.create"]
     assert [r["metadata"]["purpose"] for r in replies] == [
         "classroom_classify",

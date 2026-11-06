@@ -125,7 +125,8 @@ async def connect(user, session, body):
         call_id = response.headers.get("location", "").rstrip("/").split("/")[-1]
         if not re.fullmatch(r"[A-Za-z0-9_-]{1,200}", call_id):
             raise HTTPException(502, {"code": "voice_connection_failed"})
-        ready = asyncio.get_running_loop().create_future()
+        # The iPhone needs the SDP answer to establish WebRTC. The sideband may
+        # not become usable until then, so startup must not block this response.
         task = asyncio.create_task(
             run(
                 user,
@@ -133,19 +134,15 @@ async def connect(user, session, body):
                 owner,
                 call_id,
                 plan,
-                ready,
                 teaching_skill=skill_for_lesson(row["lesson_id"]),
             )
         )
         TASKS.add(task)
         task.add_done_callback(TASKS.discard)
-        await asyncio.wait_for(asyncio.shield(ready), 10)
         return {"sdpAnswer": response.text, "connectionId": owner}
     except BaseException:
         if task:
-            # A reported startup error means run() is already cleaning up its lease.
-            if not ready.done() or ready.cancelled() or ready.exception() is None:
-                task.cancel()
+            task.cancel()
             await asyncio.gather(task, return_exceptions=True)
         else:
             if call_id:
@@ -157,7 +154,7 @@ async def connect(user, session, body):
         raise
 
 
-async def run(user, session, owner, call_id, plan, ready, *, teaching_skill=""):
+async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
     limit = 600
     sent_generation = -1
     active_response = None
@@ -177,13 +174,14 @@ async def run(user, session, owner, call_id, plan, ready, *, teaching_skill=""):
             additional_headers={
                 "Authorization": f"Bearer {get_settings().openai_api_key}"
             },
-            open_timeout=8,
+            open_timeout=15,
             max_size=2**20,
             ssl=ssl.create_default_context(
                 cafile=os.getenv("SSL_CERT_FILE") or certifi.where(),
                 capath=os.getenv("SSL_CERT_DIR"),
             ),
         ) as ws:
+            log.info("classroom.voice_control_connected session=%s", session)
 
             async def send(event):
                 await ws.send(json.dumps(event, ensure_ascii=False))
@@ -219,12 +217,6 @@ async def run(user, session, owner, call_id, plan, ready, *, teaching_skill=""):
                     }
                 )
 
-            # Confirm server-side control is connected before returning the SDP answer.
-            event = json.loads(await asyncio.wait_for(ws.recv(), 8))
-            if event.get("type") != "session.created":
-                raise RuntimeError("Missing session.created")
-            if not ready.done():
-                ready.set_result(True)
             while monotonic() - started < 55 * 60:
                 now = monotonic()
                 if row is None or now - last_poll >= 0.5:
@@ -497,28 +489,21 @@ async def run(user, session, owner, call_id, plan, ready, *, teaching_skill=""):
             session,
             type(exc).__name__,
         )
-        if ready.done() and not ready.cancelled():
-            try:
-                await service.provider_event(
-                    user,
-                    session,
-                    owner,
-                    "session.error",
-                    lambda s: {
-                        **s,
-                        "status": "paused",
-                        "failureCode": "voice_control_unavailable",
-                    },
-                )
-            except Exception:  # noqa: BLE001 -- storage may be the failed dependency
-                log.warning("classroom.error_checkpoint_failed session=%s", session)
-        if not ready.done():
-            ready.set_exception(
-                HTTPException(503, {"code": "voice_control_unavailable"})
+        try:
+            await service.provider_event(
+                user,
+                session,
+                owner,
+                "session.error",
+                lambda s: {
+                    **s,
+                    "status": "paused",
+                    "failureCode": "voice_control_unavailable",
+                },
             )
+        except Exception:  # noqa: BLE001 -- storage may be the failed dependency
+            log.warning("classroom.error_checkpoint_failed session=%s", session)
     finally:
-        if not ready.done():
-            ready.cancel()
         try:
             await service.provider_event(
                 user,
