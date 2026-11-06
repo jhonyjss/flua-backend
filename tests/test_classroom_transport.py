@@ -10,6 +10,7 @@ import pytest
 from app.core.config import get_settings
 from app.schemas.classroom import Connection
 from app.services.classroom import realtime_connection as transport
+from app.services.classroom import roleplay
 from app.services.classroom.orchestrator import initial
 from app.services.classroom.teaching import GREETINGS, skill_for_lesson
 
@@ -227,6 +228,71 @@ def test_teaching_pilot_only_applies_to_greetings(monkeypatch):
     monkeypatch.setattr(settings, "classroom_teaching_pilot_enabled", True)
     assert skill_for_lesson("fund-u1-l1") == GREETINGS
     assert not skill_for_lesson("fund-u1-l2")
+
+
+@pytest.mark.asyncio
+async def test_roleplay_advances_only_when_matching_audio_buffer_drains(monkeypatch):
+    state = {**initial(PLAN), "status": "active", "roleplay": roleplay.initial()}
+    roleplay.queue(state)
+    assert transport.config(PLAN, state)["audio"]["input"]["turn_detection"] is None
+    row = {"lesson_id": roleplay.LESSON_ID, "state": state}
+    queue = asyncio.Queue()
+
+    async def recv():
+        # In particular, response.done and the stale buffer events must not advance.
+        assert row["state"]["roleplay"]["phase"] == "intro"
+        return json.dumps(await queue.get())
+
+    async def send(raw):
+        event = json.loads(raw)
+        if event["type"] != "response.create":
+            return
+        assert event["response"]["input"] == []
+        assert event["response"]["max_output_tokens"] == 192
+        metadata = event["response"]["metadata"]
+        assert metadata["roleplay"] == "intro"
+        response = {"id": "opening", "metadata": metadata, "status": "completed"}
+        for event in (
+            {"type": "response.created", "response": response},
+            {"type": "response.done", "response": response},
+            {"type": "input_audio_buffer.speech_started"},
+            {"type": "input_audio_buffer.committed", "item_id": "speaker_echo"},
+            {"type": "output_audio_buffer.cleared", "response_id": "previous"},
+            {"type": "output_audio_buffer.stopped", "response_id": "previous"},
+            {"type": "output_audio_buffer.stopped", "response_id": "opening"},
+        ):
+            queue.put_nowait(event)
+
+    @asynccontextmanager
+    async def connect(*_, **__):
+        yield SimpleNamespace(send=send, recv=recv)
+
+    async def apply(_user, _session, _owner, event_type, update):
+        updated = update(deepcopy(row["state"]))
+        if updated is not None:
+            row["state"] = updated
+        if event_type == "lesson.delivered":
+            assert row["state"]["roleplay"]["phase"] == "panels"
+            row["state"]["status"] = "ended"
+        return deepcopy(row)
+
+    monkeypatch.setattr(transport.websockets, "connect", connect)
+    monkeypatch.setattr(
+        transport.repo, "get", AsyncMock(side_effect=lambda *_: deepcopy(row))
+    )
+    monkeypatch.setattr(
+        transport.repo,
+        "lease",
+        AsyncMock(return_value={"expired": False, "remainingSeconds": 600}),
+    )
+    monkeypatch.setattr(transport.service, "authorize", AsyncMock())
+    monkeypatch.setattr(transport.service, "budget", AsyncMock(return_value=600))
+    monkeypatch.setattr(transport.service, "provider_event", apply)
+    monkeypatch.setattr(transport.service, "finish_if_completed", AsyncMock())
+    monkeypatch.setattr(transport, "hangup", AsyncMock())
+    await asyncio.wait_for(transport.run("user", "session", "owner", "call", PLAN), 2)
+    assert row["state"]["roleplay"]["phase"] == "panels"
+    assert not row["state"]["roleplay"]["panelReady"]
 
 
 def test_classroom_requires_authentication(client):

@@ -16,13 +16,19 @@ from fastapi import HTTPException
 from app.core.config import get_settings
 from app.core.http import http_client
 from app.schemas.classroom import TurnDecision
-from app.services.classroom import content, service
+from app.services.classroom import content, roleplay, service
 from app.services.classroom import orchestrator as machine
 from app.services.classroom import repository as repo
 from app.services.classroom.teaching import skill_for_lesson
 
 log = logging.getLogger(__name__)
 TASKS: set[asyncio.Task] = set()
+LEARNER_VAD = {
+    "type": "semantic_vad",
+    "eagerness": "medium",
+    "create_response": False,
+    "interrupt_response": True,
+}
 TOOL = {
     "type": "function",
     "name": "classificar_turno",
@@ -57,16 +63,40 @@ def config(plan, state):
                     "model": "gpt-4o-transcribe",
                     "prompt": "Aula de inglês para brasileiros. Transcreva português e inglês sem traduzir nem completar.",
                 },
-                "turn_detection": {
-                    "type": "semantic_vad",
-                    "eagerness": "medium",
-                    "create_response": False,
-                    "interrupt_response": True,
-                },
+                "turn_detection": None if state.get("roleplay") else LEARNER_VAD,
             },
             "output": {"voice": "marin", "speed": cfg.classroom_voice_speed},
         },
     }
+
+
+def speech_response(plan, state, teaching_skill=""):
+    playback = state.get("roleplayPlayback")
+    response = {
+        "tool_choice": "none",
+        "output_modalities": ["audio"],
+        "metadata": {
+            "purpose": "classroom_speak",
+            "generation": str(state["generation"]),
+        },
+    }
+    if playback:
+        # The line is authored on the server. Exclude older speech and learner input.
+        response["metadata"]["roleplay"] = playback
+        response.update(
+            input=[],
+            tools=[],
+            max_output_tokens=192,
+            instructions=state["pendingInstruction"],
+        )
+    else:
+        response["instructions"] = machine.instructions(
+            plan,
+            state,
+            state["pendingInstruction"],
+            teaching_skill=teaching_skill,
+        )
+    return response
 
 
 async def hangup(call_id):
@@ -91,17 +121,22 @@ async def connect(user, session, body):
     try:
         if quota["expired"]:
             raise HTTPException(403, {"code": "lesson_time_expired"})
+
+        def claimed(state):
+            roleplay.reset_connection(state)
+            return {
+                **state,
+                "disconnectRequested": False,
+                "failureCode": None,
+                "status": "paused",
+            }
+
         row = await service.provider_event(
             user,
             session,
             owner,
             "connection.claimed",
-            lambda s: {
-                **s,
-                "disconnectRequested": False,
-                "failureCode": None,
-                "status": "paused",
-            },
+            claimed,
         )
         plan = content.lesson(row["lesson_id"], row["content_version"])
         key = get_settings().openai_api_key
@@ -165,6 +200,7 @@ async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
     heartbeat = 0.0
     last_poll = 0.0
     row = None
+    demonstrating = None
     last_activity = monotonic()
     nudged = False
     started = monotonic()
@@ -219,10 +255,24 @@ async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
 
             while monotonic() - started < 55 * 60:
                 now = monotonic()
-                if row is None or now - last_poll >= 0.5:
+                poll_interval = 0.2 if demonstrating else 0.5
+                if row is None or now - last_poll >= poll_interval:
                     row = await repo.get(user, session)
                     last_poll = now
                 state = row["state"]
+                is_demo = bool(state.get("roleplay"))
+                if demonstrating and not is_demo:
+                    await send({"type": "input_audio_buffer.clear"})
+                    await send(
+                        {
+                            "type": "session.update",
+                            "session": {
+                                "type": "realtime",
+                                "audio": {"input": {"turn_detection": LEARNER_VAD}},
+                            },
+                        }
+                    )
+                demonstrating = is_demo
                 if now - heartbeat >= 10:
                     await service.authorize(user, row["lesson_id"])
                     limit = await service.budget(user)
@@ -313,20 +363,7 @@ async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
                     await send(
                         {
                             "type": "response.create",
-                            "response": {
-                                "tool_choice": "none",
-                                "output_modalities": ["audio"],
-                                "metadata": {
-                                    "purpose": "classroom_speak",
-                                    "generation": str(active_generation),
-                                },
-                                "instructions": machine.instructions(
-                                    plan,
-                                    state,
-                                    state["pendingInstruction"],
-                                    teaching_skill=teaching_skill,
-                                ),
-                            },
+                            "response": speech_response(plan, state, teaching_skill),
                         }
                     )
                     last_activity = now
@@ -335,6 +372,7 @@ async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
                 # One nudge per quiet interval; silence never becomes an exercise attempt.
                 if (
                     state["status"] == "active"
+                    and not state.get("roleplay")
                     and active_generation is None
                     and now - last_activity > 20
                     and not nudged
@@ -353,11 +391,13 @@ async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
                         },
                     )
                 try:
-                    event = json.loads(await asyncio.wait_for(ws.recv(), 0.5))
+                    event = json.loads(await asyncio.wait_for(ws.recv(), poll_interval))
                 except TimeoutError:
                     continue
                 kind = event.get("type")
                 if kind == "input_audio_buffer.speech_started":
+                    if demonstrating:
+                        continue
                     last_activity, nudged = now, False
                     # Preserve anchor; clear queued speech so it cannot race the learner.
                     row = await service.provider_event(
@@ -369,6 +409,7 @@ async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
                             **s,
                             "generation": s["generation"] + 1,
                             "pendingInstruction": "",
+                            **({"roleplayPlayback": None} if s.get("roleplay") else {}),
                             "interruptedInstruction": s.get("pendingInstruction", "")
                             if playback_started
                             else s.get("interruptedInstruction", ""),
@@ -381,17 +422,25 @@ async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
                         item
                         and item not in seen_items
                         and row["state"]["status"] == "active"
+                        and not row["state"].get("roleplay")
                     ):
                         seen_items.add(item)
                         active_generation = None
                         await classify(item, row["state"])
-                elif kind == "output_audio_buffer.started":
+                elif (
+                    kind == "output_audio_buffer.started"
+                    and active_response is not None
+                    and event.get("response_id") == active_response
+                ):
                     playback_started = True
                 elif kind == "response.created":
                     response = event.get("response", {})
-                    if response.get("metadata", {}).get("purpose") in (
-                        "classroom_speak",
-                        "classroom_classify",
+                    meta = response.get("metadata", {})
+                    if (
+                        active_generation is not None
+                        and meta.get("generation") == str(active_generation)
+                        and meta.get("purpose")
+                        in ("classroom_speak", "classroom_classify")
                     ):
                         active_response = response.get("id")
                 elif kind == "response.done":
@@ -448,11 +497,13 @@ async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
                         )
                     elif (
                         meta.get("purpose") == "classroom_speak"
+                        and meta.get("generation") == str(active_generation)
                         and response.get("status") != "completed"
                     ):
                         active_response = active_generation = None
                 elif (
                     kind == "output_audio_buffer.stopped"
+                    and active_response is not None
                     and event.get("response_id") == active_response
                 ):
                     expected = active_generation
@@ -462,7 +513,7 @@ async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
                         owner,
                         "lesson.delivered",
                         lambda s, expected=expected: (
-                            machine.delivered(s)
+                            machine.delivered(s, plan)
                             if s["generation"] == expected
                             else None
                         ),
@@ -471,7 +522,11 @@ async def run(user, session, owner, call_id, plan, *, teaching_skill=""):
                     playback_started = False
                     last_activity = now
                     await service.finish_if_completed(user, session, owner)
-                elif kind == "output_audio_buffer.cleared":
+                elif (
+                    kind == "output_audio_buffer.cleared"
+                    and active_response is not None
+                    and event.get("response_id") == active_response
+                ):
                     active_response = active_generation = None
                     playback_started = False
                 elif kind == "error":

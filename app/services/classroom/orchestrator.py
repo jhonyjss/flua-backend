@@ -6,6 +6,7 @@ from pathlib import Path
 
 from app.schemas.classroom import TurnDecision
 from app.services.ai.prompt_safety import INJECTION_GUARD, wrap_user_input
+from app.services.classroom import roleplay
 
 PERSONA = (Path(__file__).parents[1] / "prompts/flua_teacher_v2.md").read_text()
 
@@ -61,6 +62,11 @@ def instructions(
         key: state[key]
         for key in ("status", "mode", "index", "stage", "attempts", "statuses")
     }
+    if state.get("roleplay"):
+        lesson_state["demonstration"] = {
+            "phase": state["roleplay"]["phase"],
+            "panel": roleplay.panel(state),
+        }
     # Model-written summaries and corrections can contain instructions copied from speech.
     student_context = (
         json.dumps(
@@ -106,10 +112,14 @@ def transition(plan: dict, current: dict, decision: TurnDecision) -> dict:
     action = pending(plan, s)
     if decision.intent == "stop":
         s.update(status="ended", pendingInstruction="", generation=s["generation"] + 1)
+        s.pop("roleplayPlayback", None)
         return s
     if decision.intent == "pause":
         s.update(status="paused", pendingInstruction="", generation=s["generation"] + 1)
+        s.pop("roleplayPlayback", None)
         return s
+    if s.get("roleplay"):
+        return demonstration_turn(s, decision)
     if decision.intent in ("question", "unclear") or decision.needs_clarification:
         if s["anchor"] is None:
             s["anchor"] = {
@@ -192,11 +202,53 @@ def transition(plan: dict, current: dict, decision: TurnDecision) -> dict:
     return s
 
 
-def delivered(current: dict) -> dict:
+def demonstration_turn(state: dict, decision: TurnDecision) -> dict:
+    """Handle questions during the scene without grading or advancing the current panel."""
+    state["generation"] += 1
+    state["pendingInstruction"] = ""
+    state.pop("roleplayPlayback", None)
+    if decision.needs_clarification or decision.intent == "unclear":
+        state.update(mode="clarification", question=decision.question_summary)
+        state["pendingInstruction"] = (
+            "Faça uma pergunta curta para esclarecer a dúvida sobre a cena e espere."
+        )
+    elif decision.intent == "question" or state["mode"] == "clarification":
+        state.update(
+            mode="question", question=decision.question_summary or state["question"]
+        )
+        state["pendingInstruction"] = (
+            "Responda à dúvida sobre a cena de forma direta e breve. Não narre nem repita o diálogo."
+        )
+    elif decision.intent == "language_request":
+        state["mode"] = "question"
+        state["pendingInstruction"] = (
+            "Confirme a mudança de idioma em uma frase. Não narre a cena."
+            if decision.explicit_language_request
+            else "Pergunte em uma frase se o aluno quer mudar o idioma da conversa."
+        )
+        if not decision.explicit_language_request:
+            state["mode"] = "clarification"
+    else:
+        state.update(mode="lesson", question="")
+        roleplay.queue(state)
+    return state
+
+
+def delivered(current: dict, plan: dict | None = None) -> dict:
     s = deepcopy(current)
     s["lastDelivered"] = s["pendingInstruction"]
     s["pendingInstruction"] = ""
     s["interruptedInstruction"] = ""
     if s["mode"] in ("question", "resuming"):
         s.update(mode="lesson", anchor=None, question="")
+    if s.get("roleplay"):
+        if roleplay.advance(s, s.pop("roleplayPlayback", None)):
+            assert plan is not None
+            s["pendingInstruction"] = "Diga 'Agora é sua vez.' Em seguida: " + pending(
+                plan, s
+            )
+        elif s.get("roleplay"):
+            # A completed scripted frame resets panelReady; only a resumed question can requeue.
+            roleplay.queue(s)
+        s["generation"] += 1
     return s
