@@ -73,8 +73,8 @@ def teach_goal(n: int) -> str:
 ALL_DONE = ("Todas as metas da aula terminaram: parabenize o aluno pelo progresso em 1 frase e pergunte se ele "
             "quer continuar praticando com mais exemplos ou prefere encerrar.")
 SILENCE_NUDGE = "O aluno ficou em silêncio. Repita o pedido atual de forma mais simples, em 1 frase curta."
-TIME_UP = ("Resta cerca de 1 minuto de aula. Faça agora o encerramento: revise com o aluno 3 aprendizados desta "
-           "aula e se despeça com gentileza.")
+TIME_UP = ("Resta cerca de 1 minuto de aula. Faça agora o encerramento em até 4 frases curtas: 3 aprendizados "
+           "desta aula e uma despedida gentil.")
 
 TAUGHT_1 = ("Oi, Ana! Hoje a gente vai aprender o verbo to be. Para dizer quem você é: I am Ana — eu sou a Ana. "
             "Agora você: diga quem você é em inglês.")

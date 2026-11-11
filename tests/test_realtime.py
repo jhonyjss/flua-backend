@@ -36,7 +36,7 @@ def test_instructions_include_name_level_and_context():
 def test_request_topic_reaches_the_free_practice_opening():
     req = RealtimeSessionRequest(studentName="Jhony", mode="free_practice", topic="Primeiros contatos")
     opening = build_tutor_instructions_from_request(req).split("# Como começar")[-1]
-    assert "hoje vão praticar Primeiros contatos" in opening
+    assert "o tema de hoje (Primeiros contatos)" in opening  # spec changed (flueai docs/flua-tutor/04-professor-por-voz.md): the opening names the theme in parentheses
 
 
 def test_spanish_language_changes_target():
@@ -366,6 +366,15 @@ def test_tool_lessons_stay_client_driven_even_if_asked_for_conversational():
     assert turn_mode_for(guided) == "lesson"
     assert turn_mode_for(site_lesson) == "lesson"
     assert turn_mode_for(free) == "conversational"
+
+
+def test_spanish_tool_lessons_keep_the_server_vad_they_had():
+    # 04-professor-por-voz.md changes English only; the Spanish lessons stay client-driven on server VAD.
+    spanish = RealtimeSessionRequest(
+        mode="lesson", language="es", goalTool=True, lessonContext="Metas: 1. Presentarse", turnMode="conversational",
+    )
+    assert turn_mode_for(spanish) == "educational"
+    assert _turn_detection(turn_mode_for(spanish))["type"] == "server_vad"
 
 
 def test_minted_site_lesson_waits_for_the_client_to_ask_for_a_reply(client, auth_headers, mock_transport):

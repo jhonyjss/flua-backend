@@ -193,9 +193,12 @@ def _transcription_config(req: RealtimeSessionRequest, user: AuthUser | None, mo
 
 
 def turn_mode_for(req: RealtimeSessionRequest) -> str:
-    """Lessons that force a tool call after each attempt always stay client-driven ("lesson"), whatever the
-    client asked for."""
-    return "lesson" if req.mode == "guided_lesson" or uses_goal_tool(req) else req.turnMode
+    """Lessons that force a tool call after each attempt always stay client-driven, whatever the client asked
+    for: semantic end of turn ("lesson") in English, the server VAD they had ("educational") in Spanish, which
+    04-professor-por-voz.md leaves as it was and the eval does not cover."""
+    if req.mode == "guided_lesson" or uses_goal_tool(req):
+        return "lesson" if req.language == "en" else "educational"
+    return req.turnMode
 
 
 def prompt_version() -> str:

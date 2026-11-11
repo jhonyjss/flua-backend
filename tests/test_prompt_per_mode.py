@@ -123,7 +123,7 @@ def test_the_profile_explanation_language_no_longer_changes_the_english_prompt()
 
 
 def test_portuguese_content_is_only_what_would_give_the_answer_away():
-    assert "Fica em português a tradução do modelo:" in prompt("lesson")
+    assert "Fica em português a tradução do modelo, nunca a resposta do aluno:" in prompt("lesson")
     assert 'Fica em português a tradução do modelo e o pedido "sua vez":' in prompt("guided_lesson")
     assert 'Fica em português a pergunta "como se diz…?" do aquecimento:' in prompt("free_practice")
 
@@ -181,9 +181,36 @@ def test_legacy_paths_keep_the_old_prompt():
     assert "# Metas da aula (o app conduz — siga à risca)" in spanish
 
 
-def test_the_first_turn_has_a_total_cap_where_the_opening_ran_long():
-    # In English the opening outgrew its planned sentences (extra greeting, "Note:", "Ready?"): 04-professor-por-voz.md.
-    assert "Sua primeira fala tem no máximo 3 frases curtas, sem pedir confirmação." in prompt("free_practice")
-    assert "Sua primeira fala tem no máximo 4 frases curtas, sem pedir confirmação." in prompt("guided_lesson")
-    # the site's lesson opens in two turns by design (2d decides its shape)
-    assert "Sua primeira fala" not in prompt("lesson")
+def opening(out: str) -> str:
+    return out.split("# Como começar\n")[1]
+
+
+def test_free_practice_openings_name_their_two_sentences():
+    # In English the plain openings ran to 4 sentences (04-professor-por-voz.md): each one says what its 2 are.
+    with_topic = opening(prompt("free_practice"))
+    no_warmup = build_tutor_instructions_from_request(RealtimeSessionRequest(**free(topic=TOPIC)), None, [])
+    assert "Cumprimente Ana pelo nome em 2 frases: o cumprimento com o tema de hoje" in opening(no_warmup)
+    no_topic = build_tutor_instructions_from_request(RealtimeSessionRequest(**free()), None, [])
+    assert ("Cumprimente Ana pelo nome em 2 frases: o cumprimento e a pergunta sobre o que ele quer praticar hoje "
+            "(uma situação real, vocabulário, uma dúvida ou só conversar)") in opening(no_topic)
+    # the warmup's greeting says none of its phrases (an English "good morning" gave the answer away)
+    assert 'Cumprimente só com "Hi, Ana!" (nenhuma frase do aquecimento)' in with_topic
+
+
+def test_without_a_name_the_warmup_asks_the_name_and_never_greets_with_one():
+    req = RealtimeSessionRequest(**free(topic=TOPIC, studentName="",
+                                        reviewPhrases=[{"english": "Good morning", "portuguese": "Bom dia"}]))
+    first = opening(build_tutor_instructions_from_request(req, None, []))
+    assert first.startswith('Você fala primeiro, imediatamente ao conectar. Cumprimente com "Hi!", pergunte '
+                            '"Como posso te chamar?" e pare.')
+    assert "o nome (" not in first and '"Hi, ' not in first
+
+
+def test_a_guided_opening_with_grammar_keeps_the_grammar_class_uncapped():
+    # Real plans carry a grammar point: the opening is greeting + grammar class (≤4) + item 1, so no total cap
+    # may contradict it.
+    plan = {**guided()["plan"], "grammar": GRAMMAR}
+    first = opening(build_tutor_instructions_from_request(RealtimeSessionRequest(**guided(plan=plan)), None, []))
+    assert "dê a aula de gramática (veja # Gramática da aula) em até 4 frases curtas, em inglês simples" in first
+    assert "no máximo" not in first
+    assert 'na mesma frase diga que hoje ele vai aprender a se apresentar (ex.: "Hi Ana, today you\'ll learn to …!")' in first
