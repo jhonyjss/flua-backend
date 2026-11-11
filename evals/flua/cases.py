@@ -73,8 +73,8 @@ def teach_goal(n: int) -> str:
 ALL_DONE = ("Todas as metas da aula terminaram: parabenize o aluno pelo progresso em 1 frase e pergunte se ele "
             "quer continuar praticando com mais exemplos ou prefere encerrar.")
 SILENCE_NUDGE = "O aluno ficou em silêncio. Repita o pedido atual de forma mais simples, em 1 frase curta."
-TIME_UP = ("Resta cerca de 1 minuto de aula. Faça agora um feedback de encerramento: parabenize o aluno pelo "
-           "progresso, destaque 1 ponto forte e 1 ponto a melhorar, e se despeça com gentileza.")
+TIME_UP = ("Resta cerca de 1 minuto de aula. Faça agora o encerramento: revise com o aluno 3 aprendizados desta "
+           "aula e se despeça com gentileza.")
 
 TAUGHT_1 = ("Oi, Ana! Hoje a gente vai aprender o verbo to be. Para dizer quem você é: I am Ana — eu sou a Ana. "
             "Agora você: diga quem você é em inglês.")
@@ -97,7 +97,7 @@ def judged(case_id: str, history: list, said: str, goal: int, outcomes: list[str
 def answered(case_id: str, history: list, output: str, *, reply: dict | None = None, rubric: list[str]) -> dict:
     return {
         "id": case_id, "category": "resposta à ferramenta", "request": lesson(), "history": history,
-        "steps": [{"tool_output": output, "expect": {"reply": reply or {"max_sentences": 3}, "rubric": rubric}}],
+        "steps": [{"tool_output": output, "expect": {"reply": reply or {"max_sentences": 4}, "rubric": rubric}}],
     }
 
 
@@ -139,10 +139,10 @@ LESSON_CASES = [
         "aula-primeiro-erro-pista", [*GOAL_1, ("aluno", "Am Ana."),
                                      ("call", "registrar_meta", {"meta": "1", "resultado": "parcial",
                                                                  "o_que_ouviu": "Am Ana", "forma_correta": "I am Ana."})],
-        "parcial (tentativa 1 de 2). NÃO diga a resposta: dê uma pista curta em português de onde está o erro "
+        "parcial (tentativa 1 de 2). NÃO diga a resposta: dê uma pista curta de onde está o erro "
         '(a forma certa, só para você, é "I am Ana.") e peça para ele tentar de novo.',
-        reply={"max_sentences": 3, "lacks": ["I am Ana", "I'm Ana"]},
-        rubric=[("Dá uma pista em português sobre onde está o erro (falta quem faz a ação, o I), sem dizer a "
+        reply={"max_sentences": 4, "lacks": ["I am Ana", "I'm Ana"]},
+        rubric=[("Dá uma pista em inglês simples sobre onde está o erro (falta quem faz a ação, o I), sem dizer a "
                 "frase certa."),
                 "Pede para a aluna tentar de novo.",
                 "Começa pelo que saiu bem ou de forma acolhedora, sem começar com 'não'."],
@@ -189,7 +189,7 @@ LESSON_CASES = [
         "id": "aula-aviso-de-tempo", "category": "resposta à ferramenta", "request": lesson(), "history": GOAL_3,
         "steps": [{"instruct": TIME_UP, "expect": {
             "reply": {"max_sentences": 4},
-            "rubric": ["Parabeniza pelo progresso.", "Destaca 1 ponto forte e 1 ponto a melhorar.",
+            "rubric": ["Revisa três aprendizados da aula (o que a aluna praticou ou acertou).",
                        "Se despede com gentileza."],
         }}],
     },
@@ -257,7 +257,7 @@ GUIDED_CASES = [
         "steps": [{"tool_output": 'correto. Elogie em 1 frase curta. Etapa sua vez do item 1: peça em português '
                                   'para ele dizer a frase "I am Ana." trocando UMA informação (outro nome, país, '
                                   'número ou objeto, você escolhe e diz qual), sem dizer a resposta. PARE e espere.',
-                   "expect": {"reply": {"max_sentences": 3}, "rubric": [
+                   "expect": {"reply": {"max_sentences": 4}, "rubric": [
                        "Pede em português para a aluna dizer a frase trocando uma informação e diz qual trocar.",
                        "Não diz a frase-resposta pronta em inglês com a troca feita."]}}],
     },
@@ -270,7 +270,7 @@ GUIDED_CASES = [
         "steps": [{"tool_output": 'parcial (tentativa 1 de 2). NÃO diga a resposta: dê uma pista curta em português '
                                   'de onde está o erro (a forma certa, só para você, é "My name is Pedro.") e peça '
                                   "para ele tentar de novo.",
-                   "expect": {"reply": {"max_sentences": 3, "lacks": ["My name is Pedro"]}, "rubric": [
+                   "expect": {"reply": {"max_sentences": 4, "lacks": ["My name is Pedro"]}, "rubric": [
                        "Dá uma pista em português de onde está o erro (falta o is), sem dizer a frase certa.",
                        "Pede para tentar de novo."]}}],
     },
@@ -285,9 +285,9 @@ FREE_CASES = [
         "id": "livre-recast", "category": "prática livre", "request": free(topic=TOPIC),
         "history": [("flua", "Nice! And how old are you? Quantos anos você tem?")],
         "steps": [{"say": "I have 30 years."}, {"respond": True, "expect": {
-            "reply": {"max_sentences": 3},
+            "reply": {"max_sentences": 4},
             "rubric": ["Usa a forma certa (I'm 30 ou I am 30 years old) dentro da própria resposta.",
-                       "Corrige no máximo um erro.", "Segue a conversa com algo para a aluna responder."],
+                       "Corrige no máximo dois pontos.", "Segue a conversa com algo para a aluna responder."],
         }}],
     },
     {
@@ -297,7 +297,7 @@ FREE_CASES = [
                     ("aluno", "She have 25 years."),
                     ("flua", "She's 25, nice — idade usa to be. And your brother?")],
         "steps": [{"say": "He have 20 years."}, {"respond": True, "expect": {
-            "reply": {"max_sentences": 3},
+            "reply": {"max_sentences": 4},
             "rubric": [("Para e corrige de forma explícita (idade em inglês usa to be), em vez de só repetir a "
                        "forma certa de passagem."),
                        "Pede para a aluna tentar de novo ou dá o modelo He's 20."],
@@ -307,7 +307,7 @@ FREE_CASES = [
         "id": "livre-pedido-so-ingles", "category": "prática livre", "request": free(topic=TOPIC),
         "history": [("flua", "Oi, Ana! Hoje vamos praticar cumprimentos. How are you today?")],
         "steps": [{"say": "Let's practice only in English, please."}, {"respond": True, "expect": {
-            "reply": {"max_sentences": 3},
+            "reply": {"max_sentences": 4},
             "rubric": ["A resposta é toda ou quase toda em inglês."],
         }}],
     },
@@ -315,7 +315,7 @@ FREE_CASES = [
         "id": "livre-muda-de-assunto", "category": "prática livre", "request": free(topic=TOPIC),
         "history": [("flua", "Oi, Ana! Hoje vamos praticar cumprimentos. How are you today?")],
         "steps": [{"say": "Na verdade eu queria treinar pedir comida num restaurante."}, {"respond": True, "expect": {
-            "reply": {"max_sentences": 3},
+            "reply": {"max_sentences": 4},
             "rubric": ["Aceita o novo assunto (pedir comida num restaurante) e começa a praticá-lo.",
                        "Não insiste no tema anterior."],
         }}],
@@ -342,13 +342,13 @@ FREE_CASES = [
     {
         "id": "livre-espanhol-na-aula-de-ingles", "category": "prática livre", "request": free(topic=TOPIC),
         "history": [("flua", "Hi, Ana! How are you today?")],
-        "steps": [{"say": "Hola, ¿cómo estás?"}, {"respond": True, "expect": {"reply": {"max_sentences": 3}}}],
+        "steps": [{"say": "Hola, ¿cómo estás?"}, {"respond": True, "expect": {"reply": {"max_sentences": 4}}}],
     },
     {
         "id": "livre-intermediario-recast", "category": "prática livre", "request": free(topic=TOPIC, level="intermediate"),
         "history": [("flua", "So, what did you do yesterday?")],
         "steps": [{"say": "Yesterday I go to the beach with my friends."}, {"respond": True, "expect": {
-            "reply": {"max_sentences": 3},
+            "reply": {"max_sentences": 4},
             "rubric": ["Usa a forma certa (went) dentro da própria resposta.", "Segue a conversa."],
         }}],
     },
@@ -408,4 +408,50 @@ OPENING_CASES = [
 for case in FREE_CASES:
     case.setdefault("mistakes", [{"said": "I am agree", "natural": "I agree", "tip": "agree já é verbo, sem am"}])
 
-CASES = [*LESSON_CASES, *GUIDED_CASES, *FREE_CASES, *OPENING_CASES]
+# ── The voice-teacher policy (flueai docs/flua-tutor/04-professor-por-voz.md) ──────────────────────────────
+# English by default at every level, Portuguese on request, the free-practice modes chosen by voice, slang with a
+# professional alternative, and the closing review. New in 04: not in the 2c baseline.
+
+def voiced(case_id: str, history: list, said: str, *, reply: dict | None = None, rubric: list[str],
+           **request) -> dict:
+    return {
+        "id": case_id, "category": "professor por voz", "request": free(topic=TOPIC, **request), "history": history,
+        "steps": [{"say": said}, {"respond": True, "expect": {"reply": reply or {"max_sentences": 4}, "rubric": rubric}}],
+    }
+
+
+GREETED = [("flua", "Hi, Ana! Today we're practicing greetings. How are you today?")]
+WEEKEND = [("flua", "What do you do on weekends?"), ("aluno", "I like to cook with my family."),
+           ("flua", "That's lovely! What do you cook?"), ("aluno", "I cook pasta every Sunday."),
+           ("flua", "Pasta every Sunday sounds perfect.")]
+
+VOICE_CASES = [
+    voiced("voz-ingles-por-padrao-iniciante", GREETED, "I'm fine, thank you. And you?",
+           rubric=["A resposta é em inglês, sem frases em português."]),
+    voiced("voz-portugues-quando-pede", GREETED, "Não entendi o que é 'how are you', explica em português?",
+           rubric=["Explica em português que how are you é como você está.", "A explicação é curta."]),
+    voiced("voz-volta-ao-ingles",
+           [*GREETED, ("aluno", "Não entendi, explica em português?"),
+            ("flua", "Claro! How are you quer dizer como você está. É o jeito mais comum de cumprimentar.")],
+           "Ah, entendi! I'm good, thanks!",
+           rubric=["Volta a falar em inglês: a resposta é toda ou quase toda em inglês."]),
+    voiced("voz-mais-devagar", GREETED, "Can you speak more slowly, please?",
+           rubric=["Aceita o pedido e segue com frases curtas e simples, em inglês."]),
+    voiced("voz-correcao-guiada",
+           [("aluno", "Can you correct me after every sentence, please?"),
+            ("flua", "Sure! I'll correct you after each sentence. So, what did you do yesterday?")],
+           "Yesterday I go to the office and I have a meeting with my boss.",
+           rubric=["Corrige de forma explícita os verbos no passado (went, had), no máximo 2 pontos.",
+                   "Segue a conversa sobre o dia ou a reunião da aluna."]),
+    voiced("voz-shadowing", GREETED, "Can we practice listening and shadowing?",
+           reply={"max_sentences": 5},
+           rubric=["Conta uma história curta em inglês (3 a 4 frases) e faz uma pergunta de compreensão.",
+                   "Não pede para repetir um trecho longo."]),
+    voiced("voz-giria", GREETED, "My friend said 'I'm beat'. What does it mean?", level="intermediate",
+           rubric=["Explica que significa estar muito cansado.", "Diz que é uma expressão informal.",
+                   "Dá uma alternativa profissional (ex.: I'm exhausted, I'm very tired)."]),
+    voiced("voz-revisao-final", WEEKEND, "I need to go now, bye!",
+           rubric=["Revisa três aprendizados ou pontos da conversa.", "Se despede."]),
+]
+
+CASES = [*LESSON_CASES, *GUIDED_CASES, *FREE_CASES, *OPENING_CASES, *VOICE_CASES]

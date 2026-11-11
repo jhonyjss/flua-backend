@@ -97,14 +97,66 @@ def test_the_tool_modes_correct_only_through_the_tool_and_free_practice_by_recas
     assert "registrar_" not in out
 
 
-def test_the_language_question_is_asked_once_at_the_opening_not_mid_conversation():
-    # free practice already asks what to practise: the language question gets its own first turn
-    free_opening = prompt("free_practice", "intermediate").split("# Como começar")[1]
-    assert free_opening.count("pergunte só se o aluno prefere tudo em inglês") == 1
-    lesson_opening = prompt("lesson", "intermediate").split("# Como começar")[1]
-    assert "pergunte também, uma vez só, se o aluno prefere tudo em inglês" in lesson_opening
-    for mode in ("free_practice", "lesson"):
-        assert "pergunte" not in prompt(mode, "intermediate").split("# Idioma")[1].split("#")[0]
+def language_section(out: str) -> str:
+    return out.split("# Idioma\n")[1].split("\n# ")[0]
+
+
+@pytest.mark.parametrize(("mode", "level"), CASES, ids=[f"{m}-{lv}" for m, lv in CASES])
+def test_english_is_the_default_at_every_level_and_portuguese_comes_on_request(mode, level):
+    # Spec changed (flueai docs/flua-tutor/04-professor-por-voz.md, D2): the intermediate opening no longer asks
+    # which language, and the beginner no longer hears mostly Portuguese.
+    out = prompt(mode, level)
+    section = language_section(out)
+    assert "Fale inglês americano natural em qualquer nível" in section
+    assert 'Português só quando ele pedir ("explica em português", "não entendi")' in section
+    assert "prefere tudo em inglês" not in out
+    assert "Iniciante: fale em português" not in out
+
+
+def test_the_profile_explanation_language_no_longer_changes_the_english_prompt():
+    for mode in MODES:
+        pt = build_tutor_instructions_from_request(RealtimeSessionRequest(**MODES[mode]("beginner")), None, [])
+        en = build_tutor_instructions_from_request(
+            RealtimeSessionRequest(**MODES[mode]("beginner"), explanationLanguage="en"), None, [],
+        )
+        assert pt == en
+
+
+def test_portuguese_content_is_only_what_would_give_the_answer_away():
+    assert "Fica em português a tradução do modelo:" in prompt("lesson")
+    assert 'Fica em português a tradução do modelo e o pedido "sua vez":' in prompt("guided_lesson")
+    assert 'Fica em português a pergunta "como se diz…?" do aquecimento:' in prompt("free_practice")
+
+
+@pytest.mark.parametrize("mode", list(MODES))
+def test_every_mode_speaks_in_short_turns_and_slows_down_on_request(mode):
+    tone = prompt(mode).split("# Personalidade e tom\n")[1].split("\n# ")[0]
+    assert "no máximo 4 frases curtas, normalmente 2 ou 3" in tone
+    assert "se perguntar, uma pergunta só" in tone
+    assert 'Pediu "mais devagar"' in tone
+    assert "nem toda resposta pede elogio" in tone
+
+
+def test_free_practice_offers_the_three_modes_and_closes_with_three_learnings():
+    out = prompt("free_practice")
+    modes = out.split("# Modos")[1].split("\n# ")[0]
+    for name in ("- Conversa livre:", "- Correção guiada", "- Listening e shadowing"):
+        assert name in modes
+    assert "no máximo 2 pontos importantes" in modes
+    assert "não após toda correção" in modes
+    assert "uma frase curta para cada um de três aprendizados da conversa" in modes
+    # vocabulary growth and slang belong to the open conversation
+    assert "até C1/C2" in out and "alternativa profissional" in out
+    for mode in ("lesson", "guided_lesson"):
+        assert "C1/C2" not in prompt(mode) and "# Modos" not in prompt(mode)
+
+
+def test_turn_taking_rules_only_where_the_learner_can_pause_or_interrupt_her():
+    # free practice is server-driven (conversational): she can be interrupted and must wait out hesitations; the
+    # lessons are client-driven, so these rules would have no input there (2c principle).
+    assert 'Nada de "mhm"; se ele falar enquanto você fala, pare e responda a ele.' in prompt("free_practice")
+    for mode in ("lesson", "guided_lesson"):
+        assert "mhm" not in prompt(mode)
 
 
 def test_where_no_tool_corrects_a_stuck_learner_gets_the_help_ladder():
@@ -127,3 +179,11 @@ def test_legacy_paths_keep_the_old_prompt():
     assert "# Marcador de avaliação" in old_lesson
     spanish = build_tutor_instructions_from_request(RealtimeSessionRequest(**lesson(language="es")), None, [])
     assert "# Metas da aula (o app conduz — siga à risca)" in spanish
+
+
+def test_the_first_turn_has_a_total_cap_where_the_opening_ran_long():
+    # In English the opening outgrew its planned sentences (extra greeting, "Note:", "Ready?"): 04-professor-por-voz.md.
+    assert "Sua primeira fala tem no máximo 3 frases curtas, sem pedir confirmação." in prompt("free_practice")
+    assert "Sua primeira fala tem no máximo 4 frases curtas, sem pedir confirmação." in prompt("guided_lesson")
+    # the site's lesson opens in two turns by design (2d decides its shape)
+    assert "Sua primeira fala" not in prompt("lesson")
