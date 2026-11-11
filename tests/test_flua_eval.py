@@ -106,8 +106,9 @@ def all_passed_judge(mock_transport, seen: list | None = None):
 def test_cases_have_unique_ids_and_known_categories():
     ids = [case["id"] for case in C.CASES]
     assert len(ids) == len(set(ids))
+    # "professor por voz": the cases of flueai docs/flua-tutor/04-professor-por-voz.md
     assert {case["category"] for case in C.CASES} == {
-        "julgamento", "resposta à ferramenta", "prática livre", "abertura",
+        "julgamento", "resposta à ferramenta", "prática livre", "abertura", "professor por voz",
     }
 
 

@@ -36,7 +36,7 @@ def test_instructions_include_name_level_and_context():
 def test_request_topic_reaches_the_free_practice_opening():
     req = RealtimeSessionRequest(studentName="Jhony", mode="free_practice", topic="Primeiros contatos")
     opening = build_tutor_instructions_from_request(req).split("# Como começar")[-1]
-    assert "hoje vão praticar Primeiros contatos" in opening
+    assert "o tema de hoje (Primeiros contatos)" in opening  # spec changed (flueai docs/flua-tutor/04-professor-por-voz.md): the opening names the theme in parentheses
 
 
 def test_spanish_language_changes_target():
@@ -339,13 +339,60 @@ def test_conversational_turn_mode_is_semantic_and_interruptible():
     assert cv == {"type": "semantic_vad", "eagerness": "low", "create_response": True, "interrupt_response": True}
 
 
-def test_guided_lesson_stays_client_driven_even_if_asked_for_conversational():
+def test_lesson_turn_mode_is_semantic_but_client_driven_and_not_interruptible():
+    # docs/flua-tutor/04-professor-por-voz.md (D3): the lessons judge every turn with a forced tool call, so the
+    # server never replies on its own and Flua can't be cut off; only the end of turn becomes semantic.
+    assert _turn_detection("lesson") == {
+        "type": "semantic_vad", "eagerness": "low", "create_response": False, "interrupt_response": False,
+    }
+
+
+def test_vad_eagerness_comes_from_settings(monkeypatch):
+    monkeypatch.setenv("OPENAI_REALTIME_VAD_EAGERNESS", "medium")
+    get_settings.cache_clear()
+    assert _turn_detection("lesson")["eagerness"] == "medium"
+    assert _turn_detection("conversational")["eagerness"] == "medium"
+
+
+def test_tool_lessons_stay_client_driven_even_if_asked_for_conversational():
+    # Spec change (04-professor-por-voz.md, D3): the tool lessons moved from "educational" to "lesson".
     guided = RealtimeSessionRequest(
         mode="guided_lesson", lessonId="fund-u1-l1", plan=GUIDED_PLAN, turnMode="conversational"
     )
+    site_lesson = RealtimeSessionRequest(
+        mode="lesson", goalTool=True, lessonContext="Metas: 1. Dizer quem você é", turnMode="conversational",
+    )
     free = RealtimeSessionRequest(mode="free_practice", turnMode="conversational")
-    assert turn_mode_for(guided) == "educational"
+    assert turn_mode_for(guided) == "lesson"
+    assert turn_mode_for(site_lesson) == "lesson"
     assert turn_mode_for(free) == "conversational"
+
+
+def test_spanish_tool_lessons_keep_the_server_vad_they_had():
+    # 04-professor-por-voz.md changes English only; the Spanish lessons stay client-driven on server VAD.
+    spanish = RealtimeSessionRequest(
+        mode="lesson", language="es", goalTool=True, lessonContext="Metas: 1. Presentarse", turnMode="conversational",
+    )
+    assert turn_mode_for(spanish) == "educational"
+    assert _turn_detection(turn_mode_for(spanish))["type"] == "server_vad"
+
+
+def test_minted_site_lesson_waits_for_the_client_to_ask_for_a_reply(client, auth_headers, mock_transport):
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["body"] = request.content
+        return httpx.Response(200, json={"value": "ek_live_abc"})
+
+    mock_transport(handler)
+    res = client.post(
+        "/api/realtime/session",
+        json={"mode": "lesson", "goalTool": True, "lessonContext": "Metas: 1. Dizer quem você é"},
+        headers=auth_headers,
+    )
+    assert res.status_code == 200
+    turn = json.loads(captured["body"])["session"]["audio"]["input"]["turn_detection"]
+    assert turn == {"type": "semantic_vad", "eagerness": "low", "create_response": False, "interrupt_response": False}
 
 
 def test_free_practice_opens_with_a_memory_warmup_of_the_due_phrases():

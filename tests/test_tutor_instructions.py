@@ -89,7 +89,7 @@ def test_free_practice_with_topic_opens_on_it_instead_of_the_menu():
         "beginner", "english-tutor", "", "Jhony", "en", mode="free_practice", topic=TOPIC,
     )
     opening = out.split("# Como começar")[-1]
-    assert f"hoje vão praticar {TOPIC}" in opening
+    assert f"o tema de hoje ({TOPIC})" in opening  # spec changed (flueai docs/flua-tutor/04-professor-por-voz.md): the opening names the theme in parentheses
     assert "Cumprimente Jhony pelo nome" in opening
     assert MENU not in out
     assert f"O tema de hoje já foi escolhido: {TOPIC}." in out
@@ -104,7 +104,7 @@ def test_free_practice_with_topic_asks_name_first_when_unknown():
     )
     opening = out.split("# Como começar")[-1]
     assert "Como posso te chamar?" in opening
-    assert f"hoje vão praticar {TOPIC}" in opening
+    assert f"o tema de hoje ({TOPIC})" in opening  # spec changed (flueai docs/flua-tutor/04-professor-por-voz.md): the opening names the theme in parentheses
     assert MENU not in out
 
 
@@ -159,7 +159,10 @@ def test_guided_lesson_opens_with_the_lesson_proposal_then_teaches_item_one():
     opening = _guided().split("# Como começar")[-1]
     assert "Cumprimente Jhony pelo nome" in opening
     assert "hoje ele vai aprender a se apresentar" in opening
-    assert "são 2 itens" in opening
+    # Spec changed (flueai docs/flua-tutor/04-professor-por-voz.md, D2): opening in English, in one sentence
+    # with no item count — the two-sentence presentation ran to 8 sentences in English.
+    assert "na mesma frase diga que hoje ele vai aprender a se apresentar" in opening
+    assert "itens" not in opening
     assert "ensine o item 1 (c-i-am)" in opening
     assert MENU not in _guided()
 
@@ -184,7 +187,7 @@ def test_guided_lesson_is_driven_by_the_tool_not_by_flua():
 
 def test_guided_lesson_resume_skips_the_opening():
     opening = _guided(resume=1).split("# Como começar")[-1]
-    assert "Vamos continuar de onde paramos" in opening
+    assert "Let's pick up where we left off" in opening  # spec changed (04-professor-por-voz.md, D2)
     assert "ensine o item 2 (c-my-name-is)" in opening
     assert "hoje ele vai aprender" not in opening
 
@@ -324,8 +327,10 @@ def test_conversation_corrects_by_recast_instead_of_stopping_the_talk():
     es = build_tutor_instructions("beginner", "spanish-tutor", "", "Jhony", "es", mode="free_practice")
     for out in (free, casual, es):
         assert "Corrija por RECAST" in out
-    # each language recasts with its own example
-    assert "I'm 30 — a gente diz I'm" in free and "I'm 30 — a gente diz I'm" in casual
+    # each language recasts with its own example; spec changed (flueai docs/flua-tutor/04-professor-por-voz.md,
+    # D2): English free practice speaks English, so its recast no longer marks the swap in Portuguese
+    assert "Oh, you're 30! Nice." in free and "a gente diz" not in free
+    assert "I'm 30 — a gente diz I'm" in casual
     assert "Me gusta mucho — a gente diz mucho, não muy" in es
     assert "I'm 30" not in es
     # Spec changed (flueai docs/flua-tutor/02-medir-e-enxugar.md, 2c): one prompt per mode, new wording.
@@ -437,9 +442,10 @@ def test_goal_tool_keeps_the_lesson_and_closing_guidance():
     assert "# Aula de hoje" in out
     # the marker flow's guard against a goodbye with goals still pending survives the switch to the tool
     assert "Antes de o app dizer que as metas terminaram, não se despeça" in out
-    assert '"Ainda temos mais para praticar — vamos continuar?"' in out
-    assert "Metas terminadas: siga praticando o mesmo foco" in out
-    assert "1 ponto forte, 1 a melhorar e uma despedida carinhosa" in out
+    # Spec changed (04-professor-por-voz.md, D2 and the closing review): English, and 3 learnings at the end.
+    assert '"We still have more to practice — shall we keep going?"' in out
+    assert "Metas terminadas: siga no mesmo foco" in out
+    assert "Aviso de fim de tempo: uma frase curta por aprendizado (3 da aula) e a despedida." in out
 
 
 def test_goal_tool_needs_a_lesson():
@@ -482,9 +488,11 @@ def test_guided_teaching_gives_real_context_and_ends_on_the_phrase_to_repeat():
     # The learner starts repeating as soon as the phrase is heard; anything after it talks over them.
     # Spec changed (flueai docs/flua-tutor/02-medir-e-enxugar.md, 2c): one prompt per mode, new wording.
     block = _guided().split(GUIDED_FLOW)[1]
-    assert '1 de contexto real (ex.: "De manhã, os americanos costumam cumprimentar com Good morning.")' in block
-    assert "a frase em inglês com a tradução (e a nota, se ajudar)" in block
-    assert 'o convite com a frase de novo (ex.: "Vamos praticar juntos — repete comigo: Good morning!")' in block
+    # Spec changed (04-professor-por-voz.md, D2): Flua's own words are English; the translation is lesson content.
+    assert '1 de contexto real (ex.: "In the morning, Americans usually greet people with Good morning.")' in block
+    # spec changed (04-professor-por-voz.md): model and translation joined by a dash count as one sentence
+    assert 'a frase com a tradução, por travessão (ex.: "Good morning — bom dia.")' in block
+    assert 'o convite com a frase de novo (ex.: "Let\'s practice — repeat after me: Good morning!")' in block
     assert "Sem pergunta: a frase-modelo é a última coisa da fala." in block
     assert "Vamos praticar juntos?" not in block
     assert "em no máximo 2 frases curtas e peça para o aluno repetir" not in block
@@ -495,7 +503,7 @@ def test_guided_feedback_sounds_like_a_teacher_not_a_grader():
     out = _guided()
     block = out.split(GUIDED_FLOW)[1]
     assert 'nunca diga "errado", "incorreto" nem comece com "não"' in block
-    assert "Vamos juntos de novo?" in block
+    assert "Let's say it together." in block  # spec changed (04-professor-por-voz.md, D2): in English
     assert "Encerramento: só o que a instrução pedir, sem pergunta." in block
     assert 'fora_do_roteiro, "tentativa 1 de 2")' in out.split("# Nunca diga")[1]
     assert "feedback curto e o próximo pedido" not in block

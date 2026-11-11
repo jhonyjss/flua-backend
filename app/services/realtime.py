@@ -22,31 +22,38 @@ logger = logging.getLogger(__name__)
 REALTIME_MODEL = "gpt-realtime-2"
 
 
+def _semantic_vad(*, server_replies: bool) -> dict:
+    """semantic_vad ends the turn when the sentence is complete, not after a fixed silence, so a learner's
+    mid-sentence pause ("I am… from… Brazil") is not cut. The eagerness is a setting so "low" and "medium"
+    can be compared without a deploy."""
+    return {
+        "type": "semantic_vad",
+        "eagerness": get_settings().openai_realtime_vad_eagerness,
+        "create_response": server_replies,
+        "interrupt_response": server_replies,
+    }
+
+
 def _turn_detection(turn_mode: str) -> dict:
-    """Server VAD config by turn-taking mode.
+    """Turn detection by turn-taking mode (flueai docs/flua-tutor/04-professor-por-voz.md, D3).
 
-    "educational" (default): the SERVER does NOT auto-respond and Flua is NOT
-    interruptible — the client commits the turn after a validated final
-    transcript and triggers the response. A long silence window (1400ms)
-    tolerates learners who pause between words ("The… number… of people…")
-    instead of cutting their turn early.
+    "lesson" (the lessons that force a tool call, see turn_mode_for): semantic end of turn, but the SERVER
+    does NOT auto-respond and Flua is NOT interruptible — the client asks for the evaluation after each
+    validated turn, so goal progress never depends on a reply the client did not ask for.
 
-    "responsive": snappy auto-reply (server creates the response on ~520ms of
-    silence and can be interrupted) — opt-in / future premium.
+    "conversational": free practice, GPT-voice style. The server replies by itself and the learner can
+    interrupt Flua (WebRTC truncates her audio server-side).
 
-    "conversational": the app's free conversation, GPT-voice style. semantic_vad
-    ends the turn when the sentence is complete, not after a fixed silence, so a
-    learner's mid-sentence pause ("I am… from… Brazil") is not cut; eagerness
-    "low" gives them the most room. The server replies by itself and the
-    learner can interrupt Flua (WebRTC truncates her audio server-side).
+    "educational" (default, e.g. the interview): server VAD, client-triggered and not interruptible. A long
+    silence window (1400ms) tolerates learners who pause between words instead of cutting their turn early.
+
+    "responsive": snappy auto-reply (server creates the response on ~520ms of silence and can be
+    interrupted) — opt-in.
     """
     if turn_mode == "conversational":
-        return {
-            "type": "semantic_vad",
-            "eagerness": "low",
-            "create_response": True,
-            "interrupt_response": True,
-        }
+        return _semantic_vad(server_replies=True)
+    if turn_mode == "lesson":
+        return _semantic_vad(server_replies=False)
     if turn_mode == "responsive":
         return {
             "type": "server_vad",
@@ -186,8 +193,12 @@ def _transcription_config(req: RealtimeSessionRequest, user: AuthUser | None, mo
 
 
 def turn_mode_for(req: RealtimeSessionRequest) -> str:
-    """Lessons that force a tool call after each attempt always stay client-driven."""
-    return "educational" if req.mode == "guided_lesson" or uses_goal_tool(req) else req.turnMode
+    """Lessons that force a tool call after each attempt always stay client-driven, whatever the client asked
+    for: semantic end of turn ("lesson") in English, the server VAD they had ("educational") in Spanish, which
+    04-professor-por-voz.md leaves as it was and the eval does not cover."""
+    if req.mode == "guided_lesson" or uses_goal_tool(req):
+        return "lesson" if req.language == "en" else "educational"
+    return req.turnMode
 
 
 def prompt_version() -> str:

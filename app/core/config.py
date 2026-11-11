@@ -1,6 +1,7 @@
 """Application settings (pydantic-settings, loaded from env / .env)."""
 
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -46,6 +47,9 @@ class Settings(BaseSettings):
     # to the realtime audio, so accuracy wins by default.
     openai_realtime_transcribe_model: str = "gpt-4o-transcribe"
     openai_realtime_noise_reduction: str = "far_field"  # near_field | far_field
+    # semantic_vad eagerness for the lessons and free practice (flueai docs/flua-tutor/04-professor-por-voz.md).
+    # "low" gives a learner searching for a word the most time and can lengthen the wait; compare with "medium".
+    openai_realtime_vad_eagerness: Literal["low", "medium", "high", "auto"] = "low"
     replicate_api_key: str = ""
     elevenlabs_api_key: str = ""
     google_tts_api_key: str = ""
