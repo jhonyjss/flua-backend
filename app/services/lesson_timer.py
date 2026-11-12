@@ -43,7 +43,8 @@ def _status(consumed: int, pool: dict) -> dict:
         monthly_limit = pool["limitSeconds"]
         monthly_remaining = pool["remainingSeconds"]
         remaining = min(remaining, monthly_remaining)
-        if reason is None and pool["expired"]:
+        # The month wins a tie: it also closes the next lesson, which is what the learner needs to know.
+        if pool["expired"]:
             reason = "month"
     return {
         "limitSeconds": limit,
@@ -103,7 +104,6 @@ async def add_activity(user_id: str, lesson_id: str, delta_seconds: int) -> int:
     Raises on a storage error so the client keeps the seconds and sends them again.
     """
     delta = max(0, min(int(delta_seconds or 0), MAX_HEARTBEAT_DELTA))
-    await voice_minutes.add_time(user_id, delta)  # fails open on its own
     row = await db.select_one(_TABLE, {"user_id": user_id, "lesson_id": lesson_id})
     active = int((row or {}).get("active_seconds") or 0) + delta
     if delta == 0:
@@ -121,6 +121,8 @@ async def add_activity(user_id: str, lesson_id: str, delta_seconds: int) -> int:
             "active_seconds": active,
             "limit_seconds": LESSON_LIMIT_SECONDS,
         })
+    # Spent only once the lesson row is saved: a 503 above makes the client resend these seconds.
+    await voice_minutes.add_time(user_id, delta)  # fails open on its own
     return active
 
 

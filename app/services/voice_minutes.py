@@ -12,10 +12,15 @@ calendar month in America/Sao_Paulo, where the learners are.
 
 Storage: the conversation_credits table, unique on (user_id, period_key), with a "YYYY-MM" key.
 Free conversation used that table with day ("2026-11-12") and ISO-week ("2026-W46") keys and was
-removed from every plan on the same date, so a month key never meets one of its rows.
+removed from every plan on the same date, so a month key never meets one of its rows. Seconds are
+added by add_voice_seconds (flueai migration 20261112_voice_minutes_lock), one atomic upsert, so
+two devices or a doubled flush can't lose a beat; the same migration takes writes away from
+signed-in users, who could otherwise reset their own month through PostgREST.
 
-Fails OPEN like lesson_timer: an unreadable subscription or table never blocks a lesson.
+Fails OPEN like lesson_timer: an unreadable subscription or table never blocks a lesson. Every
+fail-open is logged, since a silent one would lift the cap for everyone.
 """
+import logging
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -32,7 +37,10 @@ MONTH_SECONDS = {
 MAX_HEARTBEAT_DELTA = 90
 
 _TABLE = "conversation_credits"
+_ADD_FN = "add_voice_seconds"
 _TZ = ZoneInfo("America/Sao_Paulo")
+
+logger = logging.getLogger(__name__)
 
 
 def period_key(now: datetime | None = None) -> str:
@@ -60,7 +68,8 @@ async def _plan(user_id: str) -> tuple[str, bool, bool]:
         return "admin", False, True
     try:
         sub = await get_subscription(user_id)
-    except Exception:
+    except Exception as err:
+        logger.warning("voice minutes: plan unreadable, failing open (%s)", type(err).__name__)
         return "unknown", False, False  # fail open: an unreadable plan never blocks a lesson
     plan = _base_plan(sub.planLevel, sub.isSubscribed)
     return plan, plan in MONTH_SECONDS, False
@@ -77,8 +86,9 @@ async def get_status(user_id: str) -> dict:
         return _status(plan, limit, 0, applies=False, unlimited=unlimited)
     try:
         row = await _row(user_id)
-    except Exception:
-        return _status(plan, limit, 0, applies=True)  # table unreachable → fail open
+    except Exception as err:
+        logger.warning("voice minutes: pool unreadable, failing open (%s)", type(err).__name__)
+        return _status(plan, limit, 0, applies=True)
     return _status(plan, limit, int((row or {}).get("consumed_seconds") or 0), applies=True)
 
 
@@ -89,24 +99,17 @@ async def add_time(user_id: str, delta_seconds: int) -> dict:
     if not applies:
         return _status(plan, limit, 0, applies=False, unlimited=unlimited)
     delta = max(0, min(int(delta_seconds or 0), MAX_HEARTBEAT_DELTA))
+    if delta == 0:
+        return await get_status(user_id)
     try:
+        consumed = await db.rpc(_ADD_FN, {
+            "p_user_id": user_id, "p_period_key": period_key(), "p_delta": delta, "p_limit": limit,
+        })
+        return _status(plan, limit, int(consumed), applies=True)
+    except Exception as err:
+        logger.warning("voice minutes: %ss not added, failing open (%s)", delta, type(err).__name__)
+    try:  # report what is stored, so a failed write doesn't show a full month
         row = await _row(user_id)
-        consumed = int((row or {}).get("consumed_seconds") or 0) + delta
-        if delta == 0:
-            return _status(plan, limit, consumed, applies=True)
-        if row:
-            await db.update(_TABLE, {"id": str(row["id"])}, {
-                "consumed_seconds": consumed,
-                "limit_seconds": limit,
-                "updated_at": datetime.now(_TZ).isoformat(),
-            })
-        else:
-            await db.insert(_TABLE, {
-                "user_id": user_id,
-                "period_key": period_key(),
-                "consumed_seconds": consumed,
-                "limit_seconds": limit,
-            })
-        return _status(plan, limit, consumed, applies=True)
+        return _status(plan, limit, int((row or {}).get("consumed_seconds") or 0), applies=True)
     except Exception:
-        return _status(plan, limit, 0, applies=True)  # fail open
+        return _status(plan, limit, 0, applies=True)

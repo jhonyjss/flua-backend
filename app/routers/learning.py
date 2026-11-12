@@ -94,6 +94,8 @@ async def guided_lesson_access(
 ) -> GuidedLessonAccess:
     """What the app shows on a lesson (read-only); POST /api/realtime/session is what decides."""
     access = await guided_access.get_access(user.id, lessonId)
+    if access.reason == "subscriber" and (await voice_minutes.get_status(user.id))["expired"]:
+        return GuidedLessonAccess(canStart=False, reason="month_spent", trialLimit=guided_access.TRIAL_LIMIT)
     return GuidedLessonAccess(
         canStart=access.can_start,
         reason=access.reason,
