@@ -15,17 +15,26 @@ from app.services import (
     lesson_timer,
     realtime,
     voice_metrics,
+    voice_minutes,
 )
 
 router = APIRouter(prefix="/api/realtime", tags=["realtime"])
 
+MONTH_SPENT = {
+    "code": "voice_minutes_exhausted",
+    "message": "Seus minutos de aula com a Flua deste mês acabaram. Eles voltam no dia 1º.",
+}
+
 
 async def _guard_guided_lesson(body: RealtimeSessionRequest, user: AuthUser) -> None:
     """Guided voice lessons: subscribers, or one of a non-subscriber's trial lessons, within the
-    lesson's time budget. Time is checked first so a spent lesson never takes a trial."""
+    lesson's time budget and, for subscribers, the month's minutes. Time is checked first so a spent
+    lesson never takes a trial."""
     if await conversation_credits.is_admin(user.id):
         return
     time = await lesson_timer.get_status(user.id, body.lessonId)
+    if time["expiredReason"] == "month":
+        raise HTTPException(status_code=403, detail=MONTH_SPENT)
     if time["expired"]:
         raise HTTPException(
             status_code=403,
@@ -59,9 +68,10 @@ async def create_session(
     body: RealtimeSessionRequest,
     user: AuthUser = Depends(rate_limited("realtime", max_requests=20, window_seconds=60)),
 ) -> RealtimeSessionResponse:
-    # Free conversation spends the plan's conversation minutes (paid-only, as on the site): the
-    # server checks them here, so a client can't mint OpenAI sessions past the plan by calling the
-    # API directly. Guided lessons keep their own per-lesson time budget (lesson_timer).
+    # Free conversation was removed from every plan (2026-11-12): only admins still get it, and the
+    # check lives here so a client can't mint OpenAI sessions past the plan by calling the API
+    # directly. Lessons spend the month's pool of Flua minutes (voice_minutes); guided lessons also
+    # keep their own per-lesson budget (lesson_timer).
     if body.mode == "free_practice":
         status = await conversation_credits.get_status(user.id)
         if not conversation_credits.can_converse(status):
@@ -69,13 +79,15 @@ async def create_session(
                 status_code=403,
                 detail={
                     "code": "conversation_not_available",
-                    "message": "Conversa com a Flua disponível para assinantes com minutos no período.",
+                    "message": "A conversa livre com a Flua não faz mais parte dos planos.",
                     "planLevel": status.get("planLevel"),
                     "expired": status.get("expired"),
                 },
             )
     if body.mode == "guided_lesson":
         await _guard_guided_lesson(body, user)
+    if body.mode == "lesson" and (await voice_minutes.get_status(user.id))["expired"]:
+        raise HTTPException(status_code=403, detail=MONTH_SPENT)
     result = await realtime.create_session(body, user=user)
     return RealtimeSessionResponse(success=True, **result)
 

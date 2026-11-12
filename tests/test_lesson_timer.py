@@ -1,4 +1,4 @@
-"""Server-enforced per-lesson time budget (10 min free / 15 min paid)."""
+"""Server-enforced per-lesson time budget: 10 min for everyone, plus the month's pool for subscribers."""
 import json
 
 import httpx
@@ -29,7 +29,7 @@ def test_free_plan_gets_ten_minute_budget(client, auth_headers, mock_transport):
     assert data["expired"] is False
 
 
-def test_paid_plan_gets_fifteen_minute_budget(client, auth_headers, mock_transport):
+def test_paid_plan_gets_ten_minutes_and_the_month(client, auth_headers, mock_transport):
     def handler(request: httpx.Request) -> httpx.Response:
         if "stripe_subscriptions" in request.url.path:
             return httpx.Response(200, json=[{"status": "active", "plan_level": "pro"}])
@@ -38,7 +38,10 @@ def test_paid_plan_gets_fifteen_minute_budget(client, auth_headers, mock_transpo
     mock_transport(handler)
     res = client.get("/api/users/me/lessons/beginner-01/time", headers=auth_headers)
     assert res.status_code == 200
-    assert res.json()["limitSeconds"] == 900
+    assert res.json() == {
+        "limitSeconds": 600, "consumedSeconds": 0, "remainingSeconds": 600, "expired": False,
+        "isUnlimited": False, "monthlyLimitSeconds": 7200, "monthlyRemainingSeconds": 7200, "expiredReason": None,
+    }
 
 
 def test_heartbeat_accumulates_clamps_and_expires(client, auth_headers, mock_transport):

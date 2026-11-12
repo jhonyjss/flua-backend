@@ -25,8 +25,10 @@ async def budget(user):
     # Unlike the legacy flow, a subscription lookup error must not grant access.
     if await conversation_credits.is_admin(user):
         return 3600
-    sub = await get_subscription(user)
-    return 900 if sub.isSubscribed else 600
+    await get_subscription(user)
+    # 10 minutes per lesson for everyone since 2026-11-12. The month's pool (voice_minutes) is not
+    # wired into the classroom lease yet: wire it before turning Classroom v2 on in production.
+    return 600
 
 
 async def authorize(user, lesson, claim=False):
