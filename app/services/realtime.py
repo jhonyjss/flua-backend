@@ -24,11 +24,13 @@ REALTIME_MODEL = "gpt-realtime-2"
 
 def _semantic_vad(*, server_replies: bool) -> dict:
     """semantic_vad ends the turn when the sentence is complete, not after a fixed silence, so a learner's
-    mid-sentence pause ("I am… from… Brazil") is not cut. The eagerness is a setting so "low" and "medium"
-    can be compared without a deploy."""
+    mid-sentence pause ("I am… from… Brazil") is not cut. The eagerness is a setting, one for free practice and
+    one for the tool lessons, so each can be tuned without a deploy."""
+    settings = get_settings()
     return {
         "type": "semantic_vad",
-        "eagerness": get_settings().openai_realtime_vad_eagerness,
+        "eagerness": settings.openai_realtime_vad_eagerness if server_replies
+        else settings.openai_realtime_lesson_vad_eagerness,
         "create_response": server_replies,
         "interrupt_response": server_replies,
     }
@@ -245,6 +247,8 @@ def session_config(req: RealtimeSessionRequest, user: AuthUser | None, instructi
         },
     }
     if req.mode == "guided_lesson":
+        if req.language == "en":  # measured in English only (evals/flua/voice_timing.py)
+            config["audio"]["output"]["speed"] = settings.openai_realtime_guided_voice_speed
         config["tools"] = [GUIDED_LESSON_TOOL]
         config["tool_choice"] = "auto"
     elif uses_goal_tool(req):

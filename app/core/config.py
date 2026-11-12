@@ -47,9 +47,17 @@ class Settings(BaseSettings):
     # to the realtime audio, so accuracy wins by default.
     openai_realtime_transcribe_model: str = "gpt-4o-transcribe"
     openai_realtime_noise_reduction: str = "far_field"  # near_field | far_field
-    # semantic_vad eagerness for the lessons and free practice (flueai docs/flua-tutor/04-professor-por-voz.md).
+    # semantic_vad eagerness for free practice (flueai docs/flua-tutor/04-professor-por-voz.md).
     # "low" gives a learner searching for a word the most time and can lengthen the wait; compare with "medium".
     openai_realtime_vad_eagerness: Literal["low", "medium", "high", "auto"] = "low"
+    # The tool lessons' end of turn (guided_lesson and the site's lesson with goalTool). Measured with audio
+    # (evals/flua/voice_timing.py, 2026-11-12): "low" waited 4-8.6 s on short complete answers ("I am Ana.",
+    # "Hello!"), its 8 s timeout; "medium" closes most turns in ~0.9 s against server VAD's 1.7 s; "high" cut
+    # mid-sentence pauses. The client asks for every reply here, so a long wait is dead air.
+    openai_realtime_lesson_vad_eagerness: Literal["low", "medium", "high", "auto"] = "medium"
+    # Flua's speaking speed in the app's guided lesson (audio.output.speed; the API takes 0.25-1.5, 1.0 is its
+    # default). Above 1.0 to keep the class moving; the other modes keep the API default.
+    openai_realtime_guided_voice_speed: float = Field(1.1, ge=0.8, le=1.3)
     replicate_api_key: str = ""
     elevenlabs_api_key: str = ""
     google_tts_api_key: str = ""

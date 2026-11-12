@@ -31,6 +31,8 @@ def settings_env(monkeypatch):
         "STRIPE_PRICE_PRO_MONTHLY": "price_pro_m",
         "STRIPE_PRICE_PRO_YEARLY": "price_pro_y",
         "OPENAI_REALTIME_VAD_EAGERNESS": "low",
+        "OPENAI_REALTIME_LESSON_VAD_EAGERNESS": "medium",
+        "OPENAI_REALTIME_GUIDED_VOICE_SPEED": "1.1",
     }
     for key, value in env.items():
         monkeypatch.setenv(key, value)

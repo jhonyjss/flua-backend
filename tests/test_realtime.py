@@ -4,9 +4,10 @@ import time
 import httpx
 import jwt
 import pytest
+from pydantic import ValidationError
 
 from app.core.auth import AuthUser
-from app.core.config import get_settings
+from app.core.config import Settings, get_settings
 from app.schemas.realtime import RealtimeSessionRequest
 from app.services.realtime import _turn_detection, build_tutor_instructions_from_request, turn_mode_for
 from app.services.tutor_instructions import build_tutor_instructions, cap_lesson_context
@@ -343,16 +344,26 @@ def test_conversational_turn_mode_is_semantic_and_interruptible():
 def test_lesson_turn_mode_is_semantic_but_client_driven_and_not_interruptible():
     # docs/flua-tutor/04-professor-por-voz.md (D3): the lessons judge every turn with a forced tool call, so the
     # server never replies on its own and Flua can't be cut off; only the end of turn becomes semantic.
+    # Spec change (2026-11-12, measured with evals/flua/voice_timing.py): eagerness "medium", not "low", which
+    # waited up to its 8 s timeout on short answers like "I am Ana.".
     assert _turn_detection("lesson") == {
-        "type": "semantic_vad", "eagerness": "low", "create_response": False, "interrupt_response": False,
+        "type": "semantic_vad", "eagerness": "medium", "create_response": False, "interrupt_response": False,
     }
 
 
-def test_vad_eagerness_comes_from_settings(monkeypatch):
-    monkeypatch.setenv("OPENAI_REALTIME_VAD_EAGERNESS", "medium")
+def test_lessons_and_free_practice_read_their_own_eagerness(monkeypatch):
+    monkeypatch.setenv("OPENAI_REALTIME_VAD_EAGERNESS", "high")
+    monkeypatch.setenv("OPENAI_REALTIME_LESSON_VAD_EAGERNESS", "low")
     get_settings.cache_clear()
-    assert _turn_detection("lesson")["eagerness"] == "medium"
-    assert _turn_detection("conversational")["eagerness"] == "medium"
+    assert _turn_detection("lesson")["eagerness"] == "low"
+    assert _turn_detection("conversational")["eagerness"] == "high"
+
+
+def test_lesson_eagerness_outside_the_api_values_is_refused(monkeypatch):
+    monkeypatch.setenv("OPENAI_REALTIME_LESSON_VAD_EAGERNESS", "fast")
+    get_settings.cache_clear()
+    with pytest.raises(ValidationError):
+        get_settings()
 
 
 def test_tool_lessons_stay_client_driven_even_if_asked_for_conversational():
@@ -393,7 +404,67 @@ def test_minted_site_lesson_waits_for_the_client_to_ask_for_a_reply(client, auth
     )
     assert res.status_code == 200
     turn = json.loads(captured["body"])["session"]["audio"]["input"]["turn_detection"]
-    assert turn == {"type": "semantic_vad", "eagerness": "low", "create_response": False, "interrupt_response": False}
+    assert turn == {"type": "semantic_vad", "eagerness": "medium", "create_response": False, "interrupt_response": False}
+
+
+def _minted_session(client, auth_headers, mock_transport, body: dict) -> dict:
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["body"] = request.content
+        return httpx.Response(200, json={"value": "ek_live_abc"})
+
+    mock_transport(handler)
+    res = client.post("/api/realtime/session", json=body, headers=auth_headers)
+    assert res.status_code == 200
+    return json.loads(captured["body"])["session"]
+
+
+GUIDED_BODY = {"mode": "guided_lesson", "lessonId": "fund-u1-l1", "plan": GUIDED_PLAN, "voice": "marin"}
+
+
+def test_guided_lesson_speaks_faster_than_the_api_default(client, auth_headers, mock_transport):
+    session = _minted_session(client, auth_headers, mock_transport, GUIDED_BODY)
+    assert session["audio"]["output"] == {"voice": "marin", "speed": 1.1}
+    assert session["audio"]["input"]["turn_detection"]["eagerness"] == "medium"
+
+
+def test_spanish_guided_lesson_keeps_the_api_default_speed(client, auth_headers, mock_transport):
+    session = _minted_session(client, auth_headers, mock_transport, {**GUIDED_BODY, "language": "es"})
+    assert session["audio"]["output"] == {"voice": "marin"}
+
+
+def test_guided_voice_speed_comes_from_settings(client, auth_headers, mock_transport, monkeypatch):
+    monkeypatch.setenv("OPENAI_REALTIME_GUIDED_VOICE_SPEED", "1.2")
+    get_settings.cache_clear()
+    session = _minted_session(client, auth_headers, mock_transport, GUIDED_BODY)
+    assert session["audio"]["output"]["speed"] == 1.2
+
+
+@pytest.mark.parametrize("speed", ["0.7", "1.5"])
+def test_guided_voice_speed_outside_the_bounds_is_refused(monkeypatch, speed):
+    monkeypatch.setenv("OPENAI_REALTIME_GUIDED_VOICE_SPEED", speed)
+    get_settings.cache_clear()
+    with pytest.raises(ValidationError):
+        get_settings()
+
+
+def test_production_gets_medium_lessons_and_a_faster_guided_voice_without_any_env(monkeypatch):
+    # Fly sets neither variable: the shipped defaults are what learners get.
+    monkeypatch.delenv("OPENAI_REALTIME_LESSON_VAD_EAGERNESS")
+    monkeypatch.delenv("OPENAI_REALTIME_GUIDED_VOICE_SPEED")
+    settings = Settings(_env_file=None)
+    assert settings.openai_realtime_lesson_vad_eagerness == "medium"
+    assert settings.openai_realtime_guided_voice_speed == 1.1
+
+
+def test_other_modes_keep_the_api_default_speed(client, auth_headers, mock_transport):
+    for body in (
+        {"mode": "lesson", "goalTool": True, "lessonContext": "Metas: 1. Dizer quem você é", "voice": "marin"},
+        {"mode": "lesson", "lessonContext": "Tema: verbo to be", "voice": "marin"},
+    ):
+        session = _minted_session(client, auth_headers, mock_transport, body)
+        assert session["audio"]["output"] == {"voice": "marin"}
 
 
 def test_free_practice_opens_with_a_memory_warmup_of_the_due_phrases():
