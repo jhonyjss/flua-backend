@@ -48,3 +48,22 @@ Antes de gastar com a voz, `run` confere se o juiz responde.
   prompt atual (desde a 2c, 5 rodadas).
 - Os casos de abertura descrevem o alvo da etapa 2d (D1 = B). O baseline falha em parte deles de
   propósito.
+
+## Tempo e ritmo da voz (`voice_timing.py`)
+
+O eval em texto não vê a detecção de turno nem a fala. `python -m evals.flua.voice_timing` toca áudio
+de verdade pela Realtime com a `session_config` da aula guiada: a fala do aluno sai do `say` do macOS
+(voz pt-BR falando inglês), vai em tempo real, e o script faz os passos do app (`use-flua-voice.ts`):
+transcrição → `registrar_resultado` forçado → resposta da ferramenta → a Flua fala. Mede, a partir do
+fim da fala do aluno: fechamento do turno (VAD), transcrição, avaliação, primeiro áudio e o silêncio
+total; e a fala dela em segundos, palavras e palavras por segundo.
+
+- Falas avaliadas (`--only judged`): 3 turnos da aula, com a resposta da ferramenta copiada do app.
+- Fechamento do turno (`--only vad`): 20 respostas curtas (duas vozes) e 5 frases com pausa de
+  800–1100 ms no meio. Mais de um commit numa frase com pausa = o turno foi cortado.
+- As configurações vêm do ambiente, como na produção (`OPENAI_REALTIME_LESSON_VAD_EAGERNESS`,
+  `OPENAI_REALTIME_GUIDED_VOICE_SPEED`). Para comparar, rode as duas no mesmo horário: a latência
+  da API varia ao longo do dia.
+- Só macOS (precisa do `say`). Custa pouco: modelo mini e áudios curtos. Os áudios ficam em
+  `results/voice-clips/`.
+
