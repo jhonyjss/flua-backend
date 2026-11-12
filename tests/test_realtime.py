@@ -429,6 +429,11 @@ def test_guided_lesson_speaks_faster_than_the_api_default(client, auth_headers, 
     assert session["audio"]["input"]["turn_detection"]["eagerness"] == "medium"
 
 
+def test_spanish_guided_lesson_keeps_the_api_default_speed(client, auth_headers, mock_transport):
+    session = _minted_session(client, auth_headers, mock_transport, {**GUIDED_BODY, "language": "es"})
+    assert session["audio"]["output"] == {"voice": "marin"}
+
+
 def test_guided_voice_speed_comes_from_settings(client, auth_headers, mock_transport, monkeypatch):
     monkeypatch.setenv("OPENAI_REALTIME_GUIDED_VOICE_SPEED", "1.2")
     get_settings.cache_clear()

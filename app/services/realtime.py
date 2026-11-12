@@ -247,7 +247,8 @@ def session_config(req: RealtimeSessionRequest, user: AuthUser | None, instructi
         },
     }
     if req.mode == "guided_lesson":
-        config["audio"]["output"]["speed"] = settings.openai_realtime_guided_voice_speed
+        if req.language == "en":  # measured in English only (evals/flua/voice_timing.py)
+            config["audio"]["output"]["speed"] = settings.openai_realtime_guided_voice_speed
         config["tools"] = [GUIDED_LESSON_TOOL]
         config["tool_choice"] = "auto"
     elif uses_goal_tool(req):

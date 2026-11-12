@@ -34,7 +34,7 @@ from pathlib import Path
 from app.core.config import get_settings
 from app.schemas.realtime import RealtimeSessionRequest
 from app.services.realtime import build_tutor_instructions_from_request, session_config
-from evals.flua.cases import PLAN, guided
+from evals.flua.cases import PLAN, TYPED, guided, item_context
 
 HERE = Path(__file__).parent
 RESULTS = HERE / "results"
@@ -51,12 +51,8 @@ ALONE_2 = "Agora é a sua vez: diga o seu nome para mim, em inglês."
 
 
 def _context(n: int, stage: str) -> str:
-    item = PLAN["items"][n - 1]
-    head = f"Avalie a última fala do aluno no item {n} ({item['id']}), etapa {stage}:"
-    if stage == "repetir":
-        return f'{head} ele devia repetir "{item["english"]}".'
-    return (f'{head} o pedido foi "{item["cue"]}" (modelo: {" / ".join(item["accepts"])}); vale qualquer frase '
-            "correta que cumpra o pedido, com nomes e dados diferentes dos do exemplo.")
+    """The app's evaluation request: the eval's copy, without the typed-answer note (here the learner speaks)."""
+    return item_context(n, stage).removesuffix(TYPED)
 
 
 def _alone(n: int) -> str:
@@ -101,8 +97,10 @@ def _clip(name: str, text: str, voice: str) -> tuple[bytes, float]:
                         "--data-format=LEI16@24000", text], check=True)
     with wave.open(str(path)) as w:
         frames = w.readframes(w.getnframes())
-    samples = array.array("h", frames)
-    return frames, max(i for i, v in enumerate(samples) if abs(v) > 500) / RATE
+    voiced = [i for i, v in enumerate(array.array("h", frames)) if abs(v) > 500]
+    if not voiced:
+        raise RuntimeError(f"{path} saiu sem fala: a voz {VOICES[voice]!r} existe neste Mac? (say -v '?')")
+    return frames, voiced[-1] / RATE
 
 
 def _noise(n: int) -> bytes:
@@ -190,6 +188,8 @@ async def one_turn(config: dict, name: str, key: str) -> dict:
                         await send({"type": "response.create", "response": {"tool_choice": "none"}})
                     elif "reply_sent" in t:
                         break
+                    elif "eval_sent" in t:
+                        raise RuntimeError(f"avaliação sem registrar_resultado: {event['response'].get('status')}")
                 elif kind == "response.output_audio.delta":
                     t.setdefault("first_audio", now)
                     audio_bytes += len(base64.b64decode(event["delta"]))
