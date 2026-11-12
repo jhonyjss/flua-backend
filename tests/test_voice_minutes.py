@@ -90,8 +90,8 @@ def test_admin_is_unlimited(client, auth_headers, mock_transport):
 
 def test_the_month_is_the_calendar_month_in_sao_paulo():
     # 01:00 UTC on Dec 1st is still Nov 30th, 22:00, in Brazil.
-    assert voice_minutes.period_key(dt.datetime(2026, 12, 1, 1, 0, tzinfo=dt.timezone.utc)) == "2026-11"
-    assert voice_minutes.period_key(dt.datetime(2026, 12, 1, 3, 0, tzinfo=dt.timezone.utc)) == "2026-12"
+    assert voice_minutes.period_key(dt.datetime(2026, 12, 1, 1, 0, tzinfo=dt.UTC)) == "2026-11"
+    assert voice_minutes.period_key(dt.datetime(2026, 12, 1, 3, 0, tzinfo=dt.UTC)) == "2026-12"
 
 
 def test_lesson_heartbeat_spends_the_lesson_and_the_month(client, auth_headers, mock_transport):
