@@ -47,7 +47,7 @@ def period_key(now: datetime | None = None) -> str:
     return (now or datetime.now(_TZ)).astimezone(_TZ).strftime("%Y-%m")
 
 
-def _status(plan: str, limit: int, consumed: int, *, applies: bool, unlimited: bool = False) -> dict:
+def _status(plan: str, limit: int, consumed: int, key: str, *, applies: bool, unlimited: bool = False) -> dict:
     consumed = max(0, consumed)
     return {
         "limitSeconds": limit,
@@ -56,7 +56,7 @@ def _status(plan: str, limit: int, consumed: int, *, applies: bool, unlimited: b
         "expired": applies and consumed >= limit,
         "planLevel": plan,
         "isUnlimited": unlimited,
-        "periodKey": period_key(),
+        "periodKey": key,
         # Internal: whether the pool limits this account (subscribers only). Not in the API model.
         "applies": applies,
     }
@@ -75,41 +75,61 @@ async def _plan(user_id: str) -> tuple[str, bool, bool]:
     return plan, plan in MONTH_SECONDS, False
 
 
-async def _row(user_id: str) -> dict | None:
-    return await db.select_one(_TABLE, {"user_id": user_id, "period_key": period_key()})
+async def _row(user_id: str, key: str) -> dict | None:
+    return await db.select_one(_TABLE, {"user_id": user_id, "period_key": key})
+
+
+async def _stored(user_id: str, key: str) -> int:
+    row = await _row(user_id, key)
+    return int((row or {}).get("consumed_seconds") or 0)
 
 
 async def get_status(user_id: str) -> dict:
+    key = period_key()
     plan, applies, unlimited = await _plan(user_id)
     limit = MONTH_SECONDS.get(plan, 0)
     if not applies:
-        return _status(plan, limit, 0, applies=False, unlimited=unlimited)
+        return _status(plan, limit, 0, key, applies=False, unlimited=unlimited)
     try:
-        row = await _row(user_id)
+        return _status(plan, limit, await _stored(user_id, key), key, applies=True)
     except Exception as err:
         logger.warning("voice minutes: pool unreadable, failing open (%s)", type(err).__name__)
-        return _status(plan, limit, 0, applies=True)
-    return _status(plan, limit, int((row or {}).get("consumed_seconds") or 0), applies=True)
+        return _status(plan, limit, 0, key, applies=True)
+
+
+async def _add_by_hand(user_id: str, key: str, delta: int, limit: int) -> int:
+    """Read, add and write: not atomic, but keeps the cap when add_voice_seconds is missing (a deploy
+    before the flueai migration) or failing. Concurrent beats can lose a few seconds here."""
+    row = await _row(user_id, key)
+    consumed = int((row or {}).get("consumed_seconds") or 0) + delta
+    if row:
+        await db.update(_TABLE, {"id": str(row["id"])}, {
+            "consumed_seconds": consumed,
+            "limit_seconds": limit,
+            "updated_at": datetime.now(_TZ).isoformat(),
+        })
+    else:
+        await db.insert(_TABLE, {"user_id": user_id, "period_key": key, "consumed_seconds": consumed, "limit_seconds": limit})
+    return consumed
 
 
 async def add_time(user_id: str, delta_seconds: int) -> dict:
     """Spend seconds of the month's pool; a no-op for accounts the pool doesn't apply to."""
+    key = period_key()
     plan, applies, unlimited = await _plan(user_id)
     limit = MONTH_SECONDS.get(plan, 0)
     if not applies:
-        return _status(plan, limit, 0, applies=False, unlimited=unlimited)
+        return _status(plan, limit, 0, key, applies=False, unlimited=unlimited)
     delta = max(0, min(int(delta_seconds or 0), MAX_HEARTBEAT_DELTA))
-    if delta == 0:
-        return await get_status(user_id)
     try:
-        consumed = await db.rpc(_ADD_FN, {
-            "p_user_id": user_id, "p_period_key": period_key(), "p_delta": delta, "p_limit": limit,
-        })
-        return _status(plan, limit, int(consumed), applies=True)
+        if delta == 0:
+            return _status(plan, limit, await _stored(user_id, key), key, applies=True)
+        consumed = await db.rpc(_ADD_FN, {"p_user_id": user_id, "p_period_key": key, "p_delta": delta, "p_limit": limit})
+        return _status(plan, limit, int(consumed), key, applies=True)
+    except Exception as err:
+        logger.warning("voice minutes: atomic add failed, adding by hand (%s)", type(err).__name__)
+    try:
+        return _status(plan, limit, await _add_by_hand(user_id, key, delta, limit), key, applies=True)
     except Exception as err:
         logger.warning("voice minutes: %ss not added, failing open (%s)", delta, type(err).__name__)
-    try:  # report what is stored, so a failed write doesn't show a full month
-        row = await _row(user_id)
-        return _status(plan, limit, int((row or {}).get("consumed_seconds") or 0), applies=True)
-    except Exception:
-        return _status(plan, limit, 0, applies=True)
+        return _status(plan, limit, 0, key, applies=True)

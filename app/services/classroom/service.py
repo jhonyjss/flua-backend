@@ -25,6 +25,7 @@ async def budget(user):
     # Unlike the legacy flow, a subscription lookup error must not grant access.
     if await conversation_credits.is_admin(user):
         return 3600
+    # Called for its error, not its answer: a failed lookup raises here instead of granting access.
     await get_subscription(user)
     # 10 minutes per lesson for everyone since 2026-11-12. The month's pool (voice_minutes) is not
     # wired into the classroom lease yet: wire it before turning Classroom v2 on in production.

@@ -47,12 +47,21 @@ def _backend(*, plan_level=None, role="student", lesson_consumed=0, month_consum
             state["rows"][key] = state["rows"].get(key, 0) + body["p_delta"]
             return httpx.Response(200, json=state["rows"][key])
         if "conversation_credits" in path:
-            if month_fails or request.method != "GET":
-                return httpx.Response(500, json={"message": "unexpected"})
-            user = request.url.params.get("user_id", "").removeprefix("eq.")
-            key = request.url.params.get("period_key", "").removeprefix("eq.")
-            seconds = state["rows"].get((user, key))
-            return httpx.Response(200, json=[] if seconds is None else [{"id": "m1", "consumed_seconds": seconds}])
+            if month_fails:
+                return httpx.Response(500, json={"message": "down"})
+            if request.method == "GET":
+                user = request.url.params.get("user_id", "").removeprefix("eq.")
+                key = request.url.params.get("period_key", "").removeprefix("eq.")
+                seconds = state["rows"].get((user, key))
+                return httpx.Response(200, json=[] if seconds is None else [{"id": f"{user}|{key}", "consumed_seconds": seconds}])
+            body = json.loads(request.content)
+            state["month_writes"].append(body)
+            if request.method == "PATCH":  # filtered by the id the read returned
+                user, key = request.url.params.get("id", "").removeprefix("eq.").split("|")
+            else:
+                user, key = body["user_id"], body["period_key"]
+            state["rows"][(user, key)] = body["consumed_seconds"]
+            return httpx.Response(201 if request.method == "POST" else 200, json=[{"id": f"{user}|{key}"}])
         if "lesson_time_usage" in path:
             if request.method == "GET":
                 found = [{"id": "l1", "consumed_seconds": state["lesson"], "active_seconds": 0}] if state["lesson"] else []
@@ -179,13 +188,34 @@ def test_first_beat_of_the_month_starts_a_row_for_this_account_only(client, auth
     assert data["monthlyRemainingSeconds"] == 3585
 
 
-def test_failed_add_reports_what_is_stored(client, auth_headers, mock_transport):
-    handler, _ = _backend(plan_level="starter_monthly", month_consumed=3000, rpc_fails=True)
+def test_without_the_add_function_the_month_is_still_spent(client, auth_headers, mock_transport):
+    # Backend deployed before the flueai migration (or the function failing): the cap must hold.
+    handler, state = _backend(plan_level="starter_monthly", month_consumed=3000, rpc_fails=True)
     mock_transport(handler)
     data = client.post("/api/users/me/lessons/L1/time/heartbeat", json={"deltaSeconds": 15},
                        headers=auth_headers).json()
-    # Not the full 60 minutes of a fail-open with nothing read: the 600 s really left.
-    assert data["monthlyRemainingSeconds"] == 600
+    assert state["mine"]() == 3015
+    assert data["monthlyRemainingSeconds"] == 585
+
+
+def test_first_beat_without_the_add_function_starts_this_months_row(client, auth_headers, mock_transport):
+    handler, state = _backend(plan_level="pro_monthly", rpc_fails=True)
+    mock_transport(handler)
+    client.post("/api/users/me/lessons/L1/time/heartbeat", json={"deltaSeconds": 30}, headers=auth_headers)
+    assert state["month_writes"] == [{
+        "user_id": USER_ID, "period_key": voice_minutes.period_key(), "consumed_seconds": 30, "limit_seconds": 7200,
+    }]
+
+
+def test_failed_lesson_write_keeps_the_lesson_time_already_used(client, auth_headers, mock_transport):
+    # A failed save must not report a fresh 10-minute lesson while the month keeps being charged.
+    handler, state = _backend(plan_level="starter_monthly", lesson_consumed=500, lesson_write_fails=True)
+    mock_transport(handler)
+    data = client.post("/api/users/me/lessons/L1/time/heartbeat", json={"deltaSeconds": 15},
+                       headers=auth_headers).json()
+    assert data["consumedSeconds"] == 500
+    assert data["remainingSeconds"] == 100
+    assert state["mine"]() == 15
 
 
 def test_trial_heartbeat_never_writes_the_pool(client, auth_headers, mock_transport):
@@ -268,17 +298,29 @@ def test_lesson_access_with_minutes_left_stays_open(client, auth_headers, mock_t
     assert (data["canStart"], data["reason"]) == (True, "subscriber")
 
 
-def test_classroom_v2_gives_every_learner_ten_minutes(monkeypatch):
+def test_classroom_v2_gives_every_learner_ten_minutes(mock_transport):
     # Paid was 15 minutes; since 2026-11-12 a lesson is 10 for everyone, admins keep an hour.
     import asyncio
-    from unittest.mock import AsyncMock
 
     from app.services.classroom import service
-    from app.services.user_data import SubscriptionInfo
 
-    monkeypatch.setattr(service.conversation_credits, "is_admin", AsyncMock(return_value=False))
-    for subscribed in (True, False):
-        monkeypatch.setattr(service, "get_subscription", AsyncMock(return_value=SubscriptionInfo(isSubscribed=subscribed)))
-        assert asyncio.run(service.budget("u")) == 600
-    monkeypatch.setattr(service.conversation_credits, "is_admin", AsyncMock(return_value=True))
-    assert asyncio.run(service.budget("u")) == 3600
+    for plan in ("pro_monthly", None):
+        handler, _ = _backend(plan_level=plan)
+        mock_transport(handler)
+        assert asyncio.run(service.budget(USER_ID)) == 600, plan
+    handler, _ = _backend(role="admin")
+    mock_transport(handler)
+    assert asyncio.run(service.budget(USER_ID)) == 3600
+
+
+def test_site_lesson_session_opens_with_minutes_left(client, auth_headers, mock_transport):
+    handler, _ = _backend(plan_level="starter_monthly", month_consumed=3599)
+
+    def with_openai(request: httpx.Request) -> httpx.Response:
+        if "client_secrets" in request.url.path:
+            return httpx.Response(200, json={"value": "ek_live_abc"})
+        return handler(request)
+
+    mock_transport(with_openai)
+    res = client.post("/api/realtime/session", json={"mode": "lesson"}, headers=auth_headers)
+    assert res.status_code == 200

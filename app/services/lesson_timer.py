@@ -12,6 +12,7 @@ Design choices:
 - Heartbeat deltas are clamped so a tampered client can't burn the budget instantly or run it
   backwards.
 """
+import asyncio
 from datetime import datetime, timezone
 
 from app.services import supabase_admin as db
@@ -58,27 +59,30 @@ def _status(consumed: int, pool: dict) -> dict:
     }
 
 
-async def get_status(user_id: str, lesson_id: str) -> dict:
-    pool = await voice_minutes.get_status(user_id)
+async def _lesson_consumed(user_id: str, lesson_id: str) -> int:
     try:
         row = await db.select_one(_TABLE, {"user_id": user_id, "lesson_id": lesson_id})
     except Exception:
-        return _status(0, pool)  # table missing / unreachable → fail open
-    return _status(int((row or {}).get("consumed_seconds") or 0), pool)
+        return 0  # table missing / unreachable → fail open
+    return int((row or {}).get("consumed_seconds") or 0)
 
 
-async def add_time(user_id: str, lesson_id: str, delta_seconds: int) -> dict:
-    """Accumulate consumed time for (user, lesson), spend the same seconds of the month's pool, and
-    return the merged status."""
-    delta = max(0, min(int(delta_seconds or 0), MAX_HEARTBEAT_DELTA))
-    pool = await voice_minutes.add_time(user_id, delta)
+async def get_status(user_id: str, lesson_id: str) -> dict:
+    pool, consumed = await asyncio.gather(
+        voice_minutes.get_status(user_id), _lesson_consumed(user_id, lesson_id),
+    )
+    return _status(consumed, pool)
+
+
+async def _add_to_lesson(user_id: str, lesson_id: str, delta: int) -> int:
+    """The lesson's consumed seconds after this beat; what was stored before it if the write fails."""
+    current = 0
     try:
         row = await db.select_one(_TABLE, {"user_id": user_id, "lesson_id": lesson_id})
         current = int((row or {}).get("consumed_seconds") or 0)
-        new_consumed = current + delta
         if row:
             await db.update(_TABLE, {"id": str(row["id"])}, {
-                "consumed_seconds": new_consumed,
+                "consumed_seconds": current + delta,
                 "limit_seconds": LESSON_LIMIT_SECONDS,
                 "updated_at": _now_iso(),
             })
@@ -86,21 +90,31 @@ async def add_time(user_id: str, lesson_id: str, delta_seconds: int) -> dict:
             await db.insert(_TABLE, {
                 "user_id": user_id,
                 "lesson_id": lesson_id,
-                "consumed_seconds": new_consumed,
+                "consumed_seconds": current + delta,
                 "limit_seconds": LESSON_LIMIT_SECONDS,
             })
-        return _status(new_consumed, pool)
+        return current + delta
     except Exception:
-        return _status(0, pool)  # fail open
+        return current  # fail open, without pretending the lesson starts over
+
+
+async def add_time(user_id: str, lesson_id: str, delta_seconds: int) -> dict:
+    """Accumulate consumed time for (user, lesson), then spend the same seconds of the month's pool,
+    and return the merged status."""
+    delta = max(0, min(int(delta_seconds or 0), MAX_HEARTBEAT_DELTA))
+    consumed = await _add_to_lesson(user_id, lesson_id, delta)
+    pool = await voice_minutes.add_time(user_id, delta)
+    return _status(consumed, pool)
 
 
 async def add_activity(user_id: str, lesson_id: str, delta_seconds: int) -> int:
     """Record time spent in a lesson WITHOUT touching its budget, and return the lesson's total.
 
     For learners the client does not count down for (admins; Pro on site builds from before
-    2026-11-12, which still call this), so the admin still sees how long they studied. A subscriber's
-    seconds still spend the month's pool here, so an old client can't get around it. Budget heartbeats need no call here: the database adds every
-    increase of consumed_seconds to active_seconds (migration 20261106_lesson_time_active_seconds).
+    2026-11-12, which still call this), so the admin still sees how long they studied. A
+    subscriber's seconds still spend the month's pool here, so an old client can't get around it.
+    Budget heartbeats need no call here: the database adds every increase of consumed_seconds to
+    active_seconds (migration 20261106_lesson_time_active_seconds).
     Raises on a storage error so the client keeps the seconds and sends them again.
     """
     delta = max(0, min(int(delta_seconds or 0), MAX_HEARTBEAT_DELTA))
