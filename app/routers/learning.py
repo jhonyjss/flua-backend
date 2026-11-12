@@ -25,10 +25,11 @@ from app.schemas.learning import (
     TopicIds,
     UnlockedLessons,
     UnlockLessonRequest,
+    VoiceMinutesStatus,
     XpResult,
 )
 from app.schemas.realtime import GuidedLessonAccess
-from app.services import conversation_credits, guided_access, learning, lesson_timer
+from app.services import conversation_credits, guided_access, learning, lesson_timer, voice_minutes
 
 router = APIRouter(prefix="/api/users/me", tags=["learning"])
 
@@ -80,7 +81,12 @@ async def lesson_activity(
         raise HTTPException(503, "Could not record lesson time") from err
 
 
-# ── Free-conversation credit pool (free weekly, starter daily, pro unlimited) ──
+@router.get("/voice/minutes", response_model=VoiceMinutesStatus)
+async def voice_minutes_status(user: AuthUser = Depends(get_current_user)) -> VoiceMinutesStatus:
+    """The month's pool of Flua voice minutes, for the plans screen and the lesson lobby."""
+    return VoiceMinutesStatus(**await voice_minutes.get_status(user.id))
+
+
 @router.get("/guided-lesson/access", response_model=GuidedLessonAccess)
 async def guided_lesson_access(
     lessonId: str = Query(min_length=1, max_length=64, pattern=r"^[a-z0-9-]+$"),
@@ -88,6 +94,8 @@ async def guided_lesson_access(
 ) -> GuidedLessonAccess:
     """What the app shows on a lesson (read-only); POST /api/realtime/session is what decides."""
     access = await guided_access.get_access(user.id, lessonId)
+    if access.reason == "subscriber" and (await voice_minutes.get_status(user.id))["expired"]:
+        return GuidedLessonAccess(canStart=False, reason="month_spent", trialLimit=guided_access.TRIAL_LIMIT)
     return GuidedLessonAccess(
         canStart=access.can_start,
         reason=access.reason,
@@ -97,6 +105,7 @@ async def guided_lesson_access(
     )
 
 
+# ── Free conversation: removed on 2026-11-12; old clients get a locked status ──
 @router.get("/conversation/time", response_model=ConversationCreditStatus)
 async def conversation_time(user: AuthUser = Depends(get_current_user)) -> ConversationCreditStatus:
     return ConversationCreditStatus(**await conversation_credits.get_status(user.id))

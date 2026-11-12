@@ -110,7 +110,9 @@ class RealtimeSessionRequest(BaseModel):
 class GuidedLessonAccess(BaseModel):
     """What the app shows on a lesson; the session mint is the one that decides."""
     canStart: bool
-    reason: Literal["subscriber", "trial_available", "trial_in_progress", "trial_used", "unavailable"]
+    # month_spent: a subscriber whose Flua minutes for the month are used (voice_minutes); the app
+    # goes straight to the exercises instead of opening a lesson the session mint would refuse.
+    reason: Literal["subscriber", "trial_available", "trial_in_progress", "trial_used", "month_spent", "unavailable"]
     # This lesson when it is one of the trials, otherwise the latest trial taken.
     trialLessonId: str | None = None
     # Trial lessons the account has taken; None for subscribers and when they could not be read.

@@ -238,11 +238,12 @@ def test_an_expired_store_row_does_not_count(client, auth_headers, mock_transpor
     assert client.get("/api/users/me/subscription", headers=auth_headers).json()["isSubscribed"] is False
 
 
-def test_store_subscriber_gets_the_free_conversation(client, auth_headers, mock_transport):
+def test_store_subscriber_gets_the_pro_month_of_flua_minutes(client, auth_headers, mock_transport):
     pro_row = {**STORE_ROW, "entitlement": "pro", "product_id": "flueai_pro_monthly"}
     mock_transport(_subscription_backend(store_row=pro_row))
-    status = client.get("/api/users/me/conversation/time", headers=auth_headers).json()
-    assert status["isUnlimited"] is True
+    status = client.get("/api/users/me/voice/minutes", headers=auth_headers).json()
+    assert status["planLevel"] == "pro"
+    assert status["limitSeconds"] == 120 * 60
 
 
 def test_an_unreadable_store_table_leaves_the_stripe_plan(client, auth_headers, mock_transport):

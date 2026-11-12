@@ -124,6 +124,12 @@ class LessonTimeStatus(BaseModel):
     expired: bool
     # Admins: no lesson budget (the session mint lets them past it too); clients don't count down.
     isUnlimited: bool = False
+    # Subscribers: the month's pool of Flua minutes (voice_minutes). None when it doesn't apply
+    # (free trial lessons, admins). remainingSeconds above is already the smaller of the two.
+    monthlyLimitSeconds: int | None = None
+    monthlyRemainingSeconds: int | None = None
+    # Which budget ran out: the lesson's 10 minutes, or the month's minutes.
+    expiredReason: Literal["lesson", "month"] | None = None
 
 
 class HeartbeatRequest(BaseModel):
@@ -135,7 +141,18 @@ class LessonActivity(BaseModel):
     activeSeconds: int
 
 
-# ── Free-conversation credit pool (free weekly, starter daily, pro unlimited) ──
+class VoiceMinutesStatus(BaseModel):
+    """The month's pool of Flua voice minutes (60 Starter, 120 Pro). Free accounts: limit 0, never expired."""
+    limitSeconds: int
+    consumedSeconds: int
+    remainingSeconds: int
+    expired: bool
+    planLevel: str
+    isUnlimited: bool = False
+    periodKey: str
+
+
+# ── Free conversation: removed from every plan on 2026-11-12; locked for everyone but admins ──
 class ConversationCreditStatus(BaseModel):
     limitSeconds: int
     consumedSeconds: int

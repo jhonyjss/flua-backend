@@ -1,53 +1,14 @@
-"""Server-enforced free-conversation credit pool (Flua "conversa livre").
+"""Flua "conversa livre" (free conversation): removed from every plan on 2026-11-12 (owner decision).
 
-A PERIODIC pool (not per-session), by plan:
-  free    → 5 minutes per calendar WEEK
-  starter → 10 minutes per calendar DAY
-  pro     → unlimited
-  premium → unlimited
+Only admins (profiles.role = 'admin') still converse, without limit. Everyone else gets a locked
+status, so clients built before the removal show the conversation as unavailable and
+POST /api/realtime/session refuses free_practice. Subscribers' voice time is now the monthly pool of
+lessons with Flua (voice_minutes), which reuses this module's table.
 
-The limit and the period are recomputed from the live subscription on every
-call, so a plan upgrade takes effect immediately and each new calendar period
-auto-resets (a new period_key simply has no row yet). One row per
-(user, period_key) accumulates consumed seconds.
-
-Design (parity with lesson_timer):
-- Fails OPEN: if the subscription or the usage table can't be read, return a
-  permissive status (paid limit, no expiry) so an infra hiccup never wrongly
-  blocks a user — especially a paying one.
-- Heartbeat deltas are clamped so a tampered client can't drain the pool
-  instantly or run it backwards.
+is_admin and _base_plan stay here: lesson_timer, voice_minutes and the classroom import them.
 """
-from datetime import datetime, timezone
-
 from app.services import supabase_admin as db
 from app.services.user_data import get_subscription
-
-WEEK_SECONDS_FREE = 5 * 60
-DAY_SECONDS_STARTER = 10 * 60
-UNLIMITED_SECONDS = 0
-
-# Paid-only cutover: pre-existing accounts get a 7-day grace window to keep their
-# free minutes; after this instant nothing is free. Keep in sync with the
-# frontend (useSubscription.LEGACY_GRACE_ENDS_AT).
-LEGACY_GRACE_ENDS_AT = datetime(2026, 7, 19, 23, 59, 59, tzinfo=timezone.utc)
-
-# Heartbeats run ~every 15s; allow slack for tab-throttling/retries but never
-# more than this per call so a forged delta can't drain the pool.
-MAX_HEARTBEAT_DELTA = 90
-
-_TABLE = "conversation_credits"
-
-_LIMITS = {
-    "free": WEEK_SECONDS_FREE,
-    "starter": DAY_SECONDS_STARTER,
-    "pro": UNLIMITED_SECONDS,
-    "premium": UNLIMITED_SECONDS,
-}
-
-
-def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
 
 
 def _base_plan(plan_level: str | None, is_subscribed: bool) -> str:
@@ -68,55 +29,6 @@ def _base_plan(plan_level: str | None, is_subscribed: bool) -> str:
     return "starter"
 
 
-def _is_unlimited(plan: str) -> bool:
-    return plan in {"pro", "premium"}
-
-
-def _period_key(plan: str, now: datetime) -> str:
-    """free → ISO week ("2026-W24"); starter → calendar day ("2026-06-27")."""
-    if plan == "free":
-        year, week, _ = now.isocalendar()
-        return f"{year}-W{week:02d}"
-    return now.strftime("%Y-%m-%d")
-
-
-def _period_label(plan: str) -> str:
-    if _is_unlimited(plan):
-        return "livre"
-    if plan == "free":
-        return "semana"
-    return "dia"
-
-
-def _status(plan: str, limit: int, consumed: int) -> dict:
-    unlimited = _is_unlimited(plan)
-    consumed = max(0, consumed)
-    return {
-        "limitSeconds": limit,
-        "consumedSeconds": consumed,
-        "remainingSeconds": 0 if unlimited else max(0, limit - consumed),
-        "expired": False if unlimited else consumed >= limit,
-        "planLevel": plan,
-        "isFree": plan == "free",
-        "isUnlimited": unlimited,
-        "periodLabel": _period_label(plan),
-    }
-
-
-async def _has_legacy_free_access(user_id: str) -> bool:
-    """Pre-cutover accounts keep the free conversation allowance, but only during
-    the 7-day grace window. After it, nothing is free — even legacy accounts must
-    subscribe. New accounts never get free seconds. Fails OPEN (treats as legacy)
-    inside the window so an infra hiccup never wrongly blocks someone entitled."""
-    if datetime.now(timezone.utc) >= LEGACY_GRACE_ENDS_AT:
-        return False
-    try:
-        row = await db.select_one("profiles", {"id": user_id})
-        return bool((row or {}).get("legacy_free_access"))
-    except Exception:
-        return True
-
-
 async def is_admin(user_id: str) -> bool:
     """Admins (profiles.role = 'admin') get the conversation unlimited, the server-side twin of the
     site's isAdmin bypass in useLessonAccess. Fails CLOSED: an unreadable profile is not an admin."""
@@ -127,67 +39,35 @@ async def is_admin(user_id: str) -> bool:
         return False
 
 
-async def _plan_state(user_id: str) -> tuple[str, int, str]:
-    """(base_plan, limit_seconds, period_key) for the user's current plan."""
-    now = datetime.now(timezone.utc)
+def _status(plan: str, *, unlimited: bool) -> dict:
+    return {
+        "limitSeconds": 0,
+        "consumedSeconds": 0,
+        "remainingSeconds": 0,
+        "expired": not unlimited,
+        "planLevel": plan,
+        "isFree": plan == "free",
+        "isUnlimited": unlimited,
+        "periodLabel": "livre" if unlimited else "indisponível",
+    }
+
+
+def can_converse(status: dict) -> bool:
+    """Whether a status allows starting a free conversation: only an admin's (unlimited) one now."""
+    return bool(status.get("isUnlimited"))
+
+
+async def get_status(user_id: str) -> dict:
     if await is_admin(user_id):
-        return "premium", _LIMITS["premium"], _period_key("premium", now)
+        return _status("premium", unlimited=True)
     try:
         sub = await get_subscription(user_id)
         plan = _base_plan(sub.planLevel, sub.isSubscribed)
     except Exception:
-        plan = "pro"  # fail open — treat as a generous paid plan
-    limit = _LIMITS.get(plan, WEEK_SECONDS_FREE)
-    # Paid-only strategy: the free tier's minutes belong to grandfathered
-    # accounts only. A new (non-legacy) free user has no free conversation.
-    if plan == "free" and not await _has_legacy_free_access(user_id):
-        limit = 0
-    return plan, limit, _period_key(plan, now)
-
-
-def can_converse(status: dict) -> bool:
-    """Whether a status allows starting a free conversation: an unlimited plan, or minutes left
-    in the current period. Mirrors the clients' gate (site FreePractice, app canConverse)."""
-    if status.get("isUnlimited"):
-        return True
-    return status.get("limitSeconds", 0) > 0 and not status.get("expired") and status.get("remainingSeconds", 0) > 0
-
-
-async def get_status(user_id: str) -> dict:
-    plan, limit, period_key = await _plan_state(user_id)
-    if _is_unlimited(plan):
-        return _status(plan, limit, 0)
-    try:
-        row = await db.select_one(_TABLE, {"user_id": user_id, "period_key": period_key})
-    except Exception:
-        return _status(plan, limit, 0)  # table missing / unreachable → fail open
-    consumed = int((row or {}).get("consumed_seconds") or 0)
-    return _status(plan, limit, consumed)
+        plan = "free"  # the answer is "locked" either way
+    return _status(plan, unlimited=False)
 
 
 async def add_time(user_id: str, delta_seconds: int) -> dict:
-    """Accumulate consumed conversation time for the current period."""
-    plan, limit, period_key = await _plan_state(user_id)
-    if _is_unlimited(plan):
-        return _status(plan, limit, 0)
-    delta = max(0, min(int(delta_seconds or 0), MAX_HEARTBEAT_DELTA))
-    try:
-        row = await db.select_one(_TABLE, {"user_id": user_id, "period_key": period_key})
-        current = int((row or {}).get("consumed_seconds") or 0)
-        new_consumed = current + delta
-        if row:
-            await db.update(_TABLE, {"id": str(row["id"])}, {
-                "consumed_seconds": new_consumed,
-                "limit_seconds": limit,
-                "updated_at": _now_iso(),
-            })
-        else:
-            await db.insert(_TABLE, {
-                "user_id": user_id,
-                "period_key": period_key,
-                "consumed_seconds": new_consumed,
-                "limit_seconds": limit,
-            })
-        return _status(plan, limit, new_consumed)
-    except Exception:
-        return _status(plan, limit, 0)  # fail open
+    """Nothing to spend: kept so old clients' heartbeats get a status back instead of a 404."""
+    return await get_status(user_id)

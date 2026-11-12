@@ -34,8 +34,9 @@ def _body(**patch):
 
 
 def _backend(*, plan_level=None, role="student", trial_lessons=(), claim_result=None, claim_fails=False,
-             consumed=0, stripe_fails=False, trial_read_fails=False, calls=None):
-    """Supabase + OpenAI as seen from the backend. `calls` collects ("openai", body) and ("claim", body)."""
+             consumed=0, month_consumed=0, stripe_fails=False, trial_read_fails=False, calls=None):
+    """Supabase + OpenAI as seen from the backend. `calls` collects ("openai", body) and ("claim", body).
+    `consumed` is this lesson's time; `month_consumed` the month's pool of Flua minutes."""
     log = calls if calls is not None else []
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -68,6 +69,9 @@ def _backend(*, plan_level=None, role="student", trial_lessons=(), claim_result=
             return httpx.Response(200, json=rows)
         if "lesson_time_usage" in path:
             return httpx.Response(200, json=[{"id": "row-1", "consumed_seconds": consumed}] if consumed else [])
+        if "conversation_credits" in path:
+            rows = [{"id": "month-1", "consumed_seconds": month_consumed}] if month_consumed else []
+            return httpx.Response(200, json=rows)
         return httpx.Response(200, json=[])
 
     return handler
@@ -186,10 +190,40 @@ def test_spent_lesson_time_is_refused_before_claiming_anything(client, auth_head
     assert calls == []
 
 
-def test_subscriber_with_time_left_on_the_paid_budget_starts(client, auth_headers, mock_transport):
-    mock_transport(_backend(plan_level="pro_monthly", consumed=10 * 60))  # paid budget: 15 min
+def test_subscriber_with_time_left_on_the_lesson_starts(client, auth_headers, mock_transport):
+    mock_transport(_backend(plan_level="pro_monthly", consumed=9 * 60))  # paid budget: 10 min since 2026-11-12
     res = client.post("/api/realtime/session", json=_body(), headers=auth_headers)
     assert res.status_code == 200
+
+
+def test_subscriber_lesson_stops_at_ten_minutes(client, auth_headers, mock_transport):
+    calls = []
+    mock_transport(_backend(plan_level="pro_monthly", consumed=10 * 60, calls=calls))
+    res = client.post("/api/realtime/session", json=_body(), headers=auth_headers)
+    assert res.status_code == 403
+    assert res.json()["detail"]["code"] == "lesson_time_expired"
+    assert _kinds(calls) == []
+
+
+def test_subscriber_with_the_month_spent_is_refused_without_calling_openai(client, auth_headers, mock_transport):
+    calls = []
+    mock_transport(_backend(plan_level="starter_monthly", month_consumed=60 * 60, calls=calls))
+    res = client.post("/api/realtime/session", json=_body(), headers=auth_headers)
+    assert res.status_code == 403
+    assert res.json()["detail"]["code"] == "voice_minutes_exhausted"
+    assert _kinds(calls) == []
+
+
+def test_pro_month_is_twice_the_starter_month(client, auth_headers, mock_transport):
+    # 60 minutes spent ends a Starter month but leaves a Pro learner 60 more.
+    mock_transport(_backend(plan_level="pro_yearly", month_consumed=60 * 60))
+    assert client.post("/api/realtime/session", json=_body(), headers=auth_headers).status_code == 200
+
+
+def test_trial_lesson_ignores_the_month_pool(client, auth_headers, mock_transport):
+    # Free accounts have no pool: a stray month row must not block their trial lesson.
+    mock_transport(_backend(month_consumed=999 * 60, claim_result={"granted": True, "lessonIds": [LESSON]}))
+    assert client.post("/api/realtime/session", json=_body(), headers=auth_headers).status_code == 200
 
 
 def test_admin_has_no_lesson_time_limit(client, auth_headers, mock_transport):
@@ -261,7 +295,7 @@ def test_session_carries_the_plan_and_the_evaluation_tool(client, auth_headers, 
 
 def test_other_modes_carry_no_tools(client, auth_headers, mock_transport):
     calls = []
-    mock_transport(_backend(plan_level="pro_monthly", calls=calls))
+    mock_transport(_backend(role="admin", calls=calls))  # free practice is admin-only since 2026-11-12
     client.post("/api/realtime/session", json={"mode": "free_practice"}, headers=auth_headers)
     client.post("/api/realtime/session", json={"mode": "lesson"}, headers=auth_headers)
     sessions = [body["session"] for kind, body in calls if kind == "openai"]
@@ -312,7 +346,7 @@ def test_lesson_with_goal_tool_carries_registrar_meta_and_stays_client_driven(cl
 
 def test_goal_tool_is_ignored_outside_the_lesson(client, auth_headers, mock_transport):
     calls = []
-    mock_transport(_backend(plan_level="pro_monthly", calls=calls))
+    mock_transport(_backend(role="admin", calls=calls))  # free practice is admin-only since 2026-11-12
     free = client.post("/api/realtime/session", json={"mode": "free_practice", "goalTool": True},
                        headers=auth_headers)
     lesson = client.post("/api/realtime/session", json={"mode": "lesson", "lessonContext": "Metas"},

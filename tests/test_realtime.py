@@ -272,26 +272,27 @@ def test_free_practice_refused_for_free_account_without_calling_openai(client, a
     assert calls == []  # no OpenAI money spent
 
 
-def test_free_practice_refused_when_period_minutes_are_spent(client, auth_headers, mock_transport):
-    calls = []
-    mock_transport(_plan_and_openai(plan_level="starter_monthly", consumed=10 * 60, calls=calls))
-    res = client.post("/api/realtime/session", json={"mode": "free_practice"}, headers=auth_headers)
-    assert res.status_code == 403
-    assert res.json()["detail"]["expired"] is True
-    assert calls == []
+def test_free_practice_refused_for_every_plan_since_its_removal(client, auth_headers, mock_transport):
+    # Conversa livre left every plan on 2026-11-12: Starter and Pro, with or without minutes, get 403.
+    for plan in ("starter_monthly", "pro_yearly", "premium"):
+        calls = []
+        mock_transport(_plan_and_openai(plan_level=plan, calls=calls))
+        res = client.post("/api/realtime/session", json={"mode": "free_practice"}, headers=auth_headers)
+        assert res.status_code == 403, plan
+        assert res.json()["detail"]["code"] == "conversation_not_available"
+        assert calls == []
 
 
-def test_free_practice_allowed_with_minutes_left(client, auth_headers, mock_transport):
-    mock_transport(_plan_and_openai(plan_level="starter_monthly", consumed=120))
+def test_free_practice_still_open_to_admins(client, auth_headers, mock_transport):
+    def handler(request: httpx.Request) -> httpx.Response:
+        if "profiles" in request.url.path:
+            return httpx.Response(200, json=[{"id": "u", "role": "admin"}])
+        return _plan_and_openai()(request)
+
+    mock_transport(handler)
     res = client.post("/api/realtime/session", json={"mode": "free_practice"}, headers=auth_headers)
     assert res.status_code == 200
     assert res.json()["clientSecret"] == "ek_live_abc"
-
-
-def test_free_practice_allowed_on_unlimited_plan(client, auth_headers, mock_transport):
-    mock_transport(_plan_and_openai(plan_level="pro_yearly"))
-    res = client.post("/api/realtime/session", json={"mode": "free_practice"}, headers=auth_headers)
-    assert res.status_code == 200
 
 
 def test_guided_lesson_stays_open_to_free_accounts(client, auth_headers, mock_transport):
