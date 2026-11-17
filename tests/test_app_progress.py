@@ -100,7 +100,11 @@ def test_summary_is_the_account_progress_on_the_sao_paulo_day(client, auth_heade
             {"id": "streak_3", "unlockedAt": "2026-10-14T12:00:00Z"},
         ],
         "reviewsDue": 2,
-        "tracks": {"fundamentals": {"completedActivityIds": ["fund-u1-l1", "fund-u1-l2"], "currentActivityId": "fund-u1-l3"}},
+        "tracks": {
+            "fundamentals": {"completedActivityIds": ["fund-u1-l1", "fund-u1-l2"], "currentActivityId": "fund-u1-l3"},
+            # No stamps yet: the route starts at its first playable event (docs/rotas/02 in flueai-app).
+            "travel": {"completedActivityIds": [], "currentActivityId": "viagem-02-checkin", "stamps": {}},
+        },
         "serverDay": "2026-10-15",
     }
     queried = dict(calls)
@@ -136,7 +140,8 @@ def test_lesson_goes_to_the_core_with_precision_order_and_concepts(client, auth_
     assert res.status_code == 200
     body = res.json()
     assert body["replayed"] is False
-    assert body["result"] == STORED
+    # `stamp` belongs to route events; a lesson's result carries it empty.
+    assert body["result"] == {**STORED, "stamp": None}
     assert body["summary"]["tracks"]["fundamentals"]["currentActivityId"] == "fund-u1-l2"
     sent = next(payload for kind, payload in calls if kind == "rpc")
     assert sent["p_user_id"] == USER

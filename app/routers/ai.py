@@ -1,7 +1,8 @@
 """AI endpoints — full parity with server/api/ai/*."""
+import json
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 
 from app.core.auth import AuthUser
 from app.core.rate_limit import rate_limited
@@ -26,6 +27,7 @@ from app.schemas.ai import (
     HelpAnswerResult,
     LearningRecommendationsRequest,
     LearningRecommendationsResult,
+    ScoreRepeatResult,
     TranscribeJsonRequest,
     TranscribeResult,
     ValidateObjectiveRequest,
@@ -54,7 +56,7 @@ from app.services.ai.help_answer import help_answer
 from app.services.ai.recommendations import learning_recommendations
 from app.services.ai.suggestions import generate_suggestions
 from app.services.ai.validate_objective import validate_objective
-from app.services import stt
+from app.services import repeat_scoring, stt
 from app.services.speech_correction import correct_speech
 
 logger = logging.getLogger("flueai.ai")
@@ -176,6 +178,38 @@ async def transcribe_route(
         return await stt.transcribe_file(data, mime, language)
     body = TranscribeJsonRequest.model_validate(await request.json())
     return await stt.transcribe_json(body)
+
+
+MAX_REPEAT_AUDIO_BYTES = 2_000_000  # a 6 s take is about 100 KB
+
+
+@router.post("/score-repeat", response_model=ScoreRepeatResult)
+async def score_repeat_route(
+    audio: UploadFile = File(...),
+    phrase: str = Form(..., min_length=1, max_length=200),
+    accepts: str = Form("[]", max_length=4000),
+    eventId: str | None = Form(None, max_length=64),
+    itemId: str | None = Form(None, max_length=64),
+    user: AuthUser = Depends(rate_limited("score_repeat", max_requests=120, window_seconds=60)),
+) -> ScoreRepeatResult:
+    """A sentence said in a route event, scored against the phrase and its accepted variations."""
+    try:
+        variations = json.loads(accepts)
+    except json.JSONDecodeError as err:
+        raise HTTPException(422, "accepts must be a JSON list of sentences") from err
+    if not isinstance(variations, list) or len(variations) > 12 or not all(
+        isinstance(v, str) and 0 < len(v) <= 200 for v in variations
+    ):
+        raise HTTPException(422, "accepts must be a JSON list of sentences")
+    data = await audio.read()
+    if not data:
+        raise HTTPException(422, "Áudio vazio")
+    if len(data) > MAX_REPEAT_AUDIO_BYTES:
+        raise HTTPException(413, "Áudio grande demais")
+    scored = await repeat_scoring.score_repeat(
+        user.id, data, audio.content_type or "audio/m4a", phrase, variations, eventId, itemId,
+    )
+    return ScoreRepeatResult(**scored)
 
 
 @router.post("/speech-correct", response_model=SpeechCorrectionResponse)

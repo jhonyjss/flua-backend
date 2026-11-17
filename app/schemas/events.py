@@ -23,6 +23,14 @@ KNOWN_EVENTS = (
     "trial_exhausted",
     "sign_up",
     "login",
+    # Rotas com a Flua (flueai-app docs/rotas/02-progresso-e-fala-no-backend.md, item 5).
+    "route_selected",
+    "route_event_started",
+    "route_event_completed",
+    "quiz_item_answered",
+    "repeat_attempt",
+    "repeat_skipped",
+    "repeat_mic_permission",
 )
 EventName = Annotated[str, StringConstraints(pattern=r"^[a-z][a-z_]{0,39}$")]
 

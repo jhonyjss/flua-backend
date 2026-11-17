@@ -29,6 +29,7 @@ from app.schemas.app_progress import (
     TrackState,
     XpTotals,
 )
+from app.services import route_progress
 from app.services import supabase_admin as db
 
 TRACK = "fundamentals"
@@ -83,6 +84,9 @@ def first_try_correct(request: SessionResultRequest, ids: list[str]) -> int:
 
 
 async def finish_session(user_id: str, session_id: str, request: SessionResultRequest) -> SessionResult:
+    if request.kind == "route_event":
+        replayed, outcome = await route_progress.finish(user_id, session_id, request)
+        return SessionResult(replayed=replayed, result=outcome, summary=await summary(user_id))
     ids = main_ids(request)
     m = manifest()
     activity = m["byId"].get(request.activityId)
@@ -157,7 +161,10 @@ async def summary(user_id: str) -> Summary:
         streak=_shown_streak(streak, today),
         achievements=[AchievementOwned(id=row["achievement_id"], unlockedAt=row.get("unlocked_at")) for row in achievements],
         reviewsDue=len(due),
-        tracks=Tracks(fundamentals=TrackState(completedActivityIds=completed, currentActivityId=current)),
+        tracks=Tracks(
+            fundamentals=TrackState(completedActivityIds=completed, currentActivityId=current),
+            travel=await route_progress.track(user_id),
+        ),
         serverDay=today.isoformat(),
     )
 

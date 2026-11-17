@@ -39,6 +39,7 @@ No Nuxt, `NUXT_PUBLIC_API_BASE=http://localhost:8000` (default em `nuxt.config.t
 | `POST /api/ai/generate-image` | ✅ (Replicate + Supabase Storage) |
 | `POST /api/ai/transcribe` | ✅ JSON base64 PCM + multipart |
 | `POST /api/ai/speech-correct` | ✅ pipeline ASR |
+| `POST /api/ai/score-repeat` | ✅ fala das Rotas (Deepgram + WER; guarda transcrição e nota em `route_speech_scores`) |
 | **Voice** | |
 | `POST /api/voice/chat` | ✅ OpenAI Responses + tutor prompt |
 | `GET/POST /api/voice/usage` | ✅ Supabase `voice_usage` |
