@@ -133,6 +133,23 @@ def test_an_oversized_body_is_refused_before_it_is_read(client, auth_headers, mo
     assert called == []
 
 
+def test_a_chunked_body_over_the_cap_is_refused_without_transcribing(client, auth_headers, mock_transport):
+    called = []
+    mock_transport(lambda request: called.append(request) or httpx.Response(500))
+
+    def chunks():
+        for _ in range(30):
+            yield b"x" * 100_000
+
+    res = client.post(
+        "/api/ai/score-repeat",
+        headers={**auth_headers, "Content-Type": "multipart/form-data; boundary=x"},
+        content=chunks(),
+    )
+    assert res.status_code == 413
+    assert called == []
+
+
 def test_audio_over_the_cap_is_refused_without_transcribing(client, auth_headers, mock_transport):
     called = []
     mock_transport(lambda request: called.append(request) or httpx.Response(500))

@@ -203,16 +203,20 @@ async def score_repeat_route(
 ) -> ScoreRepeatResult:
     """A sentence said in a route event, scored against the phrase and its accepted variations.
 
-    Multipart: audio, phrase, accepts (JSON list), eventId, itemId. The size is checked on
-    Content-Length before the body is parsed, so an oversized upload is never read."""
-    try:
-        length = int(request.headers.get("content-length", ""))
-    except ValueError as err:
-        raise HTTPException(411, "Content-Length required") from err
-    if length > MAX_REPEAT_BODY_BYTES:
-        raise HTTPException(413, "Áudio grande demais")
+    Multipart: audio, phrase, accepts (JSON list), eventId, itemId. The body is read up to the cap
+    before parsing (declared or chunked), so an oversized upload never fills memory or disk."""
     if "multipart/form-data" not in request.headers.get("content-type", ""):
         raise HTTPException(422, "Expected multipart/form-data")
+    declared = request.headers.get("content-length", "")
+    if declared.isdigit() and int(declared) > MAX_REPEAT_BODY_BYTES:
+        raise HTTPException(413, "Áudio grande demais")
+    body = bytearray()
+    async for chunk in request.stream():
+        body.extend(chunk)
+        if len(body) > MAX_REPEAT_BODY_BYTES:
+            raise HTTPException(413, "Áudio grande demais")
+    # Starlette parses the form from the body already read instead of the stream.
+    request._body = bytes(body)
     form = await request.form(max_files=1, max_fields=8)
     phrase = _form_text(form, "phrase", max_length=200, required=True)
     accepts = _form_text(form, "accepts", max_length=4000) or "[]"
