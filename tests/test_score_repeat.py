@@ -119,3 +119,33 @@ def test_empty_audio_is_refused(client, auth_headers, mock_transport):
 def test_scoring_needs_a_session(client):
     res = client.post("/api/ai/score-repeat", files={"audio": ("take.m4a", b"x", "audio/x-m4a")}, data={"phrase": PHRASE})
     assert res.status_code == 401
+
+
+def test_an_oversized_body_is_refused_before_it_is_read(client, auth_headers, mock_transport):
+    called = []
+    mock_transport(lambda request: called.append(request) or httpx.Response(500))
+    res = client.post(
+        "/api/ai/score-repeat",
+        headers={**auth_headers, "Content-Type": "multipart/form-data; boundary=x", "Content-Length": "5000000"},
+        content=b"--x--",
+    )
+    assert res.status_code == 413
+    assert called == []
+
+
+def test_audio_over_the_cap_is_refused_without_transcribing(client, auth_headers, mock_transport):
+    called = []
+    mock_transport(lambda request: called.append(request) or httpx.Response(500))
+    assert _post(client, auth_headers, audio=b"x" * 2_000_001).status_code == 413
+    assert called == []
+
+
+def test_the_phrase_is_required(client, auth_headers, mock_transport):
+    mock_transport(_providers("Sure"))
+    res = client.post(
+        "/api/ai/score-repeat",
+        headers=auth_headers,
+        files={"audio": ("take.m4a", b"x", "audio/x-m4a")},
+        data={"accepts": "[]"},
+    )
+    assert res.status_code == 422

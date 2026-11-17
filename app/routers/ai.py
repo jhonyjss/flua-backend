@@ -2,7 +2,7 @@
 import json
 import logging
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from app.core.auth import AuthUser
 from app.core.rate_limit import rate_limited
@@ -181,18 +181,43 @@ async def transcribe_route(
 
 
 MAX_REPEAT_AUDIO_BYTES = 2_000_000  # a 6 s take is about 100 KB
+# The whole multipart body: the audio plus the short text fields and the part headers.
+MAX_REPEAT_BODY_BYTES = MAX_REPEAT_AUDIO_BYTES + 64_000
+
+
+def _form_text(form, name: str, *, max_length: int, required: bool = False) -> str | None:
+    value = form.get(name)
+    if value is None or value == "":
+        if required:
+            raise HTTPException(422, f"{name} is required")
+        return None
+    if not isinstance(value, str) or len(value) > max_length:
+        raise HTTPException(422, f"{name} is invalid")
+    return value
 
 
 @router.post("/score-repeat", response_model=ScoreRepeatResult)
 async def score_repeat_route(
-    audio: UploadFile = File(...),
-    phrase: str = Form(..., min_length=1, max_length=200),
-    accepts: str = Form("[]", max_length=4000),
-    eventId: str | None = Form(None, max_length=64),
-    itemId: str | None = Form(None, max_length=64),
+    request: Request,
     user: AuthUser = Depends(rate_limited("score_repeat", max_requests=120, window_seconds=60)),
 ) -> ScoreRepeatResult:
-    """A sentence said in a route event, scored against the phrase and its accepted variations."""
+    """A sentence said in a route event, scored against the phrase and its accepted variations.
+
+    Multipart: audio, phrase, accepts (JSON list), eventId, itemId. The size is checked on
+    Content-Length before the body is parsed, so an oversized upload is never read."""
+    try:
+        length = int(request.headers.get("content-length", ""))
+    except ValueError as err:
+        raise HTTPException(411, "Content-Length required") from err
+    if length > MAX_REPEAT_BODY_BYTES:
+        raise HTTPException(413, "Áudio grande demais")
+    if "multipart/form-data" not in request.headers.get("content-type", ""):
+        raise HTTPException(422, "Expected multipart/form-data")
+    form = await request.form(max_files=1, max_fields=8)
+    phrase = _form_text(form, "phrase", max_length=200, required=True)
+    accepts = _form_text(form, "accepts", max_length=4000) or "[]"
+    event_id = _form_text(form, "eventId", max_length=64)
+    item_id = _form_text(form, "itemId", max_length=64)
     try:
         variations = json.loads(accepts)
     except json.JSONDecodeError as err:
@@ -201,13 +226,16 @@ async def score_repeat_route(
         isinstance(v, str) and 0 < len(v) <= 200 for v in variations
     ):
         raise HTTPException(422, "accepts must be a JSON list of sentences")
-    data = await audio.read()
+    audio = form.get("audio")
+    if audio is None or isinstance(audio, str):
+        raise HTTPException(422, "Áudio vazio")
+    data = await audio.read(MAX_REPEAT_AUDIO_BYTES + 1)
     if not data:
         raise HTTPException(422, "Áudio vazio")
     if len(data) > MAX_REPEAT_AUDIO_BYTES:
         raise HTTPException(413, "Áudio grande demais")
     scored = await repeat_scoring.score_repeat(
-        user.id, data, audio.content_type or "audio/m4a", phrase, variations, eventId, itemId,
+        user.id, data, audio.content_type or "audio/m4a", phrase, variations, event_id, item_id,
     )
     return ScoreRepeatResult(**scored)
 
