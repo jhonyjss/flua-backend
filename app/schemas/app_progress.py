@@ -4,7 +4,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-SessionKind = Literal["lesson", "checkpoint", "review", "practice", "voice_lesson"]
+# route_event: one event of "Rotas com a Flua" (flueai-app docs/rotas/02-progresso-e-fala-no-backend.md).
+SessionKind = Literal["lesson", "checkpoint", "review", "practice", "voice_lesson", "route_event"]
 
 
 class Attempt(BaseModel):
@@ -32,6 +33,8 @@ class SessionOutcome(BaseModel):
     unlockedActivityId: str | None = None
     newAchievementIds: list[str] = []
     streakIncremented: bool
+    # Route events only: the stamp the event has on the account after this session.
+    stamp: Literal["silver", "gold"] | None = None
 
 
 class AppProfile(BaseModel):
@@ -61,8 +64,14 @@ class TrackState(BaseModel):
     currentActivityId: str | None = None
 
 
+class RouteTrackState(TrackState):
+    # Best stamp per event id.
+    stamps: dict[str, Literal["silver", "gold"]] = {}
+
+
 class Tracks(BaseModel):
     fundamentals: TrackState
+    travel: RouteTrackState
 
 
 class Summary(BaseModel):

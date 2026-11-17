@@ -337,6 +337,14 @@ class TranscribeJsonRequest(BaseModel):
     provider: SttProvider | None = None
 
 
+class ScoreRepeatResult(BaseModel):
+    """POST /api/ai/score-repeat (flueai-app docs/rotas/02-progresso-e-fala-no-backend.md)."""
+    status: Literal["correct", "almost", "retry", "unheard"]
+    accuracy: float
+    missing_words: list[str] = []
+    transcript: str = ""
+
+
 class TranscribeWord(BaseModel):
     word: str
     start: float = 0

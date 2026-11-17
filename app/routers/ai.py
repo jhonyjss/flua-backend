@@ -1,4 +1,5 @@
 """AI endpoints — full parity with server/api/ai/*."""
+import json
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -26,6 +27,7 @@ from app.schemas.ai import (
     HelpAnswerResult,
     LearningRecommendationsRequest,
     LearningRecommendationsResult,
+    ScoreRepeatResult,
     TranscribeJsonRequest,
     TranscribeResult,
     ValidateObjectiveRequest,
@@ -54,7 +56,7 @@ from app.services.ai.help_answer import help_answer
 from app.services.ai.recommendations import learning_recommendations
 from app.services.ai.suggestions import generate_suggestions
 from app.services.ai.validate_objective import validate_objective
-from app.services import stt
+from app.services import repeat_scoring, stt
 from app.services.speech_correction import correct_speech
 
 logger = logging.getLogger("flueai.ai")
@@ -176,6 +178,70 @@ async def transcribe_route(
         return await stt.transcribe_file(data, mime, language)
     body = TranscribeJsonRequest.model_validate(await request.json())
     return await stt.transcribe_json(body)
+
+
+MAX_REPEAT_AUDIO_BYTES = 2_000_000  # a 6 s take is about 100 KB
+# The whole multipart body: the audio plus the short text fields and the part headers.
+MAX_REPEAT_BODY_BYTES = MAX_REPEAT_AUDIO_BYTES + 64_000
+
+
+def _form_text(form, name: str, *, max_length: int, required: bool = False) -> str | None:
+    value = form.get(name)
+    if value is None or value == "":
+        if required:
+            raise HTTPException(422, f"{name} is required")
+        return None
+    if not isinstance(value, str) or len(value) > max_length:
+        raise HTTPException(422, f"{name} is invalid")
+    return value
+
+
+@router.post("/score-repeat", response_model=ScoreRepeatResult)
+async def score_repeat_route(
+    request: Request,
+    user: AuthUser = Depends(rate_limited("score_repeat", max_requests=120, window_seconds=60)),
+) -> ScoreRepeatResult:
+    """A sentence said in a route event, scored against the phrase and its accepted variations.
+
+    Multipart: audio, phrase, accepts (JSON list), eventId, itemId. The body is read up to the cap
+    before parsing (declared or chunked), so an oversized upload never fills memory or disk."""
+    if "multipart/form-data" not in request.headers.get("content-type", ""):
+        raise HTTPException(422, "Expected multipart/form-data")
+    declared = request.headers.get("content-length", "")
+    if declared.isdigit() and int(declared) > MAX_REPEAT_BODY_BYTES:
+        raise HTTPException(413, "Áudio grande demais")
+    body = bytearray()
+    async for chunk in request.stream():
+        body.extend(chunk)
+        if len(body) > MAX_REPEAT_BODY_BYTES:
+            raise HTTPException(413, "Áudio grande demais")
+    # Starlette parses the form from the body already read instead of the stream.
+    request._body = bytes(body)
+    form = await request.form(max_files=1, max_fields=8)
+    phrase = _form_text(form, "phrase", max_length=200, required=True)
+    accepts = _form_text(form, "accepts", max_length=4000) or "[]"
+    event_id = _form_text(form, "eventId", max_length=64)
+    item_id = _form_text(form, "itemId", max_length=64)
+    try:
+        variations = json.loads(accepts)
+    except json.JSONDecodeError as err:
+        raise HTTPException(422, "accepts must be a JSON list of sentences") from err
+    if not isinstance(variations, list) or len(variations) > 12 or not all(
+        isinstance(v, str) and 0 < len(v) <= 200 for v in variations
+    ):
+        raise HTTPException(422, "accepts must be a JSON list of sentences")
+    audio = form.get("audio")
+    if audio is None or isinstance(audio, str):
+        raise HTTPException(422, "Áudio vazio")
+    data = await audio.read(MAX_REPEAT_AUDIO_BYTES + 1)
+    if not data:
+        raise HTTPException(422, "Áudio vazio")
+    if len(data) > MAX_REPEAT_AUDIO_BYTES:
+        raise HTTPException(413, "Áudio grande demais")
+    scored = await repeat_scoring.score_repeat(
+        user.id, data, audio.content_type or "audio/m4a", phrase, variations, event_id, item_id,
+    )
+    return ScoreRepeatResult(**scored)
 
 
 @router.post("/speech-correct", response_model=SpeechCorrectionResponse)

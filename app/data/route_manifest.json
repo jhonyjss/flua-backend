@@ -1,0 +1,21 @@
+{
+  "contentVersion": "travel-1",
+  "routes": {
+    "travel": {
+      "order": ["viagem-02-checkin"],
+      "events": {
+        "viagem-02-checkin": {
+          "items": [
+            {"id": "viagem-02-i1", "write": false},
+            {"id": "viagem-02-i2", "write": true},
+            {"id": "viagem-02-i3", "write": true},
+            {"id": "viagem-02-i4", "write": true},
+            {"id": "viagem-02-i5", "write": false},
+            {"id": "viagem-02-i6", "write": false}
+          ],
+          "turns": ["viagem-02-t1", "viagem-02-t2", "viagem-02-t3", "viagem-02-t4", "viagem-02-t5"]
+        }
+      }
+    }
+  }
+}
