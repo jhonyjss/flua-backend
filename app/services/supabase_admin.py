@@ -201,10 +201,10 @@ async def delete_auth_user(user_id: str) -> None:
 def _says_user_not_found(res: httpx.Response) -> bool:
     """True when Supabase Auth answers that it has no such user: an earlier request deleted the login.
 
-    Only its own `user_not_found` counts. Any other 404 (the API gateway, a wrong SUPABASE_URL) stays a
-    failure, or a misconfigured server would report deletions that never happened. The code comes in
-    `error_code`, or in `code` for a request that sends X-Supabase-Api-Version (supabase/auth,
-    internal/api/errors.go).
+    Only its own `user_not_found` counts. Any other 404 (the API gateway, a path that does not exist,
+    an id that is not a UUID) stays a failure, or the route would report deletions that never
+    happened. The code comes in `error_code`, or in `code` for a request that sends
+    X-Supabase-Api-Version (supabase/auth, internal/api/errors.go).
     """
     if res.status_code != 404:
         return False
