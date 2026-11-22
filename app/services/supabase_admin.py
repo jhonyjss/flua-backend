@@ -3,10 +3,15 @@
 Used for server-side table access (stripe_customers, subscriptions) — parity
 with `serverSupabaseServiceRole` in the Nuxt server.
 """
+import logging
+
+import httpx
 from fastapi import HTTPException
 
 from app.core.config import get_settings
 from app.core.http import http_client
+
+logger = logging.getLogger(__name__)
 
 
 def _headers(settings, *, upsert: bool = False, ignore_duplicates: bool = False) -> dict:
@@ -175,7 +180,9 @@ async def delete_storage_prefix(bucket: str, prefix: str) -> int:
 
 
 async def delete_auth_user(user_id: str) -> None:
-    """Deletes the Supabase Auth user; profiles and every user table cascade from it."""
+    """Deletes the Supabase Auth user; profiles and every user table cascade from it.
+
+    A user that is already gone is a deleted user: the call can be repeated."""
     settings = get_settings()
     _require_config(settings)
     async with http_client(timeout=15.0) as client:
@@ -183,8 +190,29 @@ async def delete_auth_user(user_id: str) -> None:
             f"{settings.supabase_url}/auth/v1/admin/users/{user_id}",
             headers=_headers(settings),
         )
-    if res.status_code not in (200, 204):
-        raise HTTPException(502, f"Supabase auth delete error {res.status_code}: {res.text[:200]}")
+    if res.status_code in (200, 204):
+        return
+    if _says_user_not_found(res):
+        logger.info("auth user %s was already deleted", user_id)
+        return
+    raise HTTPException(502, f"Supabase auth delete error {res.status_code}: {res.text[:200]}")
+
+
+def _says_user_not_found(res: httpx.Response) -> bool:
+    """True when Supabase Auth answers that it has no such user: an earlier request deleted the login.
+
+    Only its own `user_not_found` counts. Any other 404 (the API gateway, a path that does not exist,
+    an id that is not a UUID) stays a failure, or the route would report deletions that never
+    happened. The code comes in `error_code`, or in `code` for a request that sends
+    X-Supabase-Api-Version (supabase/auth, internal/api/errors.go).
+    """
+    if res.status_code != 404:
+        return False
+    try:
+        body = res.json()
+    except ValueError:
+        return False
+    return isinstance(body, dict) and "user_not_found" in (body.get("error_code"), body.get("code"))
 
 
 async def rpc(fn: str, params: dict) -> list[dict] | dict:

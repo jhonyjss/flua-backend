@@ -5,11 +5,17 @@ user's files in Storage → delete the Supabase Auth user. Every public table wi
 from auth.users/profiles (checked 2026-10-15), so the last step clears the progress too.
 
 A Stripe failure stops the deletion: deleting the account while the card keeps being charged is the
-one outcome worse than not deleting.
+one outcome worse than not deleting. So every subscription that can still charge is cancelled, not
+only an `active` one, and an open Checkout page is closed.
+
+The request can be repeated. The 204 may be lost on its way to the app, or a step may fail after
+Stripe was cancelled; the next request then meets steps already done. Nothing left to cancel and a
+login Supabase no longer has both count as done.
 """
 import logging
 
 from fastapi import HTTPException
+from fastapi.concurrency import run_in_threadpool
 
 from app.services import revenuecat, stripe_service
 from app.services import supabase_admin as db
@@ -28,14 +34,7 @@ async def delete_account(user_id: str) -> None:
     customer = await db.select_one("stripe_customers", {"user_id": user_id})
     customer_id = (customer or {}).get("stripe_customer_id")
     if customer_id:
-        try:
-            stripe_service.cancel_subscription(customer_id, immediately=True)
-        except Exception as err:
-            logger.warning("account deletion stopped: stripe cancel failed for %s: %s", user_id, err)
-            raise HTTPException(
-                status_code=502,
-                detail={"code": "billing_unavailable", "message": "Não conseguimos cancelar a assinatura agora."},
-            ) from err
+        await _stop_stripe_billing(user_id, customer_id)
     try:
         # App Store / Google Play subscriptions can only be cancelled by the buyer in the store (the app
         # tells them); here the purchase history kept by RevenueCat goes away.
@@ -44,7 +43,47 @@ async def delete_account(user_id: str) -> None:
         logger.warning("revenuecat customer cleanup failed for %s: %s", user_id, err)
     try:
         await db.delete_storage_prefix(AVATAR_BUCKET, avatar_prefix(user_id))
-    except HTTPException as err:
-        # A leftover avatar is not worth keeping the account alive; log it and go on.
-        logger.warning("avatar cleanup failed for %s: %s", user_id, err.detail)
+    except Exception as err:  # noqa: BLE001 — a leftover avatar is not worth keeping the account alive
+        logger.warning("avatar cleanup failed for %s: %s", user_id, getattr(err, "detail", err))
     await db.delete_auth_user(user_id)
+
+
+def _billing_unavailable() -> HTTPException:
+    return HTTPException(
+        status_code=502,
+        detail={"code": "billing_unavailable", "message": "Não conseguimos cancelar a assinatura agora."},
+    )
+
+
+async def _stop_stripe_billing(user_id: str, customer_id: str) -> None:
+    try:
+        # The Stripe SDK blocks while it waits. In a worker thread, a slow Stripe does not stop the
+        # event loop, and with it every other request.
+        cancelled = await run_in_threadpool(stripe_service.stop_billing, customer_id)
+    except stripe_service.UnknownCustomer:
+        await _confirm_nothing_live_on_record(user_id, customer_id)
+    except Exception as err:
+        logger.warning("account deletion stopped: stripe cancel failed for %s: %s", user_id, err)
+        raise _billing_unavailable() from err
+    else:
+        logger.info("account deletion: cancelled %d stripe subscription(s) for %s", cancelled, user_id)
+
+
+async def _confirm_nothing_live_on_record(user_id: str, customer_id: str) -> None:
+    """Stripe has no such customer: the id came from another Stripe account or mode, or was deleted there.
+
+    Nothing to cancel under it, then. A wrong key in this server gives the same answer, so our own
+    record of the subscriptions must agree; if it shows a live one, or cannot be read, the account stays.
+    """
+    try:
+        rows = await db.select_many("stripe_subscriptions", {"user_id": user_id}, select="status")
+    except Exception as err:
+        logger.warning("account deletion stopped: no subscription record could be read for %s: %s", user_id, err)
+        raise _billing_unavailable() from err
+    if any(row.get("status") not in stripe_service.FINISHED for row in rows):
+        logger.error(
+            "account deletion stopped: stripe has no customer %s, and %s has a live subscription on record",
+            customer_id, user_id,
+        )
+        raise _billing_unavailable()
+    logger.warning("stripe has no customer %s for %s; nothing to cancel", customer_id, user_id)
