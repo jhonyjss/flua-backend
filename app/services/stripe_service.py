@@ -91,25 +91,18 @@ def stop_billing(customer_id: str) -> int:
     step accepts that someone already did it. `cancel_subscription` is the "cancel my plan" button:
     it looks only at `active` and answers 404 when there is none.
 
-    Raises UnknownCustomer when Stripe has no such customer.
+    Raises UnknownCustomer when Stripe has no such customer, or has it as deleted.
     """
-    _client()
-    try:
-        # An open Checkout page can still be paid after the account is gone. Closing it also ends the
-        # `incomplete` subscription that a failed first payment left behind.
-        open_pages = list(
-            stripe.checkout.Session.list(customer=customer_id, status="open", limit=100).auto_paging_iter()
-        )
-        for page in open_pages:
-            _expire_checkout(page.id)
-        # Listed after the pages are closed: one paid at the last moment is a subscription by now.
-        subscriptions = list(
-            stripe.Subscription.list(customer=customer_id, status="all", limit=100).auto_paging_iter()
-        )
-    except stripe.InvalidRequestError as err:
-        if err.code == "resource_missing" and err.param == "customer":
-            raise UnknownCustomer(customer_id) from err
-        raise
+    # The same check the checkout uses before it reuses a customer id.
+    if not customer_exists(customer_id):
+        raise UnknownCustomer(customer_id)
+    # An open Checkout page can still be paid after the account is gone. Closing it also ends the
+    # `incomplete` subscription that a failed first payment left behind.
+    open_pages = list(stripe.checkout.Session.list(customer=customer_id, status="open", limit=100).auto_paging_iter())
+    for page in open_pages:
+        _expire_checkout(page.id)
+    # Listed after the pages are closed: one paid at the last moment is a subscription by now.
+    subscriptions = list(stripe.Subscription.list(customer=customer_id, status="all", limit=100).auto_paging_iter())
     return sum(_cancel_now(sub.id) for sub in subscriptions if sub.status not in FINISHED)
 
 

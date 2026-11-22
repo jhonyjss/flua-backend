@@ -61,15 +61,7 @@ async def _stop_stripe_billing(user_id: str, customer_id: str) -> None:
         # event loop, and with it every other request.
         cancelled = await run_in_threadpool(stripe_service.stop_billing, customer_id)
     except stripe_service.UnknownCustomer:
-        # The id came from another Stripe account or mode: nothing to cancel under it. A wrong key in
-        # this server gives the same answer, so our own record of the subscriptions must agree.
-        if await _has_live_subscription_on_record(user_id):
-            logger.error(
-                "account deletion stopped: stripe has no customer %s, and %s has a live subscription on record",
-                customer_id, user_id,
-            )
-            raise _billing_unavailable() from None
-        logger.warning("stripe has no customer %s for %s; nothing to cancel", customer_id, user_id)
+        await _confirm_nothing_live_on_record(user_id, customer_id)
     except Exception as err:
         logger.warning("account deletion stopped: stripe cancel failed for %s: %s", user_id, err)
         raise _billing_unavailable() from err
@@ -77,6 +69,21 @@ async def _stop_stripe_billing(user_id: str, customer_id: str) -> None:
         logger.info("account deletion: cancelled %d stripe subscription(s) for %s", cancelled, user_id)
 
 
-async def _has_live_subscription_on_record(user_id: str) -> bool:
-    rows = await db.select_many("stripe_subscriptions", {"user_id": user_id}, select="status")
-    return any(row.get("status") not in stripe_service.FINISHED for row in rows)
+async def _confirm_nothing_live_on_record(user_id: str, customer_id: str) -> None:
+    """Stripe has no such customer: the id came from another Stripe account or mode, or was deleted there.
+
+    Nothing to cancel under it, then. A wrong key in this server gives the same answer, so our own
+    record of the subscriptions must agree; if it shows a live one, or cannot be read, the account stays.
+    """
+    try:
+        rows = await db.select_many("stripe_subscriptions", {"user_id": user_id}, select="status")
+    except Exception as err:
+        logger.warning("account deletion stopped: no subscription record could be read for %s: %s", user_id, err)
+        raise _billing_unavailable() from err
+    if any(row.get("status") not in stripe_service.FINISHED for row in rows):
+        logger.error(
+            "account deletion stopped: stripe has no customer %s, and %s has a live subscription on record",
+            customer_id, user_id,
+        )
+        raise _billing_unavailable()
+    logger.warning("stripe has no customer %s for %s; nothing to cancel", customer_id, user_id)

@@ -36,7 +36,8 @@ class FakeStripe(stripe.HTTPClient):
     Three behaviours are the stricter reading of Stripe's documentation, not checked against Stripe:
     a cancel of a finished subscription answers 404; an `incomplete` subscription that an open Checkout
     page holds cannot be cancelled, only ended by expiring the page; a cancelled `incomplete`
-    subscription becomes `incomplete_expired`.
+    subscription becomes `incomplete_expired`. What the two lists answer for a customer Stripe does not
+    have is not known either, so here they give a bare 400 that nothing can lean on.
     """
 
     name = "fake"
@@ -45,6 +46,7 @@ class FakeStripe(stripe.HTTPClient):
     def __init__(self):
         super().__init__()
         self.customer: str | None = CUSTOMER  # None: Stripe has no such customer under this key
+        self.customer_deleted = False  # deleted in Stripe: the id still answers, marked as deleted
         self.subscriptions: dict[str, str] = {"sub_1": "active"}
         self.checkouts: dict[str, str] = {}  # Checkout session → open | complete | expired
         self.held: dict[str, str] = {}  # open session → the subscription its failed first payment left
@@ -84,6 +86,10 @@ class FakeStripe(stripe.HTTPClient):
 
     def _route(self, method: str, path: str, query: dict, post_data) -> tuple[int, dict]:
         segments = path.removeprefix("/v1/").split("/")
+        if method == "GET" and segments[0] == "customers" and len(segments) == 2:
+            if segments[1] != self.customer:
+                return 404, stripe_error("resource_missing", "id", f"No such customer: '{segments[1]}'")
+            return 200, {"id": segments[1], "object": "customer", **({"deleted": True} if self.customer_deleted else {})}
         if method == "GET" and segments == ["checkout", "sessions"]:
             return self._list(self.checkouts, "checkout.session", path, query)
         if method == "GET" and segments == ["subscriptions"]:
@@ -103,8 +109,8 @@ class FakeStripe(stripe.HTTPClient):
         extra = set(query) - {"customer", "status", "limit", "starting_after"}
         if extra:
             return 400, stripe_error("parameter_unknown", min(extra), "Received unknown parameter")
-        if self.customer is None or query.get("customer") != self.customer:
-            return 400, stripe_error("resource_missing", "customer", f"No such customer: '{query.get('customer')}'")
+        if self.customer_deleted or query.get("customer") != self.customer:
+            return 400, stripe_error(None, None, "Invalid request")
         wanted = query.get("status")
         # As Stripe does: no status = all that are not cancelled; "all" = every one; else that status.
         found = [
@@ -159,6 +165,7 @@ class FakeSupabase:
         self.login = True
         self.customer: str | None = CUSTOMER
         self.recorded: list[str] = []  # the statuses in stripe_subscriptions, our copy of what Stripe told us
+        self.record = "up"  # "down": answers 500; "unreachable": the connection fails
         self.files = ["avatar_1.png"]
         self.storage = "up"  # "down": answers 500; "unreachable": the connection fails
         self.revenuecat = "up"
@@ -177,6 +184,10 @@ class FakeSupabase:
             has_row = mine and self.customer is not None
             return httpx.Response(200, json=[{"stripe_customer_id": self.customer}] if has_row else [])
         if path.endswith("/rest/v1/stripe_subscriptions"):
+            if self.record == "unreachable":
+                raise httpx.ConnectError("database unreachable", request=request)
+            if self.record == "down":
+                return httpx.Response(500, json={"message": "internal detail that must not reach the app"})
             return httpx.Response(200, json=[{"status": status} for status in self.recorded] if mine else [])
         if "/storage/v1/object/list/avatars" in path:
             self.calls.append(("list", request.content.decode()))
@@ -483,6 +494,26 @@ def test_a_customer_stripe_does_not_have_with_nothing_live_on_record_can_delete(
     supabase.recorded = recorded
     assert delete(client, auth_headers).status_code == 204
     assert supabase.login is False
+
+
+def test_a_customer_deleted_in_stripe_with_nothing_live_on_record_can_delete(client, auth_headers, supabase, stripe_account):
+    stripe_account.customer_deleted = True
+    supabase.recorded = ["canceled"]
+    assert delete(client, auth_headers).status_code == 204
+    assert supabase.login is False
+
+
+@pytest.mark.parametrize("record", ["down", "unreachable"])
+def test_a_customer_stripe_does_not_have_keeps_the_account_when_the_record_cannot_be_read(
+    client, auth_headers, supabase, stripe_account, record,
+):
+    stripe_account.customer = None
+    supabase.record = record
+    res = delete(client, auth_headers)
+    assert res.status_code == 502
+    assert res.json()["detail"] == {"code": "billing_unavailable", "message": "Não conseguimos cancelar a assinatura agora."}
+    assert supabase.calls == []
+    assert supabase.login is True
 
 
 @pytest.mark.parametrize("recorded", [["active"], ["canceled", "past_due"], ["trialing"]])
