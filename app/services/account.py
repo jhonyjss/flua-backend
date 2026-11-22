@@ -5,7 +5,12 @@ user's files in Storage → delete the Supabase Auth user. Every public table wi
 from auth.users/profiles (checked 2026-10-15), so the last step clears the progress too.
 
 A Stripe failure stops the deletion: deleting the account while the card keeps being charged is the
-one outcome worse than not deleting.
+one outcome worse than not deleting. So every subscription that can still charge is cancelled, not
+only an `active` one.
+
+The request can be repeated. The 204 may be lost on its way to the app, or a step may fail after
+Stripe was cancelled; the next request then meets steps already done. Nothing left to cancel and a
+login Supabase no longer has both count as done.
 """
 import logging
 
@@ -29,7 +34,7 @@ async def delete_account(user_id: str) -> None:
     customer_id = (customer or {}).get("stripe_customer_id")
     if customer_id:
         try:
-            stripe_service.cancel_subscription(customer_id, immediately=True)
+            stripe_service.cancel_all_subscriptions(customer_id)
         except Exception as err:
             logger.warning("account deletion stopped: stripe cancel failed for %s: %s", user_id, err)
             raise HTTPException(

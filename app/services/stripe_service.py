@@ -76,6 +76,27 @@ def cancel_subscription(customer_id: str, *, immediately: bool = False) -> bool:
     return True
 
 
+# Stripe is done with a subscription in one of these: nothing more is charged, and a cancel is refused.
+_FINISHED = frozenset({"canceled", "incomplete_expired"})
+
+
+def cancel_all_subscriptions(customer_id: str) -> int:
+    """Cancels now every subscription of the customer that can still charge; returns how many.
+
+    For account deletion, which may run again after a failure: no subscription left is not an error.
+    `cancel_subscription` is the "cancel my plan" button: it looks only at `active` and answers 404
+    when there is none, so a `past_due` or `trialing` subscription would outlive the account.
+    """
+    _client()
+    cancelled = 0
+    for sub in stripe.Subscription.list(customer=customer_id, status="all", limit=100).auto_paging_iter():
+        if sub.status in _FINISHED:
+            continue
+        stripe.Subscription.cancel(sub.id)
+        cancelled += 1
+    return cancelled
+
+
 def list_invoices(customer_id: str, limit: int = 12) -> list[dict]:
     _client()
     invoices = stripe.Invoice.list(customer=customer_id, limit=limit)
