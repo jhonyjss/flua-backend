@@ -256,7 +256,8 @@ GUIDED_CASES = [
                                                      "o_que_ouviu": "I am Ana"})],
         "steps": [{"tool_output": 'correto. Elogie em 1 frase curta. Etapa sua vez do item 1: peça em português '
                                   'para ele dizer a frase "I am Ana." trocando UMA informação (outro nome, país, '
-                                  'número ou objeto, você escolhe e diz qual), sem dizer a resposta. PARE e espere.',
+                                  'número ou objeto, você escolhe e diz qual), sem dizer a resposta. PARE e espere.'
+                                  ' Explique e comente em português do Brasil, como uma professora próxima e encorajadora; em inglês, só o inglês que o aluno aprende, sempre entre aspas: as frases da aula, a forma certa, as falas da cena e o que o aluno disse.',
                    "expect": {"reply": {"max_sentences": 4}, "rubric": [
                        "Pede em português para a aluna dizer a frase trocando uma informação e diz qual trocar.",
                        "Não diz a frase-resposta pronta em inglês com a troca feita."]}}],
@@ -267,13 +268,19 @@ GUIDED_CASES = [
                     ("call", "registrar_resultado", {"item_id": "c-my-name-is", "etapa": "sozinho",
                                                      "resultado": "parcial", "o_que_ouviu": "My name Pedro",
                                                      "forma_correta": "My name is Pedro."})],
-        # Copy of flueai-app guided-lesson-machine.ts after stage 04 (flueai-app#22): the hint is no longer forced
-        # into Portuguese, so it follows the prompt (simple English).
-        "steps": [{"tool_output": 'parcial (tentativa 1 de 2). NÃO diga a resposta: dê uma pista curta de onde está '
-                                  'o erro (a forma certa, só para você, é "My name is Pedro.") e peça para ele '
-                                  "tentar de novo.",
+        # Copy of flueai-app guided-lesson-machine.ts after PR #62 (2026-11-25): the guided lesson is taught in
+        # Portuguese, the hint quotes only the part with the error.
+        "steps": [{"tool_output": 'parcial (tentativa 1 de 2). Comece pelo que saiu bem e diga com carinho que falta um '
+                                  'detalhe. Do que você ouviu ("My name Pedro"), repita só o pedaço com o erro, em '
+                                  'inglês, com entonação de pergunta; se não tiver certeza do que ouviu, não repita e '
+                                  'peça para ele falar de novo. NÃO diga a frase inteira certa: aponte onde está o '
+                                  'erro numa pista curta, em português (a forma certa, só para você, é "My name is '
+                                  'Pedro.") e peça para ele tentar de novo.'
+                                  ' Explique e comente em português do Brasil, como uma professora próxima e encorajadora; em inglês, só o inglês que o aluno aprende, sempre entre aspas: as frases da aula, a forma certa, as falas da cena e o que o aluno disse.',
                    "expect": {"reply": {"max_sentences": 4, "lacks": ["My name is Pedro"]}, "rubric": [
-                       "Dá uma pista em inglês simples de onde está o erro (falta o is), sem dizer a frase certa.",
+                       "Começa pelo que saiu bem, sem começar com 'não'.",
+                       "Dá uma pista em português de onde está o erro (falta o is), sem dizer a frase certa.",
+                       "Repete só o trecho com erro, em inglês, no meio da fala em português.",
                        "Pede para tentar de novo."]}}],
     },
 ]
@@ -374,6 +381,7 @@ OPENING_CASES = [
             "reply": {"max_sentences": 4},
             "rubric": ["Cumprimenta a Ana pelo nome.",
                        "Ensina a frase I am Ana com a tradução.",
+                       "A abertura e o contexto são em português; em inglês só a frase-modelo.",
                        "A última coisa da fala é a frase-modelo para repetir, sem nada depois dela."],
         }}],
     },

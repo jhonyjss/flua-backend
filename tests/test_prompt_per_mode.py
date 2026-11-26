@@ -101,7 +101,10 @@ def language_section(out: str) -> str:
     return out.split("# Idioma\n")[1].split("\n# ")[0]
 
 
-@pytest.mark.parametrize(("mode", "level"), CASES, ids=[f"{m}-{lv}" for m, lv in CASES])
+ENGLISH_DEFAULT = [(m, lv) for m, lv in CASES if m != "guided_lesson"]
+
+
+@pytest.mark.parametrize(("mode", "level"), ENGLISH_DEFAULT, ids=[f"{m}-{lv}" for m, lv in ENGLISH_DEFAULT])
 def test_english_is_the_default_at_every_level_and_portuguese_comes_on_request(mode, level):
     # Spec changed (flueai docs/flua-tutor/04-professor-por-voz.md, D2): the intermediate opening no longer asks
     # which language, and the beginner no longer hears mostly Portuguese.
@@ -111,6 +114,21 @@ def test_english_is_the_default_at_every_level_and_portuguese_comes_on_request(m
     assert 'Português só quando ele pedir ("explica em português", "não entendi")' in section
     assert "prefere tudo em inglês" not in out
     assert "Iniciante: fale em português" not in out
+
+
+@pytest.mark.parametrize("level", ["beginner", "intermediate", "advanced"])
+def test_the_guided_lesson_is_taught_in_portuguese_and_english_is_what_the_learner_practises(level):
+    # Spec changed (owner, 2026-11-25, flueai-app PR #62): D2 no longer holds for the guided lesson.
+    out = prompt("guided_lesson", level)
+    section = language_section(out)
+    assert "Ensine em português do Brasil, como uma professora próxima e encorajadora" in section
+    assert "Em inglês, só o inglês que o aluno aprende, sempre entre aspas: as frases do plano e da gramática, a forma certa" in section
+    assert '"Repeat after me"' not in out
+    assert "Fale inglês americano natural em qualquer nível" not in out
+    assert "em inglês simples" not in out
+    # Flua's example lines in the flow are Portuguese, not the English voice of the other modes.
+    assert "Vamos praticar juntos — repete comigo: Good morning!" in out
+    assert "Let's practice — repeat after me" not in out
 
 
 def test_the_profile_explanation_language_no_longer_changes_the_english_prompt():
@@ -211,6 +229,8 @@ def test_a_guided_opening_with_grammar_keeps_the_grammar_class_uncapped():
     # may contradict it.
     plan = {**guided()["plan"], "grammar": GRAMMAR}
     first = opening(build_tutor_instructions_from_request(RealtimeSessionRequest(**guided(plan=plan)), None, []))
-    assert "dê a aula de gramática (veja # Gramática da aula) em até 4 frases curtas, em inglês simples" in first
+    # Spec changed (owner, 2026-11-25, flueai-app PR #62): the guided lesson opens and teaches grammar in Portuguese.
+    assert "dê a aula de gramática (veja # Gramática da aula) em até 4 frases curtas, em português" in first
     assert "no máximo" not in first
-    assert 'na mesma frase diga que hoje ele vai aprender a se apresentar (ex.: "Hi Ana, today you\'ll learn to …!")' in first
+    assert 'na mesma frase diga que hoje ele vai aprender a se apresentar (ex.: "Oi, Ana! Hoje você vai aprender a …!")' in first
+    assert "today you'll learn" not in first
