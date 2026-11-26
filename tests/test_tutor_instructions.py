@@ -159,9 +159,11 @@ def test_guided_lesson_opens_with_the_lesson_proposal_then_teaches_item_one():
     opening = _guided().split("# Como começar")[-1]
     assert "Cumprimente Jhony pelo nome" in opening
     assert "hoje ele vai aprender a se apresentar" in opening
-    # Spec changed (owner, 2026-11-25, flueai-app PR #62): the guided lesson opens in Portuguese again, with the
-    # two-sentence presentation (D2's one-sentence English opening no longer applies here).
-    assert "apresente a aula em até 2 frases: hoje ele vai aprender a se apresentar" in opening
+    # Spec changed (owner, 2026-11-25, flueai-app PR #62): the guided lesson opens in Portuguese, still in one
+    # sentence with no item count — the two-sentence presentation ran past the 4-sentence ceiling (D2).
+    assert "na mesma frase diga que hoje ele vai aprender a se apresentar" in opening
+    assert 'Oi, Jhony! Hoje você vai aprender a' in opening
+    assert "itens" not in opening
     assert "today you'll learn" not in opening
     assert "ensine o item 1 (c-i-am)" in opening
     assert MENU not in _guided()
@@ -503,7 +505,9 @@ def test_guided_feedback_sounds_like_a_teacher_not_a_grader():
     out = _guided()
     block = out.split(GUIDED_FLOW)[1]
     assert 'nunca diga "errado", "incorreto" nem comece com "não"' in block
-    assert "Vamos juntos de novo?" in block  # spec changed (owner, 2026-11-25): the guided lesson is in Portuguese
+    # Spec changed (owner, 2026-11-25): Portuguese, and the example ends on the phrase to repeat, not a question.
+    assert "Vamos juntos: Hello, Ana!" in block
+    assert "Vamos juntos de novo?" not in block
     assert "Encerramento: só o que a instrução pedir, sem pergunta." in block
     assert 'fora_do_roteiro, "tentativa 1 de 2")' in out.split("# Nunca diga")[1]
     assert "feedback curto e o próximo pedido" not in block

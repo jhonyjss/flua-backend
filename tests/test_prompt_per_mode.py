@@ -122,7 +122,8 @@ def test_the_guided_lesson_is_taught_in_portuguese_and_english_is_what_the_learn
     out = prompt("guided_lesson", level)
     section = language_section(out)
     assert "Ensine em português do Brasil, como uma professora próxima e encorajadora" in section
-    assert "Em inglês, só: as frases do plano (o modelo que o aluno repete), as falas da mini-cena" in section
+    assert "Em inglês, só o inglês que o aluno aprende, sempre entre aspas: as frases do plano e da gramática, a forma certa" in section
+    assert '"Repeat after me"' not in out
     assert "Fale inglês americano natural em qualquer nível" not in out
     assert "em inglês simples" not in out
     # Flua's example lines in the flow are Portuguese, not the English voice of the other modes.
@@ -231,5 +232,5 @@ def test_a_guided_opening_with_grammar_keeps_the_grammar_class_uncapped():
     # Spec changed (owner, 2026-11-25, flueai-app PR #62): the guided lesson opens and teaches grammar in Portuguese.
     assert "dê a aula de gramática (veja # Gramática da aula) em até 4 frases curtas, em português" in first
     assert "no máximo" not in first
-    assert "apresente a aula em até 2 frases: hoje ele vai aprender a se apresentar" in first
+    assert 'na mesma frase diga que hoje ele vai aprender a se apresentar (ex.: "Oi, Ana! Hoje você vai aprender a …!")' in first
     assert "today you'll learn" not in first

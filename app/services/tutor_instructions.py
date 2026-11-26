@@ -329,10 +329,11 @@ def _guided_lesson_block(target_label: str = "inglês") -> str:
 - Para o aluno é só uma aula: não fale de itens, etapas, ids nem ferramentas, e não use "Correct!" como marcador."""
 
 
-def _guided_greeting(name_ref: str, guided: dict, resume_from_item: int, *, english_voice: bool = False) -> str:
-    """`english_voice` (04-professor-por-voz.md, D2): Flua opens in English, so the grammar class is in simple
-    English and the presentation is one sentence — in English the 2-sentence version ran to 8 sentences before
-    the learner spoke. Spanish keeps the Portuguese opening."""
+def _guided_greeting(name_ref: str, guided: dict, resume_from_item: int, *, short: bool = False) -> str:
+    """Flua opens the guided lesson in Portuguese. `short` (the English-mode prompt): the presentation is one
+    sentence with no item count, as D2 found for English (04-professor-por-voz.md): the two-sentence version
+    plus the grammar class and item 1 ran past the 4-sentence ceiling. The Spanish and legacy prompts keep the
+    two-sentence presentation."""
     items = guided["items"]
     start = items[resume_from_item]
     teach = (
@@ -341,18 +342,17 @@ def _guided_greeting(name_ref: str, guided: dict, resume_from_item: int, *, engl
     )
     if resume_from_item > 0:
         who = f"chame {name_ref} pelo nome, " if name_ref else ""
-        resume = "Let's pick up where we left off" if english_voice else "Vamos continuar de onde paramos"
-        return f'Retome a aula: {who}diga "{resume}" e {teach}'
+        return f'Retome a aula: {who}diga "Vamos continuar de onde paramos" e {teach}'
     # A classroom, not a phrasebook: the grammar point is explained before practising it.
     grammar_class = (
         "Antes do primeiro item, dê a aula de gramática (veja # Gramática da aula) em até 4 frases curtas, "
-        f"em {'inglês simples' if english_voice else 'português'}: diga o nome do ponto, explique a regra com um exemplo das formas e avise do erro comum. "
+        "em português: diga o nome do ponto, explique a regra com um exemplo das formas e avise do erro comum. "
         "Não espere resposta nem faça pergunta nessa parte. Depois, "
         if guided.get("grammar") else "Em seguida, "
     )
     skill = _one_line(guided["skill"], 120)
-    if english_voice:
-        example = f' (ex.: "Hi {name_ref}, today you\'ll learn to …!")' if name_ref else ""
+    if short:
+        example = f' (ex.: "Oi, {name_ref}! Hoje você vai aprender a …!")' if name_ref else ""
         proposal = (f"na mesma frase diga que hoje ele vai aprender a {skill}{example}, sem se apresentar, sem notas, "
                     f"sem pedir confirmação. {grammar_class}{teach}")
     else:
@@ -439,7 +439,7 @@ _TONE_EN = """# Personalidade e tom
 - Paciente, natural e encorajadora, como uma professora de verdade.
 - Fala curta: no máximo 4 frases curtas, normalmente 2 ou 3. Uma ideia e, se perguntar, uma pergunta só; depois PARE e espere.
 - O aluno fala mais que você: explicação longa só se ele pedir.
-- Feedback específico e proporcional: acerto simples ganha reconhecimento curto e nem toda resposta pede elogio; varie os elogios (rotinas como "Repeat after me" podem se repetir).
+- Feedback específico e proporcional: acerto simples ganha reconhecimento curto e nem toda resposta pede elogio; varie os elogios (rotinas de convite podem se repetir).
 - Pediu "mais devagar": fale mais devagar e mais simples daí em diante."""
 
 # Where each level starts; the learner's demonstrated comprehension moves it (04-professor-por-voz.md, D2).
@@ -472,8 +472,8 @@ def _language_en(level: str, mode: str) -> str:
             "inclusive).",
             "- Ensine em português do Brasil, como uma professora próxima e encorajadora: a abertura, as explicações, "
             "o contexto, os elogios, as pistas e as correções.",
-            "- Em inglês, só: as frases do plano (o modelo que o aluno repete), as falas da mini-cena e o que o aluno "
-            "disse, entre aspas.",
+            "- Em inglês, só o inglês que o aluno aprende, sempre entre aspas: as frases do plano e da gramática, a "
+            "forma certa, as falas da mini-cena e o que o aluno disse.",
             f"- Fica em português {_PORTUGUESE_CONTENT_EN[mode]}: em inglês entregaria a resposta.",
         ])
     start = _LEVEL_START_EN.get(level, _LEVEL_START_EN["beginner"])
@@ -552,8 +552,9 @@ def _lesson_flow_en() -> str:
 
 
 def _guided_flow_en() -> str:
-    # Flua teaches the guided lesson in Portuguese (see _language_en): Portuguese examples, not _VOICE_EN.
-    ex = _GUIDED_EXAMPLES["inglês"]
+    # Flua teaches the guided lesson in Portuguese (see _language_en): Portuguese examples, not _VOICE_EN. The miss
+    # ends on the phrase to repeat, never on a question: a question gets a "sim" instead of the phrase.
+    ex = {**_GUIDED_EXAMPLES["inglês"], "miss": "O hello saiu ótimo, só faltou o nome. Vamos juntos: Hello, Ana!"}
     return f"""# Como a aula funciona (o roteiro é do app)
 - Cada item tem 3 etapas:
   1. ensinar: até 3 frases curtas — 1 de contexto real (ex.: "{ex['context']}"), a frase com a tradução, por travessão (ex.: "Good morning — bom dia."), e o convite com a frase de novo (ex.: "{ex['invite']}"). Sem pergunta: a frase-modelo é a última coisa da fala. PARE.
@@ -563,7 +564,7 @@ def _guided_flow_en() -> str:
 - Depois de cada fala do aluno, o app pede registrar_resultado. Avalie só a última fala, pelo que você OUVIU:
   - correto: palavras e estrutura certas. Em "sua vez", vale qualquer frase correta que cumpra o pedido, com nomes e dados diferentes dos do exemplo. Na etapa repetir, na dúvida entre correto e parcial, é correto.
 {_judging_rules(ex)}
-  - Um "sim", uma dúvida ou o português são fora_do_roteiro, não uma tentativa.
+  - Um "sim", uma dúvida ou uma resposta só em português são fora_do_roteiro, não uma tentativa.
 - A resposta de registrar_resultado é o próximo passo: faça tudo o que ela pedir, na ordem, numa única fala. Não dê pista, não corrija nem peça nova tentativa por conta própria.
 {_feedback_en(ex, "português")} Ao mostrar a forma certa, convide a fazer junto (ex.: "{ex['miss']}"); a frase para repetir é a última coisa da fala.
   - Encerramento: só o que a instrução pedir, sem pergunta.
@@ -645,8 +646,8 @@ def _build_mode_prompt_english(
             _guided_plan_block(guided),
             _guided_flow_en(),
         ]
-        # Opens in Portuguese: the guided lesson is taught in Portuguese (see _language_en).
-        greeting = _guided_greeting(name_ref, guided, resume_from_item)
+        # Opens in Portuguese, in one short sentence: the guided lesson is taught in Portuguese (see _language_en).
+        greeting = _guided_greeting(name_ref, guided, resume_from_item, short=True)
     elif mode == "free_practice":
         topic = cap_topic(topic)
         sections = [_role_en("o aluno falar inglês o máximo possível sobre o assunto que ele escolher.")]
