@@ -267,13 +267,18 @@ GUIDED_CASES = [
                     ("call", "registrar_resultado", {"item_id": "c-my-name-is", "etapa": "sozinho",
                                                      "resultado": "parcial", "o_que_ouviu": "My name Pedro",
                                                      "forma_correta": "My name is Pedro."})],
-        # Copy of flueai-app guided-lesson-machine.ts after stage 04 (flueai-app#22): the hint is no longer forced
-        # into Portuguese, so it follows the prompt (simple English).
-        "steps": [{"tool_output": 'parcial (tentativa 1 de 2). NÃO diga a resposta: dê uma pista curta de onde está '
-                                  'o erro (a forma certa, só para você, é "My name is Pedro.") e peça para ele '
-                                  "tentar de novo.",
+        # Copy of flueai-app guided-lesson-machine.ts after PR #62 (2026-11-25): the guided lesson is taught in
+        # Portuguese, the hint quotes only the part with the error.
+        "steps": [{"tool_output": 'parcial (tentativa 1 de 2). Diga com carinho que ainda não está certo. Do que você '
+                                  'ouviu ("My name Pedro"), repita só o pedaço com o erro, em inglês, com entonação '
+                                  'de pergunta; se não tiver certeza do que ouviu, não repita e peça para ele falar '
+                                  'de novo. NÃO diga a frase inteira certa: aponte onde está o erro numa pista '
+                                  'curta, em português (a forma certa, só para você, é "My name is Pedro.") e peça '
+                                  'para ele tentar de novo. Explique e comente em português do Brasil, como uma '
+                                  'professora próxima e encorajadora; em inglês, só as frases da aula, as falas da '
+                                  'cena e o que o aluno disse, entre aspas.',
                    "expect": {"reply": {"max_sentences": 4, "lacks": ["My name is Pedro"]}, "rubric": [
-                       "Dá uma pista em inglês simples de onde está o erro (falta o is), sem dizer a frase certa.",
+                       "Dá uma pista em português de onde está o erro (falta o is), sem dizer a frase certa.",
                        "Pede para tentar de novo."]}}],
     },
 ]

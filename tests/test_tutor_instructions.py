@@ -159,10 +159,10 @@ def test_guided_lesson_opens_with_the_lesson_proposal_then_teaches_item_one():
     opening = _guided().split("# Como começar")[-1]
     assert "Cumprimente Jhony pelo nome" in opening
     assert "hoje ele vai aprender a se apresentar" in opening
-    # Spec changed (flueai docs/flua-tutor/04-professor-por-voz.md, D2): opening in English, in one sentence
-    # with no item count — the two-sentence presentation ran to 8 sentences in English.
-    assert "na mesma frase diga que hoje ele vai aprender a se apresentar" in opening
-    assert "itens" not in opening
+    # Spec changed (owner, 2026-11-25, flueai-app PR #62): the guided lesson opens in Portuguese again, with the
+    # two-sentence presentation (D2's one-sentence English opening no longer applies here).
+    assert "apresente a aula em até 2 frases: hoje ele vai aprender a se apresentar" in opening
+    assert "today you'll learn" not in opening
     assert "ensine o item 1 (c-i-am)" in opening
     assert MENU not in _guided()
 
@@ -187,7 +187,7 @@ def test_guided_lesson_is_driven_by_the_tool_not_by_flua():
 
 def test_guided_lesson_resume_skips_the_opening():
     opening = _guided(resume=1).split("# Como começar")[-1]
-    assert "Let's pick up where we left off" in opening  # spec changed (04-professor-por-voz.md, D2)
+    assert 'diga "Vamos continuar de onde paramos"' in opening  # spec changed (owner, 2026-11-25): Portuguese
     assert "ensine o item 2 (c-my-name-is)" in opening
     assert "hoje ele vai aprender" not in opening
 
@@ -488,11 +488,11 @@ def test_guided_teaching_gives_real_context_and_ends_on_the_phrase_to_repeat():
     # The learner starts repeating as soon as the phrase is heard; anything after it talks over them.
     # Spec changed (flueai docs/flua-tutor/02-medir-e-enxugar.md, 2c): one prompt per mode, new wording.
     block = _guided().split(GUIDED_FLOW)[1]
-    # Spec changed (04-professor-por-voz.md, D2): Flua's own words are English; the translation is lesson content.
-    assert '1 de contexto real (ex.: "In the morning, Americans usually greet people with Good morning.")' in block
+    # Spec changed (owner, 2026-11-25, flueai-app PR #62): the guided lesson is taught in Portuguese.
+    assert '1 de contexto real (ex.: "De manhã, os americanos costumam cumprimentar com Good morning.")' in block
     # spec changed (04-professor-por-voz.md): model and translation joined by a dash count as one sentence
     assert 'a frase com a tradução, por travessão (ex.: "Good morning — bom dia.")' in block
-    assert 'o convite com a frase de novo (ex.: "Let\'s practice — repeat after me: Good morning!")' in block
+    assert 'o convite com a frase de novo (ex.: "Vamos praticar juntos — repete comigo: Good morning!")' in block
     assert "Sem pergunta: a frase-modelo é a última coisa da fala." in block
     assert "Vamos praticar juntos?" not in block
     assert "em no máximo 2 frases curtas e peça para o aluno repetir" not in block
@@ -503,7 +503,7 @@ def test_guided_feedback_sounds_like_a_teacher_not_a_grader():
     out = _guided()
     block = out.split(GUIDED_FLOW)[1]
     assert 'nunca diga "errado", "incorreto" nem comece com "não"' in block
-    assert "Let's say it together." in block  # spec changed (04-professor-por-voz.md, D2): in English
+    assert "Vamos juntos de novo?" in block  # spec changed (owner, 2026-11-25): the guided lesson is in Portuguese
     assert "Encerramento: só o que a instrução pedir, sem pergunta." in block
     assert 'fora_do_roteiro, "tentativa 1 de 2")' in out.split("# Nunca diga")[1]
     assert "feedback curto e o próximo pedido" not in block

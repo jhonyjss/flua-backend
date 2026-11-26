@@ -461,7 +461,21 @@ _PORTUGUESE_CONTENT_EN = {
 def _language_en(level: str, mode: str) -> str:
     """American English by default at every level; Portuguese on request (flueai docs/flua-tutor/
     04-professor-por-voz.md, D2). Lesson content stays in Portuguese where English would give the answer away.
-    Growing the vocabulary and explaining slang belong to the open conversation of free practice."""
+    Growing the vocabulary and explaining slang belong to the open conversation of free practice.
+
+    The guided lesson is the exception (owner's decision, 2026-11-25, flueai-app PR #62): its learners are beginners
+    in the app, and a class taught in English sounded like Flua "only speaks English" and hid the corrections. There
+    Flua teaches in Portuguese and English is what the learner practises."""
+    if mode == "guided_lesson":
+        return "# Idioma\n" + "\n".join([
+            "- Só existem inglês americano e português do Brasil: nunca outra língua, nem uma palavra solta (espanhol "
+            "inclusive).",
+            "- Ensine em português do Brasil, como uma professora próxima e encorajadora: a abertura, as explicações, "
+            "o contexto, os elogios, as pistas e as correções.",
+            "- Em inglês, só: as frases do plano (o modelo que o aluno repete), as falas da mini-cena e o que o aluno "
+            "disse, entre aspas.",
+            f"- Fica em português {_PORTUGUESE_CONTENT_EN[mode]}: em inglês entregaria a resposta.",
+        ])
     start = _LEVEL_START_EN.get(level, _LEVEL_START_EN["beginner"])
     lines = [
         "- Só existem inglês americano e português do Brasil: nunca outra língua, nem uma palavra solta (espanhol "
@@ -516,10 +530,10 @@ _VOICE_EN = {
 }
 
 
-def _feedback_en(ex: dict) -> str:
+def _feedback_en(ex: dict, hint_language: str = "inglês simples") -> str:
     """How Flua voices the step a tool answer sends back: the lesson and the guided lesson."""
     return f"""  - Acerto: elogio curto e específico, dizendo o que saiu bem (ex.: "{ex['praise']}").
-  - Erro: comece pelo que saiu bem; nunca diga "errado", "incorreto" nem comece com "não". Uma pista diz onde está o erro, em inglês simples (ou como a instrução pedir), sem dizer a frase certa; a forma certa só quando a instrução mandar."""
+  - Erro: comece pelo que saiu bem; nunca diga "errado", "incorreto" nem comece com "não". Uma pista diz onde está o erro, em {hint_language} (ou como a instrução pedir), sem dizer a frase certa; a forma certa só quando a instrução mandar."""
 
 
 def _lesson_flow_en() -> str:
@@ -538,7 +552,8 @@ def _lesson_flow_en() -> str:
 
 
 def _guided_flow_en() -> str:
-    ex = {**_GUIDED_EXAMPLES["inglês"], **_VOICE_EN}
+    # Flua teaches the guided lesson in Portuguese (see _language_en): Portuguese examples, not _VOICE_EN.
+    ex = _GUIDED_EXAMPLES["inglês"]
     return f"""# Como a aula funciona (o roteiro é do app)
 - Cada item tem 3 etapas:
   1. ensinar: até 3 frases curtas — 1 de contexto real (ex.: "{ex['context']}"), a frase com a tradução, por travessão (ex.: "Good morning — bom dia."), e o convite com a frase de novo (ex.: "{ex['invite']}"). Sem pergunta: a frase-modelo é a última coisa da fala. PARE.
@@ -550,7 +565,7 @@ def _guided_flow_en() -> str:
 {_judging_rules(ex)}
   - Um "sim", uma dúvida ou o português são fora_do_roteiro, não uma tentativa.
 - A resposta de registrar_resultado é o próximo passo: faça tudo o que ela pedir, na ordem, numa única fala. Não dê pista, não corrija nem peça nova tentativa por conta própria.
-{_feedback_en(ex)} Ao mostrar a forma certa, convide a fazer junto (ex.: "{ex['miss']}"); a frase para repetir é a última coisa da fala.
+{_feedback_en(ex, "português")} Ao mostrar a forma certa, convide a fazer junto (ex.: "{ex['miss']}"); a frase para repetir é a última coisa da fala.
   - Encerramento: só o que a instrução pedir, sem pergunta.
 - NUNCA avance de item ou de etapa por conta própria, NUNCA pule itens e NUNCA encerre a aula antes da instrução de encerramento."""
 
@@ -619,8 +634,9 @@ def _build_mode_prompt_english(
     learning_goals: list[str] | None, mode: str, topic: str, guided: dict | None, resume_from_item: int,
     review_phrases: list[dict] | None, recent_mistakes: list[dict] | None,
 ) -> str:
-    """English is the default at every level (04-professor-por-voz.md, D2): no opening language question, and
-    the profile's explanation language no longer changes this prompt."""
+    """English is the default at every level (04-professor-por-voz.md, D2), except the guided lesson, taught in
+    Portuguese (see _language_en): no opening language question, and the profile's explanation language no longer
+    changes this prompt."""
     name_ref = student_name.split()[0] if student_name.strip() else ""
     sections: list[str]
     if mode == "guided_lesson":
@@ -629,7 +645,8 @@ def _build_mode_prompt_english(
             _guided_plan_block(guided),
             _guided_flow_en(),
         ]
-        greeting = _guided_greeting(name_ref, guided, resume_from_item, english_voice=True)
+        # Opens in Portuguese: the guided lesson is taught in Portuguese (see _language_en).
+        greeting = _guided_greeting(name_ref, guided, resume_from_item)
     elif mode == "free_practice":
         topic = cap_topic(topic)
         sections = [_role_en("o aluno falar inglês o máximo possível sobre o assunto que ele escolher.")]
