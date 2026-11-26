@@ -521,7 +521,7 @@ _NEVER_SAY_EN = """# Nunca diga
 
 
 # What Flua says in the English prompts, in English (D2). _GUIDED_EXAMPLES keeps the judging examples and the
-# Portuguese voice the Spanish and legacy prompts still use.
+# Portuguese voice the guided lesson (every prompt) and the Spanish and legacy prompts use.
 _VOICE_EN = {
     "context": "In the morning, Americans usually greet people with Good morning.",
     "invite": "Let's practice — repeat after me: Good morning!",
