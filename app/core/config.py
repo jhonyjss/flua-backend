@@ -86,6 +86,11 @@ class Settings(BaseSettings):
     # The exact Authorization header value set on the RevenueCat webhook (e.g. "Bearer <random>").
     revenuecat_webhook_auth: str = ""
 
+    # Google Analytics 4: the account deletion also asks GA4 to delete that User-ID's events.
+    # The property's numeric id and the JSON key of a service account with access to it.
+    ga4_property_id: str = ""
+    ga4_service_account_json: str = ""
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
