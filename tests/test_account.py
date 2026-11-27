@@ -183,6 +183,8 @@ class FakeSupabase:
             if self.google == "unreachable":
                 raise httpx.ConnectError("google unreachable", request=request)
             if request.url.host == "oauth2.googleapis.com":
+                if self.google == "token_refused":
+                    return httpx.Response(400, json={"error": "invalid_grant", "error_description": "Invalid JWT Signature."})
                 return httpx.Response(200, json={"access_token": "ya29.test", "expires_in": 3599, "token_type": "Bearer"})
             if self.google == "down":
                 return httpx.Response(500, json={"error": {"code": 500, "message": "internal"}})
@@ -358,6 +360,7 @@ def test_the_usage_data_in_ga4_is_asked_to_be_deleted_by_user_id(client, auth_he
     assert form["grant_type"] == ["urn:ietf:params:oauth:grant-type:jwt-bearer"]
     claims = jwt.decode(form["assertion"][0], ga4_account, algorithms=["RS256"], audience="https://oauth2.googleapis.com/token")
     assert (claims["iss"], claims["scope"]) == (GA4_ACCOUNT_EMAIL, "https://www.googleapis.com/auth/analytics.edit")
+    assert 0 < claims["exp"] - claims["iat"] <= 3600  # Google refuses an assertion valid for more than an hour
     assert (deletion.method, str(deletion.url)) == (
         "POST",
         f"https://analyticsadmin.googleapis.com/v1alpha/properties/{GA4_PROPERTY}:submitUserDeletion",
@@ -367,19 +370,44 @@ def test_the_usage_data_in_ga4_is_asked_to_be_deleted_by_user_id(client, auth_he
     assert supabase.kinds()[-1] == "auth"
 
 
-@pytest.mark.parametrize("failure", ["unreachable", "down"])
+@pytest.mark.parametrize("failure", ["unreachable", "down", "token_refused"])
 def test_ga4_failing_does_not_keep_the_account(client, auth_headers, supabase, stripe_account, ga4_account, failure, caplog):
     supabase.google = failure
     with caplog.at_level("WARNING"):
         assert delete(client, auth_headers).status_code == 204
     assert supabase.login is False
-    assert any("ga4" in record.getMessage().lower() and USER in record.getMessage() for record in caplog.records)
+    failed = [r for r in caplog.records if r.levelname == "ERROR" and "ga4_deletion_failed" in r.getMessage()]
+    assert len(failed) == 1 and USER in failed[0].getMessage()
+    logged = "\n".join(r.getMessage() for r in caplog.records)
+    assert "ya29.test" not in logged and "PRIVATE KEY" not in logged
 
 
-def test_without_ga4_configured_nothing_goes_to_google(client, auth_headers, supabase, stripe_account):
-    assert delete(client, auth_headers).status_code == 204
+def test_a_broken_ga4_key_does_not_keep_the_account(client, auth_headers, supabase, stripe_account, monkeypatch, caplog):
+    from app.core.config import get_settings
+
+    monkeypatch.setenv("GA4_PROPERTY_ID", GA4_PROPERTY)
+    monkeypatch.setenv("GA4_SERVICE_ACCOUNT_JSON", '{"client_email": "x@y.iam.gserviceaccount.com", "private_key": "-----BEGIN PRI')
+    get_settings.cache_clear()
+    with caplog.at_level("WARNING"):
+        assert delete(client, auth_headers).status_code == 204
+    assert supabase.login is False
+    assert supabase.google_requests == []
+    assert any(r.levelname == "ERROR" and "ga4_deletion_failed" in r.getMessage() for r in caplog.records)
+
+
+def test_without_ga4_configured_nothing_goes_to_google_and_the_skip_is_logged(
+    client, auth_headers, supabase, stripe_account, monkeypatch, caplog
+):
+    from app.core.config import get_settings
+
+    monkeypatch.setenv("GA4_PROPERTY_ID", "")  # a local .env must not decide this test
+    monkeypatch.setenv("GA4_SERVICE_ACCOUNT_JSON", "")
+    get_settings.cache_clear()
+    with caplog.at_level("WARNING"):
+        assert delete(client, auth_headers).status_code == 204
     assert supabase.google_requests == []
     assert supabase.login is False
+    assert any(r.levelname == "WARNING" and "ga4_deletion_skipped" in r.getMessage() for r in caplog.records)
 
 
 def test_the_stripe_calls_stay_off_the_event_loop(client, auth_headers, supabase, stripe_account):

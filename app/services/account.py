@@ -13,6 +13,7 @@ The request can be repeated. The 204 may be lost on its way to the app, or a ste
 Stripe was cancelled; the next request then meets steps already done. Nothing left to cancel and a
 login Supabase no longer has both count as done.
 """
+import asyncio
 import logging
 
 from fastapi import HTTPException
@@ -24,6 +25,8 @@ from app.services import supabase_admin as db
 logger = logging.getLogger(__name__)
 
 AVATAR_BUCKET = "avatars"
+# The whole GA4 step (token + deletion): a stuck Google must not hold the 204 for long.
+GA4_DELETION_BUDGET_S = 10.0
 
 
 def avatar_prefix(user_id: str) -> str:
@@ -44,9 +47,10 @@ async def delete_account(user_id: str) -> None:
         logger.warning("revenuecat customer cleanup failed for %s: %s", user_id, err)
     try:
         # The app sends GA4 the account id as User-ID; its events go with the account.
-        await ga4.delete_user(user_id)
+        await asyncio.wait_for(ga4.delete_user(user_id), GA4_DELETION_BUDGET_S)
     except Exception as err:  # noqa: BLE001 — Google out of reach is not worth keeping the account alive
-        logger.warning("ga4 user deletion failed for %s: %s", user_id, err)
+        # Error, with a fixed marker: the privacy texts promise this deletion, so the owner resends it by hand.
+        logger.error("ga4_deletion_failed user=%s: %s", user_id, type(err).__name__ if isinstance(err, TimeoutError) else err)
     try:
         await db.delete_storage_prefix(AVATAR_BUCKET, avatar_prefix(user_id))
     except Exception as err:  # noqa: BLE001 — a leftover avatar is not worth keeping the account alive
