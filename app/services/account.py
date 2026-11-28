@@ -1,7 +1,8 @@
 """Deleting an account (DELETE /api/users/me), from the app or the web — it is one account.
 
 Order (docs/mvp-backend-plan.md, "Excluir conta"): cancel an active Stripe subscription → remove the
-user's files in Storage → delete the Supabase Auth user. Every public table with user data cascades
+RevenueCat customer and ask GA4 to delete the User-ID (both best effort) → remove the user's files in
+Storage → delete the Supabase Auth user. Every public table with user data cascades
 from auth.users/profiles (checked 2026-10-15), so the last step clears the progress too.
 
 A Stripe failure stops the deletion: deleting the account while the card keeps being charged is the
@@ -12,17 +13,20 @@ The request can be repeated. The 204 may be lost on its way to the app, or a ste
 Stripe was cancelled; the next request then meets steps already done. Nothing left to cancel and a
 login Supabase no longer has both count as done.
 """
+import asyncio
 import logging
 
 from fastapi import HTTPException
 from fastapi.concurrency import run_in_threadpool
 
-from app.services import revenuecat, stripe_service
+from app.services import ga4, revenuecat, stripe_service
 from app.services import supabase_admin as db
 
 logger = logging.getLogger(__name__)
 
 AVATAR_BUCKET = "avatars"
+# The whole GA4 step (token + deletion): a stuck Google must not hold the 204 for long.
+GA4_DELETION_BUDGET_S = 10.0
 
 
 def avatar_prefix(user_id: str) -> str:
@@ -41,6 +45,12 @@ async def delete_account(user_id: str) -> None:
         await revenuecat.delete_customer(user_id)
     except Exception as err:  # noqa: BLE001 — not worth keeping the account alive
         logger.warning("revenuecat customer cleanup failed for %s: %s", user_id, err)
+    try:
+        # The app sends GA4 the account id as User-ID; its events go with the account.
+        await asyncio.wait_for(ga4.delete_user(user_id), GA4_DELETION_BUDGET_S)
+    except Exception as err:  # noqa: BLE001 — Google out of reach is not worth keeping the account alive
+        # Error, with a fixed marker: the privacy texts promise this deletion, so the owner resends it by hand.
+        logger.error("ga4_deletion_failed user=%s: %s", user_id, type(err).__name__ if isinstance(err, TimeoutError) else err)
     try:
         await db.delete_storage_prefix(AVATAR_BUCKET, avatar_prefix(user_id))
     except Exception as err:  # noqa: BLE001 — a leftover avatar is not worth keeping the account alive

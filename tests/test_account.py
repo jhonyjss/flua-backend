@@ -169,12 +169,26 @@ class FakeSupabase:
         self.files = ["avatar_1.png"]
         self.storage = "up"  # "down": answers 500; "unreachable": the connection fails
         self.revenuecat = "up"
+        self.google = "up"  # "unreachable": the connection fails; "down": the deletion answers 500
+        self.google_requests: list[httpx.Request] = []
         self.auth_answers: list[httpx.Response] = []  # answers that come before the real one
         self.calls: list[tuple[str, str]] = []
 
     def __call__(self, request: httpx.Request) -> httpx.Response:
         path = request.url.path
         mine = self.login and request.url.params.get("user_id") == f"eq.{USER}"
+        if request.url.host in ("oauth2.googleapis.com", "analyticsadmin.googleapis.com"):
+            self.google_requests.append(request)
+            self.calls.append(("google", f"{request.method} {request.url.host}{path}"))
+            if self.google == "unreachable":
+                raise httpx.ConnectError("google unreachable", request=request)
+            if request.url.host == "oauth2.googleapis.com":
+                if self.google == "token_refused":
+                    return httpx.Response(400, json={"error": "invalid_grant", "error_description": "Invalid JWT Signature."})
+                return httpx.Response(200, json={"access_token": "ya29.test", "expires_in": 3599, "token_type": "Bearer"})
+            if self.google == "down":
+                return httpx.Response(500, json={"error": {"code": 500, "message": "internal"}})
+            return httpx.Response(200, json={"deletionRequestTime": "2026-11-27T12:00:00Z"})
         if "api.revenuecat.com" in str(request.url):
             self.calls.append(("revenuecat", f"{request.method} {path}"))
             if self.revenuecat == "unreachable":
@@ -237,6 +251,34 @@ def revenuecat_key(monkeypatch):
 
     monkeypatch.setenv("REVENUECAT_SECRET_KEY", "sk_rc_test")
     get_settings.cache_clear()
+
+
+GA4_PROPERTY = "123456789"
+GA4_ACCOUNT_EMAIL = "ga4-deletion@flueai-test.iam.gserviceaccount.com"
+
+
+@pytest.fixture()
+def ga4_account(monkeypatch):
+    """A service account with access to the GA4 property; returns its public key, to check the signature."""
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import rsa
+
+    from app.core.config import get_settings
+
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    pem = key.private_bytes(
+        serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()
+    ).decode()
+    account = {
+        "type": "service_account",
+        "client_email": GA4_ACCOUNT_EMAIL,
+        "private_key": pem,
+        "token_uri": "https://oauth2.googleapis.com/token",
+    }
+    monkeypatch.setenv("GA4_PROPERTY_ID", GA4_PROPERTY)
+    monkeypatch.setenv("GA4_SERVICE_ACCOUNT_JSON", json.dumps(account))
+    get_settings.cache_clear()
+    return key.public_key()
 
 
 def delete(client, auth_headers) -> httpx.Response:
@@ -306,6 +348,66 @@ def test_revenuecat_out_of_reach_does_not_keep_the_account(client, auth_headers,
     supabase.revenuecat = "unreachable"
     assert delete(client, auth_headers).status_code == 204
     assert supabase.login is False
+
+
+def test_the_usage_data_in_ga4_is_asked_to_be_deleted_by_user_id(client, auth_headers, supabase, stripe_account, ga4_account):
+    import jwt
+
+    assert delete(client, auth_headers).status_code == 204
+    token_request, deletion = supabase.google_requests
+    assert (token_request.method, str(token_request.url)) == ("POST", "https://oauth2.googleapis.com/token")
+    form = parse_qs(token_request.content.decode())
+    assert form["grant_type"] == ["urn:ietf:params:oauth:grant-type:jwt-bearer"]
+    claims = jwt.decode(form["assertion"][0], ga4_account, algorithms=["RS256"], audience="https://oauth2.googleapis.com/token")
+    assert (claims["iss"], claims["scope"]) == (GA4_ACCOUNT_EMAIL, "https://www.googleapis.com/auth/analytics.edit")
+    assert 0 < claims["exp"] - claims["iat"] <= 3600  # Google refuses an assertion valid for more than an hour
+    assert (deletion.method, str(deletion.url)) == (
+        "POST",
+        f"https://analyticsadmin.googleapis.com/v1alpha/properties/{GA4_PROPERTY}:submitUserDeletion",
+    )
+    assert deletion.headers["Authorization"] == "Bearer ya29.test"
+    assert json.loads(deletion.content) == {"userId": USER}
+    assert supabase.kinds()[-1] == "auth"
+
+
+@pytest.mark.parametrize("failure", ["unreachable", "down", "token_refused"])
+def test_ga4_failing_does_not_keep_the_account(client, auth_headers, supabase, stripe_account, ga4_account, failure, caplog):
+    supabase.google = failure
+    with caplog.at_level("WARNING"):
+        assert delete(client, auth_headers).status_code == 204
+    assert supabase.login is False
+    failed = [r for r in caplog.records if r.levelname == "ERROR" and "ga4_deletion_failed" in r.getMessage()]
+    assert len(failed) == 1 and USER in failed[0].getMessage()
+    logged = "\n".join(r.getMessage() for r in caplog.records)
+    assert "ya29.test" not in logged and "PRIVATE KEY" not in logged
+
+
+def test_a_broken_ga4_key_does_not_keep_the_account(client, auth_headers, supabase, stripe_account, monkeypatch, caplog):
+    from app.core.config import get_settings
+
+    monkeypatch.setenv("GA4_PROPERTY_ID", GA4_PROPERTY)
+    monkeypatch.setenv("GA4_SERVICE_ACCOUNT_JSON", '{"client_email": "x@y.iam.gserviceaccount.com", "private_key": "-----BEGIN PRI')
+    get_settings.cache_clear()
+    with caplog.at_level("WARNING"):
+        assert delete(client, auth_headers).status_code == 204
+    assert supabase.login is False
+    assert supabase.google_requests == []
+    assert any(r.levelname == "ERROR" and "ga4_deletion_failed" in r.getMessage() for r in caplog.records)
+
+
+def test_without_ga4_configured_nothing_goes_to_google_and_the_skip_is_logged(
+    client, auth_headers, supabase, stripe_account, monkeypatch, caplog
+):
+    from app.core.config import get_settings
+
+    monkeypatch.setenv("GA4_PROPERTY_ID", "")  # a local .env must not decide this test
+    monkeypatch.setenv("GA4_SERVICE_ACCOUNT_JSON", "")
+    get_settings.cache_clear()
+    with caplog.at_level("WARNING"):
+        assert delete(client, auth_headers).status_code == 204
+    assert supabase.google_requests == []
+    assert supabase.login is False
+    assert any(r.levelname == "WARNING" and "ga4_deletion_skipped" in r.getMessage() for r in caplog.records)
 
 
 def test_the_stripe_calls_stay_off_the_event_loop(client, auth_headers, supabase, stripe_account):
